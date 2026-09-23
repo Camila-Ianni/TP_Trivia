@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="6dp">
+
+    <FrameLayout
+        android:id="@+id/avatarContainer"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="@drawable/bg_avatar_selected"
+        android:padding="4dp">
+
+        <ImageView
+            android:id="@+id/ivAvatarIcon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:contentDescription="Avatar"
+            android:scaleType="fitCenter" />
+
+        <ImageView
+            android:id="@+id/ivSelectedCheck"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="top|end"
+            android:src="@drawable/ic_check_circle"
+            android:visibility="gone"
+            android:contentDescription="Selected" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvAvatarName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:gravity="center" />
+
+</LinearLayout>

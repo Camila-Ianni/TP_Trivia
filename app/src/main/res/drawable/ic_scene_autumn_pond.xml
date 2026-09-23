@@ -1,0 +1,57 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="135dp"
+    android:height="68dp"
+    android:viewportWidth="135"
+    android:viewportHeight="68">
+
+    <path
+        android:fillColor="#D7A15C"
+        android:pathData="M 0,0 H 98 C 118,0 135,15 135,34 C 135,53 118,68 98,68 H 0 Z" />
+
+    <path
+        android:fillColor="#3E8E9E"
+        android:pathData="M 0,5 H 96 C 112,5 127,18 127,34 C 127,50 112,63 96,63 H 0 Z" />
+
+    <path
+        android:strokeColor="#80CBC4"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M 12,20 H 28 M 10,48 H 24 M 65,54 H 80" />
+
+    <path
+        android:fillColor="#78909C"
+        android:pathData="M 100,16 A 5,3.5 0 1,0 100,9 A 5,3.5 0 1,0 100,16 Z" />
+    <path
+        android:fillColor="#90A4AE"
+        android:pathData="M 108,22 A 4,3 0 1,0 108,16 A 4,3 0 1,0 108,22 Z" />
+
+    <path
+        android:strokeColor="#558B2F"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M 112,32 Q 115,20 118,12 M 118,34 Q 120,24 124,16" />
+
+    <path
+        android:fillColor="#4E342E"
+        android:pathData="M 116,16 C 116,13 120,13 120,16 V 23 C 120,25 116,25 116,23 Z M 122,18 C 122,15 126,15 126,18 V 25 C 126,27 122,27 122,25 Z" />
+
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M 64,30 L 67,36 L 73,33 L 71,40 L 76,41 L 69,45 L 71,50 L 65,47 L 62,54 L 61,47 L 55,49 L 58,43 L 52,42 L 57,38 L 55,33 L 61,36 Z" />
+    <path
+        android:strokeColor="#B71C1C"
+        android:strokeWidth="0.8"
+        android:pathData="M 63,32 L 63,52" />
+
+    <path
+        android:fillColor="#FFA000"
+        android:pathData="M 38,26 C 32,22 36,36 44,38 C 48,30 42,22 38,26 Z" />
+    <path
+        android:strokeColor="#FF6F00"
+        android:strokeWidth="0.8"
+        android:pathData="M 36,24 L 44,38" />
+
+    <path
+        android:fillColor="#FF7043"
+        android:pathData="M 85,38 C 79,35 83,46 90,48 C 94,42 89,35 85,38 Z" />
+</vector>

@@ -1,0 +1,67 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <path
+        android:fillColor="#FF7A90"
+        android:pathData="M 12,14 C 8,7 10,2 16,5 C 15,9 14,12 12,14 Z" />
+    <path
+        android:fillColor="#FFA5B5"
+        android:pathData="M 13,13 C 10,8 11,4 15,6 C 14,9 13,11 13,13 Z" />
+
+    <path
+        android:fillColor="#FF7A90"
+        android:pathData="M 36,14 C 40,7 38,2 32,5 C 33,9 34,12 36,14 Z" />
+    <path
+        android:fillColor="#FFA5B5"
+        android:pathData="M 35,13 C 38,8 37,4 33,6 C 34,9 35,11 35,13 Z" />
+
+    <path
+        android:fillColor="#FFB338"
+        android:pathData="M 9,44 C 6,24 12,8 24,8 C 36,8 42,24 39,44 Z" />
+
+    <path
+        android:fillColor="#FFA01C"
+        android:pathData="M 23,8 C 21,4 24,3 24,7 Z" />
+    <path
+        android:fillColor="#FFA01C"
+        android:pathData="M 24,8 C 25,4 28,5 26,8 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 18,22 A 4.5,4.5 0 1 1 18,21.9 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 30,22 A 4.5,4.5 0 1 1 30,21.9 Z" />
+
+    <path
+        android:fillColor="#241E33"
+        android:pathData="M 19,22.5 A 2.6,2.6 0 1 1 19,22.4 Z" />
+    <path
+        android:fillColor="#241E33"
+        android:pathData="M 29,22.5 A 2.6,2.6 0 1 1 29,22.4 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 18.2,21.2 A 1.2,1.2 0 1 1 18.2,21.1 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 28.2,21.2 A 1.2,1.2 0 1 1 28.2,21.1 Z" />
+
+    <path
+        android:fillColor="#FF7A90"
+        android:pathData="M 13,26 A 2,1.4 0 1 1 13,25.9 Z" />
+    <path
+        android:fillColor="#FF7A90"
+        android:pathData="M 35,26 A 2,1.4 0 1 1 35,25.9 Z" />
+
+    <path
+        android:fillColor="#8A2534"
+        android:pathData="M 21,29 Q 24,34 27,29 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 23,29 Q 24,31 25,29 Z" />
+</vector>
