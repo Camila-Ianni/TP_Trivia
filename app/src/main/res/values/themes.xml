@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Base.Theme.TriviaMaster" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="colorPrimary">@color/primary</item>
+<<<<<<< HEAD
+        <item name="colorPrimaryVariant">@color/primary_variant</item>
+        <item name="colorOnPrimary">@color/text_white</item>
+=======
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+>>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+        
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="android:statusBarColor">@color/bg_app</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <item name="android:fontFamily">@font/pixelify_sans_family</item>
+        <item name="fontFamily">@font/pixelify_sans_family</item>
+        <item name="android:textViewStyle">@style/Widget.TriviaMaster.TextView</item>
+        <item name="android:buttonStyle">@style/Widget.TriviaMaster.Button</item>
+        <item name="android:editTextStyle">@style/Widget.TriviaMaster.EditText</item>
+    </style>
+
+    <style name="Theme.TriviaMaster" parent="Base.Theme.TriviaMaster">
+        <item name="android:fontFamily">@font/pixelify_sans_family</item>
+        <item name="fontFamily">@font/pixelify_sans_family</item>
+    </style>
+
+    <style name="Widget.TriviaMaster.TextView" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/pixelify_sans_family</item>
+        <item name="fontFamily">@font/pixelify_sans_family</item>
+    </style>
+
+    <style name="Widget.TriviaMaster.Button" parent="android:Widget.Button">
+        <item name="android:fontFamily">@font/pixelify_sans_family</item>
+        <item name="fontFamily">@font/pixelify_sans_family</item>
+    </style>
+
+    <style name="Widget.TriviaMaster.EditText" parent="android:Widget.EditText">
+        <item name="android:fontFamily">@font/pixelify_sans_family</item>
+        <item name="fontFamily">@font/pixelify_sans_family</item>
+    </style>
+</resources>

@@ -1,0 +1,109 @@
+<resources>
+    <string name="app_name">MindClash</string>
+
+    <string name="welcome_title">Trivia Quiz</string>
+<<<<<<< HEAD
+=======
+    <string name="default_player_name">Jugador</string>
+    <string name="player_name_required">¡Por favor, ingresa tu nombre para comenzar!</string>
+>>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+    <string name="welcome_badge">¡MODO AVENTURA!</string>
+    <string name="welcome_banner_headline">¡Comienza tu Aventura!</string>
+    <string name="welcome_banner_sub">Explora mundos mágicos, supera los niveles y desafía tu inteligencia.</string>
+    <string name="player_profile_label">Perfil de Aventurero</string>
+    <string name="hint_username">Ingresa tu nombre o apodo</string>
+    <string name="choose_avatar_label">Elige a tu Compañero</string>
+    <string name="btn_start_adventure">¡ENTRAR AL MAPA!</string>
+    <string name="btn_view_ranking">Ver Récords y Reglas</string>
+    <string name="error_empty_name">¡Ingresa tu nombre para comenzar la aventura!</string>
+
+    <string name="map_greeting_format">¡Hola, %1$s!</string>
+    <string name="floor_1_title">PISO 1\nPrimavera</string>
+    <string name="floor_2_title">PISO 2\nVerano</string>
+    <string name="floor_3_title">PISO 3\nOtoño</string>
+    <string name="floor_4_title">PISO 4\nInvierno</string>
+    <string name="quick_play_title">Desafío Rápido</string>
+    <string name="quick_play_subtitle">10 preguntas aleatorias mixtas</string>
+    <string name="gift_opened_title">¡Regalo Sorpresa Desbloqueado!</string>
+    <string name="gift_opened_message">¡Has recibido +1 Vida extra y 100 puntos de bonificación mágica!</string>
+
+    <string name="dialog_level_locked_title">Nivel Bloqueado</string>
+    <string name="dialog_level_locked_desc">Supera el nivel anterior para desbloquear este mundo de trivia.</string>
+    <string name="dialog_level_play_btn">¡JUGAR NIVEL!</string>
+    <string name="dialog_level_stars_format">%1$d / 3 Estrellas</string>
+
+    <string name="score_format">Puntos: %1$d</string>
+    <string name="streak_format">Racha x%1$d</string>
+    <string name="question_progress_format">Pregunta %1$d de %2$d</string>
+    <string name="timer_seconds_format">%1$ds</string>
+    <string name="dialog_exit_title">¿Deseas retirarte?</string>
+    <string name="dialog_exit_message">Si sales ahora perderás tu progreso actual en la arena.</string>
+    <string name="dialog_exit_confirm">Abandonar</string>
+    <string name="dialog_exit_cancel">Seguir jugando</string>
+
+    <string name="result_title">¡NIVEL COMPLETADO!</string>
+    <string name="result_gameover_title">¡FIN DE LA PARTIDA!</string>
+    <string name="result_score_label">Puntaje Final</string>
+    <string name="result_max_streak_label">Mayor Racha</string>
+    <string name="result_accuracy_label">Aciertos</string>
+    <string name="result_lives_left_label">Vidas Restantes</string>
+    <string name="new_record_tag">¡NUEVO RÉCORD HISTÓRICO!</string>
+    <string name="btn_next_level">Siguiente Nivel</string>
+    <string name="btn_play_again">Jugar de Nuevo</string>
+    <string name="btn_back_map">Volver al Mapa</string>
+    <string name="btn_change_player">Cambiar Jugador</string>
+    <string name="btn_go_ranking">Ver Récords</string>
+
+    <string name="ranking_title">Salón de la Fama</string>
+    <string name="ranking_empty">Aún no hay récords registrados. ¡Sé el primero en jugar!</string>
+<<<<<<< HEAD
+=======
+    <string name="ranking_points_format">%1$s puntos</string>
+    <string name="ranking_details_format">Racha: %1$d • %2$s</string>
+>>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+    <string name="rules_title">Reglas del Juego</string>
+    <string name="rules_content">• Comienzas con 3 vidas.\n• Cada respuesta correcta otorga 100 puntos base.\n• Responder rápido otorga bonus de tiempo (hasta +50 pts).\n• Acertar 2 o más consecutivas activa el multiplicador de racha.\n• En el Mapa de Niveles, acierta al menos el 60% de preguntas para ganar estrellas y desbloquear el siguiente mundo.\n• ¡Si pierdes todas tus vidas o fallas, reintenta el nivel para dominarlo!</string>
+    <string name="btn_back">Volver</string>
+
+    <string name="msg_perfect">¡Sos una Leyenda de la Trivia, %1$s! ¡Puntuación y estrellas perfectas!</string>
+    <string name="msg_great">¡Excelente trabajo, %1$s! Tu conocimiento es admirable.</string>
+    <string name="msg_good">¡Bien jugado, %1$s! Has desbloqueado el siguiente desafío.</string>
+    <string name="msg_low">¡No te rindas, %1$s! La práctica hace al maestro. ¡Inténtalo otra vez!</string>
+
+    <string name="gift_claimed_title">¡Cofre de %1$s!</string>
+    <string name="gift_claimed_desc">¡Felicidades, %1$s! Abriste tu cofre misterioso y has recibido tus recompensas:</string>
+    <string name="gift_none_available">No tienes cofres disponibles por ahora. ¡Supera nuevos niveles en el mapa para ganar más cofres sorpresa!</string>
+    <string name="castle_locked_msg">¡Supera los 16 niveles del mapa para conquistar el Gran Castillo Final!</string>
+    <string name="level_dialog_header">NIVEL %1$d • %2$s</string>
+    <string name="level_dialog_desc_format">¡A jugar, %1$s! %2$s</string>
+    <string name="level_dialog_stats_format">%1$d Preguntas Ilustradas • +%2$d Pts</string>
+    <string name="level_dialog_locked_req">Completa el Nivel %1$d para desbloquear este nivel.</string>
+    <string name="level_dialog_btn_locked">ENTENDIDO</string>
+    <string name="medal_castle_conquered">¡CASTILLO CONQUISTADO!</string>
+    <string name="medal_castle_title">¡Amo y Señor del Castillo!</string>
+    <string name="medal_castle_desc">¡Felicidades, %1$s! Has completado con éxito los 16 niveles del mapa y conquistado el Castillo de la Sabiduría. Posees la Medalla de Oro Suprema de TriviaMaster.</string>
+    <string name="medal_castle_btn">¡GLORIOSO!</string>
+    <string name="header_stars_format">%1$d/48</string>
+    <string name="header_lives_format">%1$d/12</string>
+    <string name="profile_stars_format">%1$d</string>
+    <string name="profile_score_format">%1$d pts</string>
+    <string name="profile_level_format">Nivel %1$d</string>
+    <string name="profile_title_lord">Amo y Señor del Castillo</string>
+    <string name="profile_title_master">Maestro de Sabiduría</string>
+    <string name="profile_title_initiate">Iniciado de Trivia</string>
+    <string name="profile_title_adventurer">Aventurero: %1$s</string>
+    <string name="medal_status_unlocked">¡Conseguida!</string>
+    <string name="medal_status_locked">Bloqueada</string>
+    <string name="medal_badge_unlocked">MEDALLA DESBLOQUEADA</string>
+    <string name="medal_badge_locked">MEDALLA BLOQUEADA</string>
+    <string name="medal_detail_unlocked_text">Estado: ¡Desbloqueada y Activa!</string>
+    <string name="medal_detail_locked_text">Estado: Bloqueada (Sigue jugando para ganarla)</string>
+    <string name="medal_1_title">Iniciado de Trivia</string>
+    <string name="medal_1_desc">Condecoración por superar los primeros 5 niveles del camino de sabiduría.</string>
+    <string name="medal_2_title">Maestro de Sabiduría</string>
+    <string name="medal_2_desc">Condecoración por superar los primeros 10 niveles del mapa.</string>
+    <string name="medal_3_title">Conquistador del Castillo</string>
+    <string name="medal_3_desc">¡La gloria suprema! Otorgada por completar los 16 niveles y derrotar el Gran Castillo Final.</string>
+    <string name="profile_name_required">¡Por favor, ingresa un nombre!</string>
+    <string name="profile_updated_success">¡Perfil de %1$s actualizado con éxito!</string>
+</resources>
