@@ -90,6 +90,7 @@ public final class ProfileActivity extends AppCompatActivity {
     private Button btnDeleteAccount;
     private SwitchCompat switchSound;
     private SwitchCompat switchVibration;
+    private com.example.triviamaster.utils.RetroFeedbackManager feedbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +99,7 @@ public final class ProfileActivity extends AppCompatActivity {
         prefsManager = new PreferencesManager(this);
         userRepository = new UserRepository(this);
         historyRepository = new MatchHistoryRepository(this);
+        feedbackManager = new com.example.triviamaster.utils.RetroFeedbackManager(this);
         initViews();
         setupStats();
         setupAvatarList();
@@ -496,11 +498,19 @@ public final class ProfileActivity extends AppCompatActivity {
         btnOpenShop.setOnClickListener(v ->
                 startActivity(new Intent(ProfileActivity.this, ShopActivity.class)));
 
-        switchSound.setOnCheckedChangeListener((buttonView, isChecked) ->
-                prefsManager.setSoundEnabled(isChecked));
+        switchSound.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefsManager.setSoundEnabled(isChecked);
+            if (isChecked && feedbackManager != null) {
+                feedbackManager.playPowerup();
+            }
+        });
 
-        switchVibration.setOnCheckedChangeListener((buttonView, isChecked) ->
-                prefsManager.setVibrationEnabled(isChecked));
+        switchVibration.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefsManager.setVibrationEnabled(isChecked);
+            if (isChecked && feedbackManager != null) {
+                feedbackManager.vibrateTest();
+            }
+        });
 
         btnLogout.setOnClickListener(v -> logoutToLogin());
 
@@ -670,5 +680,13 @@ public final class ProfileActivity extends AppCompatActivity {
         int visibility = isAdmin ? View.VISIBLE : View.GONE;
         btnManageUsers.setVisibility(visibility);
         btnManageQuestions.setVisibility(visibility);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (feedbackManager != null) {
+            feedbackManager.release();
+        }
+        super.onDestroy();
     }
 }
