@@ -21,8 +21,8 @@
 
         <ImageView
             android:id="@+id/ivNavMap"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:src="@drawable/ic_nav_discovery"
             app:tint="#A09BB0"
             android:contentDescription="@string/nav_desc_map" />
@@ -40,8 +40,8 @@
 
         <ImageView
             android:id="@+id/ivNavLeaderboard"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:src="@drawable/ic_nav_trophy"
             app:tint="#A09BB0"
             android:contentDescription="@string/nav_desc_ranking" />
@@ -59,49 +59,11 @@
 
         <ImageView
             android:id="@+id/ivNavSocial"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:src="@drawable/ic_nav_duel"
             app:tint="#A09BB0"
             android:contentDescription="@string/nav_desc_social" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/btnNavQuests"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground">
-
-        <ImageView
-            android:id="@+id/ivNavQuests"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
-            android:src="@drawable/ic_nav_checklist"
-            app:tint="#A09BB0"
-            android:contentDescription="@string/quests_title" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/btnNavQuestions"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground">
-
-        <ImageView
-            android:id="@+id/ivNavQuestions"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
-            android:src="@drawable/ic_nav_book"
-            app:tint="#A09BB0"
-            android:contentDescription="@string/nav_desc_questions" />
     </LinearLayout>
 
     <LinearLayout
@@ -116,8 +78,8 @@
 
         <ImageView
             android:id="@+id/ivNavProfile"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:src="@drawable/ic_nav_profile"
             app:tint="#A09BB0"
             android:contentDescription="@string/nav_desc_profile" />

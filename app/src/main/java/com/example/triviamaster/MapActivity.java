@@ -117,7 +117,6 @@ public final class MapActivity extends AppCompatActivity {
                 prefsManager.syncFromUser(user);
                 extractIntentData();
                 updateHeaderStats();
-                updateAdminNavVisibility();
                 renderRoadmap();
                 checkDailyReward(user);
             }
@@ -771,14 +770,10 @@ public final class MapActivity extends AppCompatActivity {
         ImageView ivNavMap = findViewById(R.id.ivNavMap);
         ImageView ivNavLeaderboard = findViewById(R.id.ivNavLeaderboard);
         ImageView ivNavSocial = findViewById(R.id.ivNavSocial);
-        ImageView ivNavQuests = findViewById(R.id.ivNavQuests);
-        ImageView ivNavQuestions = findViewById(R.id.ivNavQuestions);
         ImageView ivNavProfile = findViewById(R.id.ivNavProfile);
         View btnNavMap = findViewById(R.id.btnNavMap);
         View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
         View btnNavSocial = findViewById(R.id.btnNavSocial);
-        View btnNavQuests = findViewById(R.id.btnNavQuests);
-        View btnNavQuestions = findViewById(R.id.btnNavQuestions);
         View btnNavProfile = findViewById(R.id.btnNavProfile);
 
         int inactiveColor = ContextCompat.getColor(this, R.color.text_muted);
@@ -790,12 +785,6 @@ public final class MapActivity extends AppCompatActivity {
         }
         if (ivNavSocial != null) {
             ivNavSocial.setColorFilter(inactiveColor);
-        }
-        if (ivNavQuests != null) {
-            ivNavQuests.setColorFilter(inactiveColor);
-        }
-        if (ivNavQuestions != null) {
-            ivNavQuestions.setColorFilter(inactiveColor);
         }
         if (ivNavProfile != null) {
             ivNavProfile.setColorFilter(inactiveColor);
@@ -810,22 +799,8 @@ public final class MapActivity extends AppCompatActivity {
         if (btnNavSocial != null) {
             btnNavSocial.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, SocialActivity.class)));
         }
-        if (btnNavQuests != null) {
-            btnNavQuests.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, QuestsActivity.class)));
-        }
-        if (btnNavQuestions != null) {
-            btnNavQuestions.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, QuestionManagerActivity.class)));
-        }
         if (btnNavProfile != null) {
             btnNavProfile.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, ProfileActivity.class)));
-        }
-        updateAdminNavVisibility();
-    }
-
-    private void updateAdminNavVisibility() {
-        View btnNavQuestions = findViewById(R.id.btnNavQuestions);
-        if (btnNavQuestions != null) {
-            btnNavQuestions.setVisibility(prefsManager.isCurrentUserAdmin() ? View.VISIBLE : View.GONE);
         }
     }
 

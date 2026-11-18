@@ -224,21 +224,15 @@ public final class RankingActivity extends AppCompatActivity {
         ImageView ivNavMap = findViewById(R.id.ivNavMap);
         ImageView ivNavLeaderboard = findViewById(R.id.ivNavLeaderboard);
         ImageView ivNavSocial = findViewById(R.id.ivNavSocial);
-        ImageView ivNavQuests = findViewById(R.id.ivNavQuests);
-        ImageView ivNavQuestions = findViewById(R.id.ivNavQuestions);
         ImageView ivNavProfile = findViewById(R.id.ivNavProfile);
         View btnNavMap = findViewById(R.id.btnNavMap);
         View btnNavSocial = findViewById(R.id.btnNavSocial);
-        View btnNavQuests = findViewById(R.id.btnNavQuests);
-        View btnNavQuestions = findViewById(R.id.btnNavQuestions);
         View btnNavProfile = findViewById(R.id.btnNavProfile);
 
         int inactiveColor = ContextCompat.getColor(this, R.color.text_muted);
         if (ivNavMap != null) ivNavMap.setColorFilter(inactiveColor);
         if (ivNavLeaderboard != null) ivNavLeaderboard.setColorFilter(ContextCompat.getColor(this, R.color.ref_btn_coral));
         if (ivNavSocial != null) ivNavSocial.setColorFilter(inactiveColor);
-        if (ivNavQuests != null) ivNavQuests.setColorFilter(inactiveColor);
-        if (ivNavQuestions != null) ivNavQuestions.setColorFilter(inactiveColor);
         if (ivNavProfile != null) ivNavProfile.setColorFilter(inactiveColor);
 
         boolean hasSession = prefsManager.getCurrentUserId() > 0;
@@ -261,19 +255,6 @@ public final class RankingActivity extends AppCompatActivity {
         if (btnNavSocial != null) {
             btnNavSocial.setOnClickListener(v -> {
                 startActivity(new Intent(RankingActivity.this, SocialActivity.class));
-                finish();
-            });
-        }
-        if (btnNavQuests != null) {
-            btnNavQuests.setOnClickListener(v -> {
-                startActivity(new Intent(RankingActivity.this, QuestsActivity.class));
-                finish();
-            });
-        }
-        if (btnNavQuestions != null) {
-            btnNavQuestions.setVisibility(prefsManager.isCurrentUserAdmin() ? View.VISIBLE : View.GONE);
-            btnNavQuestions.setOnClickListener(v -> {
-                startActivity(new Intent(RankingActivity.this, QuestionManagerActivity.class));
                 finish();
             });
         }

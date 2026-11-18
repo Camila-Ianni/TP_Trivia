@@ -342,21 +342,15 @@ public final class SocialActivity extends AppCompatActivity {
         ImageView ivNavMap = findViewById(R.id.ivNavMap);
         ImageView ivNavLeaderboard = findViewById(R.id.ivNavLeaderboard);
         ImageView ivNavSocial = findViewById(R.id.ivNavSocial);
-        ImageView ivNavQuests = findViewById(R.id.ivNavQuests);
-        ImageView ivNavQuestions = findViewById(R.id.ivNavQuestions);
         ImageView ivNavProfile = findViewById(R.id.ivNavProfile);
         View btnNavMap = findViewById(R.id.btnNavMap);
         View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
-        View btnNavQuests = findViewById(R.id.btnNavQuests);
-        View btnNavQuestions = findViewById(R.id.btnNavQuestions);
         View btnNavProfile = findViewById(R.id.btnNavProfile);
 
         int inactiveColor = ContextCompat.getColor(this, R.color.text_muted);
         if (ivNavMap != null) ivNavMap.setColorFilter(inactiveColor);
         if (ivNavLeaderboard != null) ivNavLeaderboard.setColorFilter(inactiveColor);
         if (ivNavSocial != null) ivNavSocial.setColorFilter(ContextCompat.getColor(this, R.color.ref_btn_coral));
-        if (ivNavQuests != null) ivNavQuests.setColorFilter(inactiveColor);
-        if (ivNavQuestions != null) ivNavQuestions.setColorFilter(inactiveColor);
         if (ivNavProfile != null) ivNavProfile.setColorFilter(inactiveColor);
 
         if (btnNavMap != null) {
@@ -370,19 +364,6 @@ public final class SocialActivity extends AppCompatActivity {
         if (btnNavLeaderboard != null) {
             btnNavLeaderboard.setOnClickListener(v -> {
                 startActivity(new Intent(SocialActivity.this, RankingActivity.class));
-                finish();
-            });
-        }
-        if (btnNavQuests != null) {
-            btnNavQuests.setOnClickListener(v -> {
-                startActivity(new Intent(SocialActivity.this, QuestsActivity.class));
-                finish();
-            });
-        }
-        if (btnNavQuestions != null) {
-            btnNavQuestions.setVisibility(prefsManager.isCurrentUserAdmin() ? View.VISIBLE : View.GONE);
-            btnNavQuestions.setOnClickListener(v -> {
-                startActivity(new Intent(SocialActivity.this, QuestionManagerActivity.class));
                 finish();
             });
         }
