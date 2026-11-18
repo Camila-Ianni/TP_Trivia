@@ -74,9 +74,6 @@ public final class MainActivity extends AppCompatActivity {
 
         binding.btnGoRegister.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, RegisterActivity.class)));
-
-        binding.btnViewRanking.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, RankingActivity.class)));
     }
 
     private void attemptLogin() {
