@@ -36,19 +36,24 @@ public class LocalAreaMatchmaker {
     private NsdManager.RegistrationListener registrationListener;
     private NsdManager.DiscoveryListener discoveryListener;
     private String ownServiceName;
+    private String countryPrefix;
 
     public LocalAreaMatchmaker(Context context) {
         this.nsdManager = (NsdManager) context.getApplicationContext().getSystemService(Context.NSD_SERVICE);
     }
 
-    public void startSearch(String localUsername, List<Integer> hostQuestionIds, MatchCallback callback) {
+    public void startSearch(String localUsername, String countryCode, List<Integer> hostQuestionIds, MatchCallback callback) {
         finished.set(false);
         String safeUser = (localUsername == null ? "Jugador" : localUsername.replaceAll("[^A-Za-z0-9]", ""));
         if (safeUser.isEmpty()) {
             safeUser = "Jugador";
         }
+        String safeCountry = (countryCode == null || countryCode.trim().isEmpty())
+                ? "AR"
+                : countryCode.trim().toUpperCase(java.util.Locale.US);
+        countryPrefix = "TM_" + safeCountry + "_";
         String nonce = String.valueOf(1000 + (int) (System.currentTimeMillis() % 9000));
-        ownServiceName = "TM_" + safeUser + "_" + nonce;
+        ownServiceName = countryPrefix + safeUser + "_" + nonce;
 
         executor.execute(() -> {
             try {
@@ -121,7 +126,7 @@ public class LocalAreaMatchmaker {
                     return;
                 }
                 String name = service.getServiceName();
-                if (name == null || name.equals(ownServiceName) || !name.startsWith("TM_")) {
+                if (name == null || name.equals(ownServiceName) || !name.startsWith(countryPrefix)) {
                     return;
                 }
                 if (ownServiceName.compareTo(name) <= 0) {

@@ -32,6 +32,7 @@ public class User implements Serializable {
     private String equippedFrame;
     private int dailyStreak;
     private String wrongQuestionIdsSerialized;
+    private String country;
 
     public static final int XP_PER_LEVEL = 250;
 
@@ -114,6 +115,21 @@ public class User implements Serializable {
                 String claimedQuestsSerialized, int xp,
                 String lastDailyClaim, String ownedFramesSerialized, String equippedFrame,
                 int dailyStreak, String wrongQuestionIdsSerialized) {
+        this(id, username, password, email, avatarId, highScore, maxStreak, maxLevel,
+                energy, availableGifts, levelStarsSerialized, createdAt, role, specialCompletedSerialized,
+                coins, shields, ownedTitlesSerialized, equippedTitle, claimedQuestsSerialized, xp,
+                lastDailyClaim, ownedFramesSerialized, equippedFrame,
+                dailyStreak, wrongQuestionIdsSerialized, "AR");
+    }
+
+    public User(long id, String username, String password, String email, int avatarId,
+                int highScore, int maxStreak, int maxLevel, int energy,
+                int availableGifts, String levelStarsSerialized, String createdAt,
+                String role, String specialCompletedSerialized,
+                int coins, int shields, String ownedTitlesSerialized, String equippedTitle,
+                String claimedQuestsSerialized, int xp,
+                String lastDailyClaim, String ownedFramesSerialized, String equippedFrame,
+                int dailyStreak, String wrongQuestionIdsSerialized, String country) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -139,6 +155,7 @@ public class User implements Serializable {
         this.equippedFrame = equippedFrame != null ? equippedFrame : "";
         this.dailyStreak = Math.max(0, dailyStreak);
         this.wrongQuestionIdsSerialized = wrongQuestionIdsSerialized != null ? wrongQuestionIdsSerialized : "";
+        this.country = country != null && !country.trim().isEmpty() ? country.trim() : "AR";
     }
 
     public long getId() {
@@ -561,5 +578,13 @@ public class User implements Serializable {
             sb.append(idVal);
         }
         this.wrongQuestionIdsSerialized = sb.toString();
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country != null && !country.trim().isEmpty() ? country.trim() : "AR";
     }
 }

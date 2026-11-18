@@ -176,6 +176,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
+                        android:text="@string/label_pick_country"
+                        android:textColor="@color/ref_text_dark"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/spRegCountry"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_btn_pill_white"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
                         android:text="@string/label_pick_avatar"
                         android:textColor="@color/ref_text_dark"
                         android:textSize="13sp"

@@ -70,7 +70,8 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.SocialView
             User user = searchUsers.get(position);
             holder.binding.ivSocialAvatar.setImageResource(
                     prefsManager.getAvatarById(user.getAvatarId()).getIconResId());
-            holder.binding.tvSocialUsername.setText(user.getUsername());
+            String flag = com.example.triviamaster.utils.CountryHelper.getByCode(user.getCountry()).getFlag();
+            holder.binding.tvSocialUsername.setText(flag + " " + user.getUsername());
             holder.binding.tvSocialStats.setText(ctx.getString(
                     R.string.social_player_stats_format, user.getHighScore(), user.getMaxStreak()));
             holder.binding.btnSocialSecondary.setVisibility(View.GONE);

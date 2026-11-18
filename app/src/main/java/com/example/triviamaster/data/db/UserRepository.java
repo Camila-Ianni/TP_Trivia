@@ -38,10 +38,15 @@ public final class UserRepository {
     }
 
     public void registerUser(String username, String password, String email, int avatarId, DbCallback<User> callback) {
+        registerUser(username, password, email, avatarId, "AR", callback);
+    }
+
+    public void registerUser(String username, String password, String email, int avatarId, String country, DbCallback<User> callback) {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             String cleanUsername = username.trim();
             String cleanEmail = email != null ? email.trim() : "";
+            String cleanCountry = (country != null && !country.trim().isEmpty()) ? country.trim() : "AR";
 
             if (usernameExistsInternal(db, cleanUsername, -1)) {
                 throw new DuplicateRecordException("USERNAME_EXISTS");
@@ -74,11 +79,12 @@ public final class UserRepository {
             values.put(TriviaDbHelper.COL_USER_EQUIPPED_FRAME, "");
             values.put(TriviaDbHelper.COL_USER_DAILY_STREAK, 0);
             values.put(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS, "");
+            values.put(TriviaDbHelper.COL_USER_COUNTRY, cleanCountry);
 
             long newId = db.insertOrThrow(TriviaDbHelper.TABLE_USERS, null, values);
             return new User(newId, cleanUsername, password, cleanEmail, avatarId,
                     0, 0, 1, 12, 1, "", createdAt, role, "",
-                    100, 0, "", "", "", 0, "", "", "", 0, "");
+                    100, 0, "", "", "", 0, "", "", "", 0, "", cleanCountry);
         }, callback);
     }
 
@@ -614,7 +620,8 @@ public final class UserRepository {
                 c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_OWNED_FRAMES)),
                 c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_EQUIPPED_FRAME)),
                 c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_DAILY_STREAK)),
-                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS))
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS)),
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_COUNTRY))
         );
     }
 }

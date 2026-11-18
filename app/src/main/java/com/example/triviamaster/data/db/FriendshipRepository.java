@@ -185,7 +185,8 @@ public class FriendshipRepository {
                             c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_OWNED_FRAMES)),
                             c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_EQUIPPED_FRAME)),
                             c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_DAILY_STREAK)),
-                            c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS))
+                            c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS)),
+                            c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_COUNTRY))
                     ));
                 }
             }

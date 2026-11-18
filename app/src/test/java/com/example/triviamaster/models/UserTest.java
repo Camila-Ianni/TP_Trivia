@@ -100,5 +100,13 @@ public class UserTest {
         assertEquals(1, user.getWrongQuestionIdsList().size());
         assertFalse(user.getWrongQuestionIdsList().contains(10));
         assertEquals("25", user.getWrongQuestionIdsSerialized());
+
+        assertEquals("AR", user.getCountry());
+        user.setCountry("IT");
+        assertEquals("IT", user.getCountry());
+        assertEquals("it", com.example.triviamaster.utils.CountryHelper.getLanguageForCountry("IT"));
+        assertEquals("en", com.example.triviamaster.utils.CountryHelper.getLanguageForCountry("US"));
+        assertEquals("es", com.example.triviamaster.utils.CountryHelper.getLanguageForCountry("AR"));
+        assertEquals(15, com.example.triviamaster.utils.CountryHelper.getCountries().size());
     }
 }

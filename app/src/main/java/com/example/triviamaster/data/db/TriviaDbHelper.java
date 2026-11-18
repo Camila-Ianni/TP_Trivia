@@ -12,7 +12,7 @@ import java.util.List;
 public class TriviaDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "triviamaster.db";
-    public static final int DATABASE_VERSION = 10;
+    public static final int DATABASE_VERSION = 11;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_USER_ID = "id";
@@ -40,6 +40,7 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
     public static final String COL_USER_EQUIPPED_FRAME = "equipped_frame";
     public static final String COL_USER_DAILY_STREAK = "daily_streak";
     public static final String COL_USER_WRONG_QUESTION_IDS = "wrong_question_ids";
+    public static final String COL_USER_COUNTRY = "country";
 
     public static final String TABLE_FRIENDSHIPS = "friendships";
     public static final String COL_F_ID = "id";
@@ -117,7 +118,8 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
                 + COL_USER_OWNED_FRAMES + " TEXT NOT NULL DEFAULT '', "
                 + COL_USER_EQUIPPED_FRAME + " TEXT NOT NULL DEFAULT '', "
                 + COL_USER_DAILY_STREAK + " INTEGER NOT NULL DEFAULT 0, "
-                + COL_USER_WRONG_QUESTION_IDS + " TEXT NOT NULL DEFAULT ''"
+                + COL_USER_WRONG_QUESTION_IDS + " TEXT NOT NULL DEFAULT '', "
+                + COL_USER_COUNTRY + " TEXT NOT NULL DEFAULT 'AR'"
                 + ")";
         db.execSQL(createUsersSql);
 
@@ -207,6 +209,9 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
         }
         if (oldVersion < 10) {
             createFriendshipsTable(db);
+        }
+        if (oldVersion < 11) {
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_COUNTRY + " TEXT NOT NULL DEFAULT 'AR'");
         }
     }
 

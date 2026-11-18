@@ -176,10 +176,12 @@ public final class SocialActivity extends AppCompatActivity {
     private void startRandomDuel() {
         String savedName = prefsManager.getLastPlayerName();
         String localName = (savedName != null && !savedName.trim().isEmpty()) ? savedName.trim() : "Jugador";
+        com.example.triviamaster.utils.CountryHelper.CountryOption country =
+                com.example.triviamaster.utils.CountryHelper.getByCode(prefsManager.getUserCountry());
 
         searchingDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.duel_searching_area_title)
-                .setMessage(R.string.duel_searching_area_desc)
+                .setMessage(getString(R.string.duel_searching_country_desc, country.toString()))
                 .setCancelable(false)
                 .setNegativeButton(R.string.duel_btn_cancel_search, (d, w) -> {
                     matchmaker.stop();
@@ -220,7 +222,10 @@ public final class SocialActivity extends AppCompatActivity {
     }
 
     private void beginAreaMatchmaking(String localName, List<Integer> qIds) {
-        matchmaker.startSearch(localName, qIds, new LocalAreaMatchmaker.MatchCallback() {
+        String countryCode = prefsManager.getUserCountry();
+        com.example.triviamaster.utils.CountryHelper.CountryOption country =
+                com.example.triviamaster.utils.CountryHelper.getByCode(countryCode);
+        matchmaker.startSearch(localName, countryCode, qIds, new LocalAreaMatchmaker.MatchCallback() {
             @Override
             public void onMatchFound(ActiveDuelSession session) {
                 if (isFinishing()) {
@@ -244,7 +249,7 @@ public final class SocialActivity extends AppCompatActivity {
                 }
                 new AlertDialog.Builder(SocialActivity.this)
                         .setTitle(R.string.duel_no_players_area_title)
-                        .setMessage(R.string.duel_no_players_area_desc)
+                        .setMessage(getString(R.string.duel_no_players_country_desc, country.toString()))
                         .setPositiveButton(R.string.btn_back, null)
                         .show();
             }

@@ -24,6 +24,11 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        com.example.triviamaster.data.PreferencesManager prefs =
+                new com.example.triviamaster.data.PreferencesManager(this);
+        if (prefs.getCurrentUserId() > 0) {
+            com.example.triviamaster.utils.CountryHelper.applyLocaleForCountry(prefs.getUserCountry());
+        }
         binding = ActivitySplashBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

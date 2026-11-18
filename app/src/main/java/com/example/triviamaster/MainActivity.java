@@ -117,6 +117,7 @@ public final class MainActivity extends AppCompatActivity {
                     return;
                 }
                 prefsManager.syncFromUser(user);
+                com.example.triviamaster.utils.CountryHelper.applyLocaleForCountry(user.getCountry());
                 navigateToMap(user);
             }
 

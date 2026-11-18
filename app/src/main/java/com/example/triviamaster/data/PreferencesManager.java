@@ -45,6 +45,7 @@ public class PreferencesManager {
     private static final String KEY_EQUIPPED_FRAME = "equipped_frame";
     private static final String KEY_DAILY_STREAK = "daily_streak";
     private static final String KEY_WRONG_QUESTION_IDS = "wrong_question_ids";
+    private static final String KEY_USER_COUNTRY = "user_country";
 
     private static final List<Avatar> AVAILABLE_AVATARS = Arrays.asList(
             new Avatar(1, "Wincky", R.drawable.img_avatar_perfil1, "#E0F7FA"),
@@ -173,6 +174,14 @@ public class PreferencesManager {
         prefs.edit().putString(KEY_EQUIPPED_FRAME, frame != null ? frame : "").apply();
     }
 
+    public String getUserCountry() {
+        return prefs.getString(KEY_USER_COUNTRY, "AR");
+    }
+
+    public void setUserCountry(String country) {
+        prefs.edit().putString(KEY_USER_COUNTRY, country != null && !country.trim().isEmpty() ? country.trim() : "AR").apply();
+    }
+
     public void syncFromUser(User user) {
         if (user == null) {
             return;
@@ -194,6 +203,7 @@ public class PreferencesManager {
         editor.putString(KEY_EQUIPPED_FRAME, user.getEquippedFrame());
         editor.putInt(KEY_DAILY_STREAK, user.getDailyStreak());
         editor.putString(KEY_WRONG_QUESTION_IDS, user.getWrongQuestionIdsSerialized());
+        editor.putString(KEY_USER_COUNTRY, user.getCountry());
         editor.putBoolean(KEY_GIFT_INIT, true);
         for (int i = 1; i <= 16; i++) {
             editor.putInt(KEY_STARS + i, user.getLevelStars(i));
@@ -219,6 +229,7 @@ public class PreferencesManager {
         editor.putString(KEY_EQUIPPED_FRAME, "");
         editor.putInt(KEY_DAILY_STREAK, 0);
         editor.putString(KEY_WRONG_QUESTION_IDS, "");
+        editor.putString(KEY_USER_COUNTRY, "AR");
         editor.putBoolean(KEY_MEDAL_1, false);
         editor.putBoolean(KEY_MEDAL_2, false);
         editor.putBoolean(KEY_MEDAL_3, false);

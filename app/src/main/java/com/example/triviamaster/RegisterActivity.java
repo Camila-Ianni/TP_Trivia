@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,6 +16,7 @@ import com.example.triviamaster.data.db.UserRepository;
 import com.example.triviamaster.databinding.ActivityRegisterBinding;
 import com.example.triviamaster.models.Avatar;
 import com.example.triviamaster.models.User;
+import com.example.triviamaster.utils.CountryHelper;
 
 public final class RegisterActivity extends AppCompatActivity {
 
@@ -30,8 +32,18 @@ public final class RegisterActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         prefsManager = new PreferencesManager(this);
         userRepository = new UserRepository(this);
+        setupCountrySpinner();
         setupAvatarList();
         setupListeners();
+    }
+
+    private void setupCountrySpinner() {
+        ArrayAdapter<CountryHelper.CountryOption> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                CountryHelper.getCountries());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spRegCountry.setAdapter(adapter);
     }
 
     private void setupAvatarList() {
@@ -91,8 +103,12 @@ public final class RegisterActivity extends AppCompatActivity {
         }
 
         Avatar selected = avatarAdapter.getSelectedAvatar();
+        CountryHelper.CountryOption selectedCountry =
+                (CountryHelper.CountryOption) binding.spRegCountry.getSelectedItem();
+        String countryCode = selectedCountry != null ? selectedCountry.getCode() : "AR";
+
         setLoading(true);
-        userRepository.registerUser(username, password, email, selected.getId(), new DbCallback<User>() {
+        userRepository.registerUser(username, password, email, selected.getId(), countryCode, new DbCallback<User>() {
             @Override
             public void onSuccess(User user) {
                 if (isFinishing()) {
@@ -100,6 +116,7 @@ public final class RegisterActivity extends AppCompatActivity {
                 }
                 setLoading(false);
                 prefsManager.syncFromUser(user);
+                CountryHelper.applyLocaleForCountry(user.getCountry());
                 Toast.makeText(RegisterActivity.this,
                         getString(R.string.msg_register_success, user.getUsername()),
                         Toast.LENGTH_SHORT).show();
