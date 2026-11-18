@@ -38,6 +38,13 @@ public class PreferencesManager {
     private static final String KEY_VIBRATION_ENABLED = "vibration_enabled";
     private static final String KEY_USER_ROLE = "current_user_role";
     private static final String KEY_SPECIAL_COMPLETED = "special_completed";
+    private static final String KEY_COINS = "player_coins";
+    private static final String KEY_SHIELDS = "player_shields";
+    private static final String KEY_EQUIPPED_TITLE = "equipped_title";
+    private static final String KEY_USER_XP = "player_xp";
+    private static final String KEY_EQUIPPED_FRAME = "equipped_frame";
+    private static final String KEY_DAILY_STREAK = "daily_streak";
+    private static final String KEY_WRONG_QUESTION_IDS = "wrong_question_ids";
 
     private static final List<Avatar> AVAILABLE_AVATARS = Arrays.asList(
             new Avatar(1, "Wincky", R.drawable.img_avatar_perfil1, "#E0F7FA"),
@@ -126,6 +133,46 @@ public class PreferencesManager {
                 && isSpecialCompleted(hotspotId, Difficulty.HARD);
     }
 
+    public int getPlayerCoins() {
+        return prefs.getInt(KEY_COINS, 100);
+    }
+
+    public void setPlayerCoins(int coins) {
+        prefs.edit().putInt(KEY_COINS, Math.max(0, coins)).apply();
+    }
+
+    public int getPlayerShields() {
+        return prefs.getInt(KEY_SHIELDS, 0);
+    }
+
+    public void setPlayerShields(int shields) {
+        prefs.edit().putInt(KEY_SHIELDS, Math.max(0, shields)).apply();
+    }
+
+    public String getEquippedTitle() {
+        return prefs.getString(KEY_EQUIPPED_TITLE, "");
+    }
+
+    public void setEquippedTitle(String title) {
+        prefs.edit().putString(KEY_EQUIPPED_TITLE, title != null ? title : "").apply();
+    }
+
+    public int getPlayerXp() {
+        return prefs.getInt(KEY_USER_XP, 0);
+    }
+
+    public void setPlayerXp(int xp) {
+        prefs.edit().putInt(KEY_USER_XP, Math.max(0, xp)).apply();
+    }
+
+    public String getEquippedFrame() {
+        return prefs.getString(KEY_EQUIPPED_FRAME, "");
+    }
+
+    public void setEquippedFrame(String frame) {
+        prefs.edit().putString(KEY_EQUIPPED_FRAME, frame != null ? frame : "").apply();
+    }
+
     public void syncFromUser(User user) {
         if (user == null) {
             return;
@@ -140,6 +187,13 @@ public class PreferencesManager {
         editor.putInt(KEY_GIFTS, user.getAvailableGifts());
         editor.putString(KEY_USER_ROLE, user.getRole());
         editor.putString(KEY_SPECIAL_COMPLETED, user.getSpecialCompletedSerialized());
+        editor.putInt(KEY_COINS, user.getCoins());
+        editor.putInt(KEY_SHIELDS, user.getShields());
+        editor.putString(KEY_EQUIPPED_TITLE, user.getEquippedTitle());
+        editor.putInt(KEY_USER_XP, user.getXp());
+        editor.putString(KEY_EQUIPPED_FRAME, user.getEquippedFrame());
+        editor.putInt(KEY_DAILY_STREAK, user.getDailyStreak());
+        editor.putString(KEY_WRONG_QUESTION_IDS, user.getWrongQuestionIdsSerialized());
         editor.putBoolean(KEY_GIFT_INIT, true);
         for (int i = 1; i <= 16; i++) {
             editor.putInt(KEY_STARS + i, user.getLevelStars(i));
@@ -158,6 +212,13 @@ public class PreferencesManager {
         editor.putInt(KEY_GIFTS, 1);
         editor.putString(KEY_USER_ROLE, "USER");
         editor.putString(KEY_SPECIAL_COMPLETED, "");
+        editor.putInt(KEY_COINS, 100);
+        editor.putInt(KEY_SHIELDS, 0);
+        editor.putString(KEY_EQUIPPED_TITLE, "");
+        editor.putInt(KEY_USER_XP, 0);
+        editor.putString(KEY_EQUIPPED_FRAME, "");
+        editor.putInt(KEY_DAILY_STREAK, 0);
+        editor.putString(KEY_WRONG_QUESTION_IDS, "");
         editor.putBoolean(KEY_MEDAL_1, false);
         editor.putBoolean(KEY_MEDAL_2, false);
         editor.putBoolean(KEY_MEDAL_3, false);

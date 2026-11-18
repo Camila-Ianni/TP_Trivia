@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
@@ -27,6 +28,7 @@ import com.example.triviamaster.data.db.UserRepository;
 import com.example.triviamaster.databinding.DialogMonsterInfoBinding;
 import com.example.triviamaster.models.Avatar;
 import com.example.triviamaster.models.User;
+import com.example.triviamaster.utils.AvatarFrameHelper;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.util.List;
@@ -51,6 +53,9 @@ public final class ProfileActivity extends AppCompatActivity {
     private TextView tvProfileMatchesCount;
     private TextView tvProfileAccuracy;
     private TextView tvPlayerTitleBadge;
+    private TextView tvProfileAccountLevel;
+    private TextView tvProfileXpProgress;
+    private ProgressBar pbProfileXp;
     private RecyclerView rvProfileAvatars;
     private ImageView ivMedal1;
     private TextView tvMedal1Status;
@@ -78,6 +83,9 @@ public final class ProfileActivity extends AppCompatActivity {
     private Button btnManageUsers;
     private Button btnManageQuestions;
     private Button btnMatchHistory;
+    private Button btnOpenQuests;
+    private Button btnReviewMistakes;
+    private Button btnOpenShop;
     private Button btnLogout;
     private Button btnDeleteAccount;
     private SwitchCompat switchSound;
@@ -121,6 +129,9 @@ public final class ProfileActivity extends AppCompatActivity {
         tvProfileMatchesCount = findViewById(R.id.tvProfileMatchesCount);
         tvProfileAccuracy = findViewById(R.id.tvProfileAccuracy);
         tvPlayerTitleBadge = findViewById(R.id.tvPlayerTitleBadge);
+        tvProfileAccountLevel = findViewById(R.id.tvProfileAccountLevel);
+        tvProfileXpProgress = findViewById(R.id.tvProfileXpProgress);
+        pbProfileXp = findViewById(R.id.pbProfileXp);
         rvProfileAvatars = findViewById(R.id.rvProfileAvatars);
         ivMedal1 = findViewById(R.id.ivMedal1);
         tvMedal1Status = findViewById(R.id.tvMedal1Status);
@@ -148,6 +159,9 @@ public final class ProfileActivity extends AppCompatActivity {
         btnManageUsers = findViewById(R.id.btnManageUsers);
         btnManageQuestions = findViewById(R.id.btnManageQuestions);
         btnMatchHistory = findViewById(R.id.btnMatchHistory);
+        btnOpenQuests = findViewById(R.id.btnOpenQuests);
+        btnReviewMistakes = findViewById(R.id.btnReviewMistakes);
+        btnOpenShop = findViewById(R.id.btnOpenShop);
         btnLogout = findViewById(R.id.btnLogout);
         btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
         switchSound = findViewById(R.id.switchSound);
@@ -209,6 +223,8 @@ public final class ProfileActivity extends AppCompatActivity {
         int avatarId = currentUser != null ? currentUser.getAvatarId() : prefsManager.getLastAvatarId();
         Avatar currentAvatar = prefsManager.getAvatarById(avatarId);
         ivCurrentProfileAvatar.setImageResource(currentAvatar.getIconResId());
+        String frameKey = currentUser != null ? currentUser.getEquippedFrame() : prefsManager.getEquippedFrame();
+        AvatarFrameHelper.applyFrame(ivCurrentProfileAvatar, frameKey);
 
         int totalStars = currentUser != null ? currentUser.getTotalStars() : prefsManager.getTotalStars();
         int highScore = currentUser != null ? currentUser.getHighScore() : prefsManager.getHighScore();
@@ -221,8 +237,11 @@ public final class ProfileActivity extends AppCompatActivity {
         boolean m2 = currentUser != null ? currentUser.isMedal2Unlocked() : prefsManager.isMedal2Unlocked();
         boolean m3 = currentUser != null ? currentUser.isMedal3Unlocked() : prefsManager.isMedal3Unlocked();
 
+        String equippedTitle = currentUser != null ? currentUser.getEquippedTitle() : prefsManager.getEquippedTitle();
         String title;
-        if (m3) {
+        if (equippedTitle != null && !equippedTitle.trim().isEmpty()) {
+            title = equippedTitle;
+        } else if (m3) {
             title = getString(R.string.profile_title_lord);
         } else if (m2) {
             title = getString(R.string.profile_title_master);
@@ -232,6 +251,17 @@ public final class ProfileActivity extends AppCompatActivity {
             title = getString(R.string.profile_title_adventurer, currentName);
         }
         tvPlayerTitleBadge.setText(title);
+
+        int xp = currentUser != null ? currentUser.getXp() : prefsManager.getPlayerXp();
+        int accountLevel = (xp / User.XP_PER_LEVEL) + 1;
+        int xpIntoLevel = xp % User.XP_PER_LEVEL;
+        tvProfileAccountLevel.setText(getString(R.string.profile_account_level_format, accountLevel));
+        tvProfileXpProgress.setText(getString(R.string.profile_xp_progress_format, xpIntoLevel, User.XP_PER_LEVEL));
+        pbProfileXp.setMax(User.XP_PER_LEVEL);
+        pbProfileXp.setProgress(xpIntoLevel);
+
+        int wrongCount = currentUser != null ? currentUser.getWrongQuestionIdsList().size() : 0;
+        btnReviewMistakes.setText(getString(R.string.btn_review_mistakes, wrongCount));
     }
 
     private void setupAvatarList() {
@@ -449,6 +479,23 @@ public final class ProfileActivity extends AppCompatActivity {
         btnMatchHistory.setOnClickListener(v ->
                 startActivity(new Intent(ProfileActivity.this, MatchHistoryActivity.class)));
 
+        btnOpenQuests.setOnClickListener(v ->
+                startActivity(new Intent(ProfileActivity.this, QuestsActivity.class)));
+
+        btnReviewMistakes.setOnClickListener(v -> {
+            if (currentUser == null || currentUser.getWrongQuestionIdsList().isEmpty()) {
+                Toast.makeText(ProfileActivity.this, R.string.review_mistakes_empty, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(ProfileActivity.this, GameActivity.class);
+            intent.putExtra("extra_is_quick_play", true);
+            intent.putExtra(GameActivity.EXTRA_IS_REVIEW_MISTAKES, true);
+            startActivity(intent);
+        });
+
+        btnOpenShop.setOnClickListener(v ->
+                startActivity(new Intent(ProfileActivity.this, ShopActivity.class)));
+
         switchSound.setOnCheckedChangeListener((buttonView, isChecked) ->
                 prefsManager.setSoundEnabled(isChecked));
 
@@ -584,17 +631,30 @@ public final class ProfileActivity extends AppCompatActivity {
     private void setupBottomNav() {
         ImageView ivNavMap = findViewById(R.id.ivNavMap);
         ImageView ivNavLeaderboard = findViewById(R.id.ivNavLeaderboard);
+        ImageView ivNavSocial = findViewById(R.id.ivNavSocial);
+        ImageView ivNavQuests = findViewById(R.id.ivNavQuests);
         ImageView ivNavQuestions = findViewById(R.id.ivNavQuestions);
         ImageView ivNavProfile = findViewById(R.id.ivNavProfile);
         View btnNavMap = findViewById(R.id.btnNavMap);
         View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
+        View btnNavSocial = findViewById(R.id.btnNavSocial);
+        View btnNavQuests = findViewById(R.id.btnNavQuests);
         View btnNavQuestions = findViewById(R.id.btnNavQuestions);
 
         int inactiveColor = ContextCompat.getColor(this, R.color.text_muted);
         if (ivNavMap != null) ivNavMap.setColorFilter(inactiveColor);
         if (ivNavLeaderboard != null) ivNavLeaderboard.setColorFilter(inactiveColor);
+        if (ivNavSocial != null) ivNavSocial.setColorFilter(inactiveColor);
+        if (ivNavQuests != null) ivNavQuests.setColorFilter(inactiveColor);
         if (ivNavQuestions != null) ivNavQuestions.setColorFilter(inactiveColor);
         if (ivNavProfile != null) ivNavProfile.setColorFilter(ContextCompat.getColor(this, R.color.ref_btn_coral));
+
+        if (btnNavQuests != null) {
+            btnNavQuests.setOnClickListener(v -> {
+                startActivity(new Intent(ProfileActivity.this, QuestsActivity.class));
+                finish();
+            });
+        }
 
         if (btnNavMap != null) {
             btnNavMap.setOnClickListener(v -> {
@@ -607,6 +667,12 @@ public final class ProfileActivity extends AppCompatActivity {
         if (btnNavLeaderboard != null) {
             btnNavLeaderboard.setOnClickListener(v -> {
                 startActivity(new Intent(ProfileActivity.this, RankingActivity.class));
+                finish();
+            });
+        }
+        if (btnNavSocial != null) {
+            btnNavSocial.setOnClickListener(v -> {
+                startActivity(new Intent(ProfileActivity.this, SocialActivity.class));
                 finish();
             });
         }

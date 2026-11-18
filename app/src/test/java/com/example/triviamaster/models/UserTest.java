@@ -49,4 +49,56 @@ public class UserTest {
         assertFalse(user.hasCompletedSpecial(1, Difficulty.NORMAL));
         assertEquals("1_EASY", user.getSpecialCompletedSerialized());
     }
+
+    @Test
+    public void shopCoinsShieldsAndTitlesWorkCorrectly() {
+        User user = new User(1L, "mimi", "1234", "mimi@mail.com", 1,
+                0, 0, 1, 12, 1, "", "hoy");
+
+        assertEquals(100, user.getCoins());
+        user.setCoins(250);
+        user.setShields(2);
+        assertFalse(user.ownsTitle("Leyenda Pixel"));
+        user.addOwnedTitle("Leyenda Pixel");
+        user.setEquippedTitle("Leyenda Pixel");
+
+        assertEquals(250, user.getCoins());
+        assertEquals(2, user.getShields());
+        assertTrue(user.ownsTitle("Leyenda Pixel"));
+        assertEquals("Leyenda Pixel", user.getEquippedTitle());
+
+        assertFalse(user.hasClaimedQuest("q_play_5"));
+        user.markQuestClaimed("q_play_5");
+        assertTrue(user.hasClaimedQuest("q_play_5"));
+        assertEquals(0, user.getCompletedSpecialCount());
+        user.markSpecialCompleted(0, Difficulty.EASY);
+        assertEquals(1, user.getCompletedSpecialCount());
+
+        user.setXp(310);
+        assertEquals(2, user.getAccountLevel());
+        assertEquals(60, user.getXpIntoCurrentLevel());
+    }
+
+    @Test
+    public void dailyStreakAndWrongQuestionsWorkCorrectly() {
+        User user = new User(2L, "alex", "pass", "alex@mail.com", 2,
+                0, 0, 1, 12, 1, "", "hoy");
+
+        assertEquals(0, user.getDailyStreak());
+        user.setDailyStreak(4);
+        assertEquals(4, user.getDailyStreak());
+
+        assertTrue(user.getWrongQuestionIdsList().isEmpty());
+        user.addWrongQuestionId(10);
+        user.addWrongQuestionId(25);
+        user.addWrongQuestionId(10);
+        assertEquals(2, user.getWrongQuestionIdsList().size());
+        assertTrue(user.getWrongQuestionIdsList().contains(10));
+        assertTrue(user.getWrongQuestionIdsList().contains(25));
+
+        user.removeWrongQuestionId(10);
+        assertEquals(1, user.getWrongQuestionIdsList().size());
+        assertFalse(user.getWrongQuestionIdsList().contains(10));
+        assertEquals("25", user.getWrongQuestionIdsSerialized());
+    }
 }

@@ -91,6 +91,34 @@ public final class QuestionRepository {
         }, callback);
     }
 
+    public void getQuestionsByIds(List<Integer> ids, DbCallback<List<Question>> callback) {
+        executor.execute(() -> {
+            List<Question> list = new ArrayList<>();
+            if (ids == null || ids.isEmpty()) {
+                return list;
+            }
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            StringBuilder placeholders = new StringBuilder();
+            String[] args = new String[ids.size()];
+            for (int i = 0; i < ids.size(); i++) {
+                if (i > 0) {
+                    placeholders.append(",");
+                }
+                placeholders.append("?");
+                args[i] = String.valueOf(ids.get(i));
+            }
+            String sql = "SELECT * FROM " + TriviaDbHelper.TABLE_QUESTIONS
+                    + " WHERE " + TriviaDbHelper.COL_Q_ID + " IN (" + placeholders + ")"
+                    + " ORDER BY RANDOM()";
+            try (Cursor cursor = db.rawQuery(sql, args)) {
+                while (cursor.moveToNext()) {
+                    list.add(mapCursorToQuestion(cursor));
+                }
+            }
+            return list;
+        }, callback);
+    }
+
     public void insertQuestion(Question question, DbCallback<Long> callback) {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getWritableDatabase();

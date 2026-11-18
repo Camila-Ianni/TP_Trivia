@@ -12,7 +12,7 @@ import java.util.List;
 public class TriviaDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "triviamaster.db";
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 10;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_USER_ID = "id";
@@ -29,6 +29,24 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
     public static final String COL_USER_CREATED_AT = "created_at";
     public static final String COL_USER_ROLE = "role";
     public static final String COL_USER_SPECIAL_COMPLETED = "special_completed";
+    public static final String COL_USER_COINS = "coins";
+    public static final String COL_USER_SHIELDS = "shields";
+    public static final String COL_USER_OWNED_TITLES = "owned_titles";
+    public static final String COL_USER_EQUIPPED_TITLE = "equipped_title";
+    public static final String COL_USER_CLAIMED_QUESTS = "claimed_quests";
+    public static final String COL_USER_XP = "xp";
+    public static final String COL_USER_LAST_DAILY_CLAIM = "last_daily_claim";
+    public static final String COL_USER_OWNED_FRAMES = "owned_frames";
+    public static final String COL_USER_EQUIPPED_FRAME = "equipped_frame";
+    public static final String COL_USER_DAILY_STREAK = "daily_streak";
+    public static final String COL_USER_WRONG_QUESTION_IDS = "wrong_question_ids";
+
+    public static final String TABLE_FRIENDSHIPS = "friendships";
+    public static final String COL_F_ID = "id";
+    public static final String COL_F_SENDER_ID = "sender_id";
+    public static final String COL_F_RECEIVER_ID = "receiver_id";
+    public static final String COL_F_STATUS = "status";
+    public static final String COL_F_CREATED_AT = "created_at";
 
     public static final String TABLE_QUESTIONS = "questions";
     public static final String COL_Q_ID = "id";
@@ -88,7 +106,18 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
                 + COL_USER_LEVEL_STARS + " TEXT NOT NULL DEFAULT '', "
                 + COL_USER_CREATED_AT + " TEXT NOT NULL, "
                 + COL_USER_ROLE + " TEXT NOT NULL DEFAULT 'USER', "
-                + COL_USER_SPECIAL_COMPLETED + " TEXT NOT NULL DEFAULT ''"
+                + COL_USER_SPECIAL_COMPLETED + " TEXT NOT NULL DEFAULT '', "
+                + COL_USER_COINS + " INTEGER NOT NULL DEFAULT 100, "
+                + COL_USER_SHIELDS + " INTEGER NOT NULL DEFAULT 0, "
+                + COL_USER_OWNED_TITLES + " TEXT NOT NULL DEFAULT '', "
+                + COL_USER_EQUIPPED_TITLE + " TEXT NOT NULL DEFAULT '', "
+                + COL_USER_CLAIMED_QUESTS + " TEXT NOT NULL DEFAULT '', "
+                + COL_USER_XP + " INTEGER NOT NULL DEFAULT 0, "
+                + COL_USER_LAST_DAILY_CLAIM + " TEXT NOT NULL DEFAULT '', "
+                + COL_USER_OWNED_FRAMES + " TEXT NOT NULL DEFAULT '', "
+                + COL_USER_EQUIPPED_FRAME + " TEXT NOT NULL DEFAULT '', "
+                + COL_USER_DAILY_STREAK + " INTEGER NOT NULL DEFAULT 0, "
+                + COL_USER_WRONG_QUESTION_IDS + " TEXT NOT NULL DEFAULT ''"
                 + ")";
         db.execSQL(createUsersSql);
 
@@ -111,8 +140,20 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
                 + ")";
         db.execSQL(createQuestionsSql);
         createMatchHistoryTable(db);
+        createFriendshipsTable(db);
 
         seedInitialQuestions(db);
+    }
+
+    private void createFriendshipsTable(SQLiteDatabase db) {
+        String createFriendshipsSql = "CREATE TABLE IF NOT EXISTS " + TABLE_FRIENDSHIPS + " ("
+                + COL_F_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_F_SENDER_ID + " INTEGER NOT NULL, "
+                + COL_F_RECEIVER_ID + " INTEGER NOT NULL, "
+                + COL_F_STATUS + " TEXT NOT NULL DEFAULT 'PENDING', "
+                + COL_F_CREATED_AT + " TEXT NOT NULL"
+                + ")";
+        db.execSQL(createFriendshipsSql);
     }
 
     private void createMatchHistoryTable(SQLiteDatabase db) {
@@ -142,6 +183,30 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
         }
         if (oldVersion < 4) {
             db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_SPECIAL_COMPLETED + " TEXT NOT NULL DEFAULT ''");
+        }
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_COINS + " INTEGER NOT NULL DEFAULT 100");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_SHIELDS + " INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_OWNED_TITLES + " TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_EQUIPPED_TITLE + " TEXT NOT NULL DEFAULT ''");
+        }
+        if (oldVersion < 6) {
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_CLAIMED_QUESTS + " TEXT NOT NULL DEFAULT ''");
+        }
+        if (oldVersion < 7) {
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_XP + " INTEGER NOT NULL DEFAULT 0");
+        }
+        if (oldVersion < 8) {
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_LAST_DAILY_CLAIM + " TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_OWNED_FRAMES + " TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_EQUIPPED_FRAME + " TEXT NOT NULL DEFAULT ''");
+        }
+        if (oldVersion < 9) {
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_DAILY_STREAK + " INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_WRONG_QUESTION_IDS + " TEXT NOT NULL DEFAULT ''");
+        }
+        if (oldVersion < 10) {
+            createFriendshipsTable(db);
         }
     }
 

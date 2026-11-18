@@ -14,16 +14,27 @@ import java.util.List;
 import java.util.Locale;
 
 public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingViewHolder> {
+
+    public interface OnPlayerClickListener {
+        void onPlayerClick(RankingItem item);
+    }
+
     private final List<RankingItem> rankingList;
     private final int startIndex;
+    private final OnPlayerClickListener clickListener;
 
     public RankingAdapter(List<RankingItem> rankingList, int startIndex) {
+        this(rankingList, startIndex, null);
+    }
+
+    public RankingAdapter(List<RankingItem> rankingList, int startIndex, OnPlayerClickListener clickListener) {
         this.rankingList = rankingList;
         this.startIndex = startIndex;
+        this.clickListener = clickListener;
     }
 
     public RankingAdapter(List<RankingItem> rankingList) {
-        this(rankingList, 0);
+        this(rankingList, 0, null);
     }
 
     public class RankingViewHolder extends RecyclerView.ViewHolder {
@@ -42,6 +53,11 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingV
             String formattedScore = NumberFormat.getNumberInstance(Locale.US).format(item.getScore());
             binding.tvRankingScore.setText(binding.getRoot().getContext().getString(
                     R.string.ranking_score_format, formattedScore));
+            binding.getRoot().setOnClickListener(v -> {
+                if (clickListener != null) {
+                    clickListener.onPlayerClick(item);
+                }
+            });
         }
     }
 

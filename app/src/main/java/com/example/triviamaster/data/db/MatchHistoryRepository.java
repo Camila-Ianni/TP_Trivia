@@ -101,4 +101,29 @@ public final class MatchHistoryRepository {
             return new int[]{0, 0};
         }, callback);
     }
+
+    public void getQuestProgressMetrics(long userId, DbCallback<int[]> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            int totalMatches = 0;
+            int hardWins = 0;
+            String sqlTotal = "SELECT COUNT(*) FROM " + TriviaDbHelper.TABLE_MATCH_HISTORY
+                    + " WHERE " + TriviaDbHelper.COL_H_USER_ID + " = ?";
+            try (Cursor cursor = db.rawQuery(sqlTotal, new String[]{String.valueOf(userId)})) {
+                if (cursor.moveToFirst()) {
+                    totalMatches = cursor.getInt(0);
+                }
+            }
+            String sqlHard = "SELECT COUNT(*) FROM " + TriviaDbHelper.TABLE_MATCH_HISTORY
+                    + " WHERE " + TriviaDbHelper.COL_H_USER_ID + " = ? AND "
+                    + TriviaDbHelper.COL_H_DIFFICULTY + " = 'Leyenda' AND "
+                    + TriviaDbHelper.COL_H_STARS + " > 0";
+            try (Cursor cursor = db.rawQuery(sqlHard, new String[]{String.valueOf(userId)})) {
+                if (cursor.moveToFirst()) {
+                    hardWins = cursor.getInt(0);
+                }
+            }
+            return new int[]{totalMatches, hardWins};
+        }, callback);
+    }
 }

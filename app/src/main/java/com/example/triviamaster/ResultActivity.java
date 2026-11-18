@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.triviamaster.data.PreferencesManager;
@@ -38,6 +39,7 @@ public final class ResultActivity extends AppCompatActivity {
     public static final String EXTRA_LEVEL_ID = "extra_level_id";
     public static final String EXTRA_EARNED_STARS = "extra_earned_stars";
     public static final String EXTRA_IS_QUICK_PLAY = "extra_is_quick_play";
+    public static final String EXTRA_BOSS_DEFEATED = "extra_boss_defeated";
 
     private ActivityResultBinding binding;
     private PreferencesManager prefsManager;
@@ -53,12 +55,15 @@ public final class ResultActivity extends AppCompatActivity {
     private int specialBonusPoints;
     private int specialBonusEnergy;
     private int specialExtraChests;
+    private int coinsEarned;
+    private boolean bossDefeated;
     private int finalScore;
     private int maxStreak;
     private int correctCount;
     private int livesLeft;
     private int earnedStars;
     private boolean isQuickPlay;
+    private boolean isTimeAttack;
     private boolean isGiftEarnedThisMatch;
     private Integer newlyUnlockedMedal;
 
@@ -97,12 +102,14 @@ public final class ResultActivity extends AppCompatActivity {
         levelId = getIntent().getIntExtra("extra_level_id", -1);
         earnedStars = getIntent().getIntExtra(EXTRA_EARNED_STARS, 0);
         isQuickPlay = getIntent().getBooleanExtra(EXTRA_IS_QUICK_PLAY, false);
+        isTimeAttack = getIntent().getBooleanExtra(MapActivity.EXTRA_IS_TIME_ATTACK, false);
         currentDifficulty = Difficulty.fromName(getIntent().getStringExtra(MapActivity.EXTRA_DIFFICULTY));
         specialTitle = getIntent().getStringExtra(MapActivity.EXTRA_SPECIAL_TITLE);
         specialMinLevel = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_MIN_LEVEL, 1);
         specialMaxLevel = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_MAX_LEVEL, 16);
         specialCount = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_COUNT, 10);
         specialHotspotId = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_HOTSPOT_ID, -1);
+        bossDefeated = getIntent().getBooleanExtra(EXTRA_BOSS_DEFEATED, false);
     }
 
     private void handleProgression() {
@@ -217,10 +224,56 @@ public final class ResultActivity extends AppCompatActivity {
             personalizedMsg = getString(R.string.msg_low, userName);
         }
         binding.tvResultMessage.setText(personalizedMsg);
-        binding.tvFinalScore.setText(finalScore + " pts");
-        binding.tvAccuracy.setText(correctCount + " / " + totalQuestions + " (" + percentage + "%)");
+        coinsEarned = correctCount > 0
+                ? Math.max(10, (int) Math.round(correctCount * 10 * currentDifficulty.getScoreMultiplier()))
+                : 0;
+        if (bossDefeated) {
+            coinsEarned += 100;
+            prefsManager.setPlayerEnergy(prefsManager.getPlayerEnergy() + 1);
+            long userId = prefsManager.getCurrentUserId();
+            if (userId > 0) {
+                userRepository.grantSpecialReward(userId, 1, 0, null);
+            }
+        }
+        if (coinsEarned > 0) {
+            prefsManager.setPlayerCoins(prefsManager.getPlayerCoins() + coinsEarned);
+            long userId = prefsManager.getCurrentUserId();
+            if (userId > 0) {
+                userRepository.grantCoins(userId, coinsEarned, null);
+            }
+            binding.tvFinalScore.setText(finalScore + " pts • " + getString(R.string.result_coins_earned, coinsEarned));
+        } else {
+            binding.tvFinalScore.setText(finalScore + " pts");
+        }
+        int xpEarned = Math.max(10, correctCount * 25 + maxStreak * 10);
+        prefsManager.setPlayerXp(prefsManager.getPlayerXp() + xpEarned);
+        long xpUserId = prefsManager.getCurrentUserId();
+        if (xpUserId > 0) {
+            userRepository.grantXpAndCheckLevelUp(xpUserId, xpEarned, new DbCallback<int[]>() {
+                @Override
+                public void onSuccess(int[] result) {
+                    if (isFinishing() || result == null || result.length < 4) {
+                        return;
+                    }
+                    prefsManager.setPlayerXp(result[3]);
+                    if (result[1] > result[0]) {
+                        prefsManager.setPlayerCoins(prefsManager.getPlayerCoins() + result[2]);
+                        Toast.makeText(ResultActivity.this,
+                                getString(R.string.result_level_up_msg, result[1], result[2]),
+                                Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onError(Exception error) {
+                }
+            });
+        }
+        binding.tvAccuracy.setText(correctCount + " / " + totalQuestions + " (" + percentage + "%) • " + getString(R.string.result_xp_earned, xpEarned));
         binding.tvMaxStreak.setText(maxStreak + " seguidas");
-        binding.tvLivesLeft.setText("Vidas: (" + livesLeft + "/" + currentDifficulty.getInitialLives() + ")");
+        binding.tvLivesLeft.setText(isTimeAttack
+                ? getString(R.string.time_attack_title)
+                : "Vidas: (" + livesLeft + "/" + currentDifficulty.getInitialLives() + ")");
 
         if (newlyUnlockedMedal != null) {
             binding.getRoot().postDelayed(() -> {
@@ -361,7 +414,10 @@ public final class ResultActivity extends AppCompatActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         String currentDate = dateFormat.format(new Date());
         boolean isNewRecord = prefsManager.saveGameScore(userName, avatarResId, finalScore, maxStreak, currentDate);
-        if (isQuickPlay && specialBonusPoints > 0) {
+        if (bossDefeated) {
+            binding.tvNewRecordBadge.setVisibility(View.VISIBLE);
+            binding.tvNewRecordBadge.setText(getString(R.string.boss_defeated_badge));
+        } else if (isQuickPlay && specialBonusPoints > 0) {
             binding.tvNewRecordBadge.setVisibility(View.VISIBLE);
             String rewardText = specialExtraChests > 0
                     ? getString(R.string.special_reward_badge_chest, currentDifficulty.getDisplayName(), specialBonusEnergy, specialBonusPoints)
@@ -391,9 +447,11 @@ public final class ResultActivity extends AppCompatActivity {
 
             String modeLabel = (levelId > 0 && !isQuickPlay)
                     ? getString(R.string.history_item_mode_level, levelId)
-                    : ((specialTitle != null && !specialTitle.trim().isEmpty())
-                            ? specialTitle
-                            : getString(R.string.history_item_mode_cave));
+                    : (isTimeAttack
+                            ? getString(R.string.time_attack_title)
+                            : ((specialTitle != null && !specialTitle.trim().isEmpty())
+                                    ? specialTitle
+                                    : getString(R.string.history_item_mode_cave)));
             MatchHistoryItem historyItem = new MatchHistoryItem(
                     0L,
                     userId,
@@ -458,6 +516,7 @@ public final class ResultActivity extends AppCompatActivity {
                 intent.putExtra(MainActivity.EXTRA_AVATAR_ID, avatarId);
                 intent.putExtra(MainActivity.EXTRA_AVATAR_RES_ID, avatarResId);
                 intent.putExtra("extra_is_quick_play", true);
+                intent.putExtra(MapActivity.EXTRA_IS_TIME_ATTACK, isTimeAttack);
                 intent.putExtra(MapActivity.EXTRA_DIFFICULTY, currentDifficulty.name());
                 intent.putExtra(MapActivity.EXTRA_SPECIAL_TITLE, specialTitle);
                 intent.putExtra(MapActivity.EXTRA_SPECIAL_MIN_LEVEL, specialMinLevel);

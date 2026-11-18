@@ -10,6 +10,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,6 +29,7 @@ import com.example.triviamaster.databinding.ActivityGameBinding;
 import com.example.triviamaster.models.Difficulty;
 import com.example.triviamaster.models.Level;
 import com.example.triviamaster.models.Question;
+import com.example.triviamaster.models.User;
 import com.example.triviamaster.utils.RetroFeedbackManager;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +38,8 @@ import java.util.List;
 import java.util.Locale;
 
 public final class GameActivity extends AppCompatActivity {
+
+    public static final String EXTRA_IS_REVIEW_MISTAKES = "extra_is_review_mistakes";
 
     private ActivityGameBinding binding;
     private PreferencesManager prefsManager;
@@ -46,6 +50,10 @@ public final class GameActivity extends AppCompatActivity {
     private int avatarResId = R.drawable.img_avatar_perfil1;
     private int levelId = -1;
     private boolean isQuickPlay;
+    private boolean isTimeAttack;
+    private boolean isReviewMistakes;
+    private int answeredCount;
+    private boolean globalTimerStarted;
     private String specialTitle;
     private int specialMinLevel = 1;
     private int specialMaxLevel = 16;
@@ -70,6 +78,10 @@ public final class GameActivity extends AppCompatActivity {
     private boolean isAnsweringLocked;
     private boolean hasCheckedAnswer;
     private int playerEnergy = 12;
+    private int playerShields;
+    private boolean isBossBattle;
+    private int bossMaxHp;
+    private int bossHp;
     private boolean hintUsedInQuestion;
     private boolean timeUsedInQuestion;
 
@@ -126,15 +138,18 @@ public final class GameActivity extends AppCompatActivity {
         avatarId = prefsManager.getLastAvatarId();
         avatarResId = prefsManager.getAvatarById(avatarId).getIconResId();
         playerEnergy = prefsManager.getPlayerEnergy();
+        playerShields = prefsManager.getPlayerShields();
         levelId = getIntent().getIntExtra("extra_level_id", -1);
         isQuickPlay = getIntent().getBooleanExtra("extra_is_quick_play", false);
+        isTimeAttack = getIntent().getBooleanExtra(MapActivity.EXTRA_IS_TIME_ATTACK, false);
+        isReviewMistakes = getIntent().getBooleanExtra(EXTRA_IS_REVIEW_MISTAKES, false);
         specialTitle = getIntent().getStringExtra(MapActivity.EXTRA_SPECIAL_TITLE);
         specialMinLevel = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_MIN_LEVEL, 1);
         specialMaxLevel = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_MAX_LEVEL, 16);
         specialCount = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_COUNT, 10);
         specialHotspotId = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_HOTSPOT_ID, -1);
         currentDifficulty = Difficulty.fromName(getIntent().getStringExtra(MapActivity.EXTRA_DIFFICULTY));
-        questionTimeLimitSeconds = currentDifficulty.getTimeLimitSeconds();
+        questionTimeLimitSeconds = isTimeAttack ? 60 : currentDifficulty.getTimeLimitSeconds();
         secondsRemaining = questionTimeLimitSeconds;
         lives = currentDifficulty.getInitialLives();
     }
@@ -142,6 +157,10 @@ public final class GameActivity extends AppCompatActivity {
     private void setupUI() {
         updateLivesDisplay();
         updateEnergyDisplay();
+        updateShieldsDisplay();
+        if (isTimeAttack) {
+            binding.layoutLives.setVisibility(View.GONE);
+        }
         binding.btnGameBack.setOnClickListener(v -> showExitConfirmationDialog());
         binding.btnPowerupHint.setOnClickListener(v -> useHintPowerup());
         binding.btnPowerupTime.setOnClickListener(v -> useTimePowerup());
@@ -200,6 +219,63 @@ public final class GameActivity extends AppCompatActivity {
         maxStreak = 0;
         correctAnswers = 0;
 
+        if (isReviewMistakes) {
+            binding.tvGameTopic.setText(getString(R.string.review_mistakes_title));
+            long userId = prefsManager.getCurrentUserId();
+            if (userId > 0) {
+                userRepository.getUserById(userId, new DbCallback<User>() {
+                    @Override
+                    public void onSuccess(User user) {
+                        if (isFinishing()) {
+                            return;
+                        }
+                        List<Integer> wrongIds = user != null ? user.getWrongQuestionIdsList() : new ArrayList<>();
+                        if (wrongIds.isEmpty()) {
+                            questions = QuestionBank.INSTANCE.getRandomQuiz(5);
+                            displayQuestion(currentQuestionIndex);
+                            return;
+                        }
+                        questionRepository.getQuestionsByIds(wrongIds, new DbCallback<List<Question>>() {
+                            @Override
+                            public void onSuccess(List<Question> dbQuestions) {
+                                if (isFinishing()) {
+                                    return;
+                                }
+                                if (dbQuestions != null && !dbQuestions.isEmpty()) {
+                                    questions = new ArrayList<>(dbQuestions);
+                                } else {
+                                    questions = QuestionBank.INSTANCE.getRandomQuiz(5);
+                                }
+                                displayQuestion(currentQuestionIndex);
+                            }
+
+                            @Override
+                            public void onError(Exception error) {
+                                if (isFinishing()) {
+                                    return;
+                                }
+                                questions = QuestionBank.INSTANCE.getRandomQuiz(5);
+                                displayQuestion(currentQuestionIndex);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception error) {
+                        if (isFinishing()) {
+                            return;
+                        }
+                        questions = QuestionBank.INSTANCE.getRandomQuiz(5);
+                        displayQuestion(currentQuestionIndex);
+                    }
+                });
+            } else {
+                questions = QuestionBank.INSTANCE.getRandomQuiz(5);
+                displayQuestion(currentQuestionIndex);
+            }
+            return;
+        }
+
         if (levelId > 0 && !isQuickPlay) {
             currentLevel = QuestionBank.INSTANCE.getLevelById(levelId);
             int displayLevel = (currentLevel != null) ? currentLevel.getId() : levelId;
@@ -220,6 +296,7 @@ public final class GameActivity extends AppCompatActivity {
                     } else {
                         questions = QuestionBank.INSTANCE.getRandomQuiz(5);
                     }
+                    setupBossBattleIfApplicable();
                     displayQuestion(currentQuestionIndex);
                 }
 
@@ -234,15 +311,19 @@ public final class GameActivity extends AppCompatActivity {
                     } else {
                         questions = QuestionBank.INSTANCE.getRandomQuiz(5);
                     }
+                    setupBossBattleIfApplicable();
                     displayQuestion(currentQuestionIndex);
                 }
             });
         } else {
-            String topicTitle = (specialTitle != null && !specialTitle.trim().isEmpty())
-                    ? specialTitle
-                    : getString(R.string.quick_play_title);
+            String topicTitle = isTimeAttack
+                    ? getString(R.string.time_attack_title)
+                    : ((specialTitle != null && !specialTitle.trim().isEmpty())
+                            ? specialTitle
+                            : getString(R.string.quick_play_title));
             binding.tvGameTopic.setText(topicTitle);
-            questionRepository.getRandomQuestionsInRange(specialMinLevel, specialMaxLevel, specialCount, new DbCallback<List<Question>>() {
+            int queryCount = isTimeAttack ? 40 : specialCount;
+            questionRepository.getRandomQuestionsInRange(specialMinLevel, specialMaxLevel, queryCount, new DbCallback<List<Question>>() {
                 @Override
                 public void onSuccess(List<Question> dbQuestions) {
                     if (isFinishing()) {
@@ -251,7 +332,7 @@ public final class GameActivity extends AppCompatActivity {
                     if (dbQuestions != null && !dbQuestions.isEmpty()) {
                         questions = new ArrayList<>(dbQuestions);
                     } else {
-                        questions = QuestionBank.INSTANCE.getRandomQuiz(specialCount);
+                        questions = QuestionBank.INSTANCE.getRandomQuiz(queryCount);
                     }
                     displayQuestion(currentQuestionIndex);
                 }
@@ -261,7 +342,7 @@ public final class GameActivity extends AppCompatActivity {
                     if (isFinishing()) {
                         return;
                     }
-                    questions = QuestionBank.INSTANCE.getRandomQuiz(specialCount);
+                    questions = QuestionBank.INSTANCE.getRandomQuiz(queryCount);
                     displayQuestion(currentQuestionIndex);
                 }
             });
@@ -282,7 +363,13 @@ public final class GameActivity extends AppCompatActivity {
 
         binding.tvFeedbackBanner.setVisibility(View.GONE);
         binding.tvExplanationText.setVisibility(View.GONE);
-        binding.tvQuestionProgress.setText(getString(R.string.game_question_progress, index + 1, questions.size()));
+        if (isTimeAttack) {
+            binding.tvQuestionProgress.setText(getString(
+                    R.string.time_attack_progress, correctAnswers, answeredCount + 1));
+        } else {
+            binding.tvQuestionProgress.setText(getString(
+                    R.string.game_question_progress, index + 1, questions.size()));
+        }
         binding.btnCheckAnswer.setText(getString(R.string.game_btn_check));
         binding.btnCheckAnswer.setAlpha(0.6f);
         binding.btnCheckAnswer.setEnabled(false);
@@ -322,7 +409,12 @@ public final class GameActivity extends AppCompatActivity {
                 container.setVisibility(View.GONE);
             }
         }
-        startQuestionTimer(questionTimeLimitSeconds);
+        if (!isTimeAttack) {
+            startQuestionTimer(questionTimeLimitSeconds);
+        } else if (!globalTimerStarted) {
+            globalTimerStarted = true;
+            startQuestionTimer(60);
+        }
     }
 
     private void selectOption(int index) {
@@ -352,7 +444,8 @@ public final class GameActivity extends AppCompatActivity {
         }
         isAnsweringLocked = true;
         hasCheckedAnswer = true;
-        if (countDownTimer != null) {
+        answeredCount++;
+        if (!isTimeAttack && countDownTimer != null) {
             countDownTimer.cancel();
         }
 
@@ -374,6 +467,9 @@ public final class GameActivity extends AppCompatActivity {
             int questionScore = (int) Math.round((100 + timeBonus + streakBonus) * currentDifficulty.getScoreMultiplier());
             score += questionScore;
             feedbackManager.playCorrect();
+            damageBossIfActive();
+            updateComboBadge();
+            syncQuestionMistakeState(question, true);
 
             optionContainers.get(selectedOptionIndex).setBackgroundResource(R.drawable.bg_quiz_option_correct);
             optionTexts.get(selectedOptionIndex).setTextColor(Color.WHITE);
@@ -387,9 +483,7 @@ public final class GameActivity extends AppCompatActivity {
             binding.tvFeedbackBanner.setVisibility(View.VISIBLE);
         } else {
             currentStreak = 0;
-            lives--;
-            updateLivesDisplay();
-            feedbackManager.playWrong();
+            updateComboBadge();
 
             optionContainers.get(selectedOptionIndex).setBackgroundResource(R.drawable.bg_quiz_option_wrong);
             optionTexts.get(selectedOptionIndex).setTextColor(Color.WHITE);
@@ -397,9 +491,8 @@ public final class GameActivity extends AppCompatActivity {
             optionTexts.get(question.getCorrectAnswerIndex()).setTextColor(Color.WHITE);
             animateShake(optionContainers.get(selectedOptionIndex));
 
-            binding.tvFeedbackBanner.setText(getString(R.string.game_feedback_wrong, userName));
-            binding.tvFeedbackBanner.setTextColor(ContextCompat.getColor(this, R.color.wrong_red));
-            binding.tvFeedbackBanner.setVisibility(View.VISIBLE);
+            applyLifeLossOrShield(getString(R.string.game_feedback_wrong, userName));
+            syncQuestionMistakeState(question, false);
         }
 
         showQuestionExplanation(question);
@@ -410,11 +503,25 @@ public final class GameActivity extends AppCompatActivity {
             if (hasCheckedAnswer && !isFinishing()) {
                 advanceToNextQuestion();
             }
-        }, 2600L);
+        }, isTimeAttack ? 850L : 2600L);
     }
 
     private void advanceToNextQuestion() {
         handler.removeCallbacksAndMessages(null);
+        if (isTimeAttack) {
+            if (secondsRemaining <= 0) {
+                finishGame();
+                return;
+            }
+            if (currentQuestionIndex >= questions.size() - 1) {
+                Collections.shuffle(questions);
+                currentQuestionIndex = 0;
+            } else {
+                currentQuestionIndex++;
+            }
+            displayQuestion(currentQuestionIndex);
+            return;
+        }
         if (lives <= 0 || currentQuestionIndex >= questions.size() - 1) {
             finishGame();
         } else {
@@ -450,7 +557,11 @@ public final class GameActivity extends AppCompatActivity {
                 secondsRemaining = 0;
                 binding.pbTimer.setProgress(0);
                 binding.tvTimerText.setText("00:00");
-                onTimeExpired();
+                if (isTimeAttack) {
+                    finishGame();
+                } else {
+                    onTimeExpired();
+                }
             }
         }.start();
     }
@@ -468,18 +579,15 @@ public final class GameActivity extends AppCompatActivity {
         }
 
         currentStreak = 0;
-        lives--;
-        updateLivesDisplay();
-        feedbackManager.playWrong();
+        updateComboBadge();
 
         if (!currentQuestion.isWordPuzzle()) {
             optionContainers.get(currentQuestion.getCorrectAnswerIndex()).setBackgroundResource(R.drawable.bg_quiz_option_correct);
             optionTexts.get(currentQuestion.getCorrectAnswerIndex()).setTextColor(Color.WHITE);
         }
 
-        binding.tvFeedbackBanner.setText(getString(R.string.game_feedback_timeout));
-        binding.tvFeedbackBanner.setTextColor(ContextCompat.getColor(this, R.color.wrong_red));
-        binding.tvFeedbackBanner.setVisibility(View.VISIBLE);
+        applyLifeLossOrShield(getString(R.string.game_feedback_timeout));
+        syncQuestionMistakeState(currentQuestion, false);
 
         showQuestionExplanation(currentQuestion);
         binding.btnCheckAnswer.setText(getString(R.string.game_btn_next));
@@ -522,6 +630,116 @@ public final class GameActivity extends AppCompatActivity {
     private void updateEnergyDisplay() {
         binding.tvGameEnergy.setText(playerEnergy + "/12");
         updatePowerupButtonsState();
+    }
+
+    private void updateShieldsDisplay() {
+        if (playerShields > 0) {
+            binding.tvGameShields.setVisibility(View.VISIBLE);
+            binding.tvGameShields.setText(getString(R.string.game_shield_badge_format, playerShields));
+        } else {
+            binding.tvGameShields.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupBossBattleIfApplicable() {
+        isBossBattle = !isQuickPlay && (levelId == 4 || levelId == 8 || levelId == 12 || levelId == 16);
+        if (!isBossBattle) {
+            binding.layoutBossBar.setVisibility(View.GONE);
+            return;
+        }
+        binding.layoutBossBar.setVisibility(View.VISIBLE);
+        bossMaxHp = Math.max(1, questions.size());
+        bossHp = bossMaxHp;
+
+        int spriteRes;
+        int nameRes;
+        switch (levelId) {
+            case 4:
+                spriteRes = R.drawable.img_monster_rosa;
+                nameRes = R.string.boss_name_4;
+                break;
+            case 8:
+                spriteRes = R.drawable.img_monster_celeste;
+                nameRes = R.string.boss_name_8;
+                break;
+            case 12:
+                spriteRes = R.drawable.img_monster_naranja;
+                nameRes = R.string.boss_name_12;
+                break;
+            default:
+                spriteRes = R.drawable.img_monster_violeta;
+                nameRes = R.string.boss_name_16;
+                break;
+        }
+        binding.ivBossSprite.setImageResource(spriteRes);
+        binding.tvBossName.setText(getString(nameRes));
+        binding.pbBossHp.setMax(bossMaxHp);
+        updateBossHpUi();
+    }
+
+    private void damageBossIfActive() {
+        if (!isBossBattle || bossHp <= 0) {
+            return;
+        }
+        bossHp = Math.max(0, bossHp - 1);
+        updateBossHpUi();
+        animateShake(binding.ivBossSprite);
+        ObjectAnimator flash = ObjectAnimator.ofFloat(binding.ivBossSprite, "alpha", 1.0f, 0.35f, 1.0f);
+        flash.setDuration(260L);
+        flash.start();
+    }
+
+    private void updateBossHpUi() {
+        binding.pbBossHp.setProgress(bossHp);
+        binding.tvBossHpText.setText(getString(R.string.boss_hp_format, bossHp, bossMaxHp));
+    }
+
+    private void updateComboBadge() {
+        if (currentStreak >= 2) {
+            binding.tvComboBadge.setVisibility(View.VISIBLE);
+            binding.tvComboBadge.setText(getString(R.string.game_combo_format, currentStreak));
+            binding.tvComboBadge.setScaleX(0.6f);
+            binding.tvComboBadge.setScaleY(0.6f);
+            ObjectAnimator sx = ObjectAnimator.ofFloat(binding.tvComboBadge, "scaleX", 0.6f, 1.18f, 1.0f);
+            ObjectAnimator sy = ObjectAnimator.ofFloat(binding.tvComboBadge, "scaleY", 0.6f, 1.18f, 1.0f);
+            AnimatorSet set = new AnimatorSet();
+            set.playTogether(sx, sy);
+            set.setDuration(350L);
+            set.setInterpolator(new OvershootInterpolator());
+            set.start();
+        } else {
+            binding.tvComboBadge.setVisibility(View.GONE);
+        }
+    }
+
+    private void applyLifeLossOrShield(String fallbackWrongMessage) {
+        if (isTimeAttack) {
+            feedbackManager.playWrong();
+            binding.tvFeedbackBanner.setText(getString(R.string.time_attack_wrong));
+            binding.tvFeedbackBanner.setTextColor(ContextCompat.getColor(this, R.color.wrong_red));
+            binding.tvFeedbackBanner.setVisibility(View.VISIBLE);
+            return;
+        }
+        if (playerShields > 0) {
+            playerShields--;
+            prefsManager.setPlayerShields(playerShields);
+            updateShieldsDisplay();
+            feedbackManager.playPowerup();
+            long userId = prefsManager.getCurrentUserId();
+            if (userId > 0) {
+                userRepository.consumeShield(userId, null);
+            }
+            binding.tvFeedbackBanner.setText(getString(R.string.game_shield_saved));
+            binding.tvFeedbackBanner.setTextColor(ContextCompat.getColor(this, R.color.ref_yellow_selected));
+            binding.tvFeedbackBanner.setVisibility(View.VISIBLE);
+        } else {
+            lives--;
+            updateLivesDisplay();
+            feedbackManager.playWrong();
+            binding.tvFeedbackBanner.setText(fallbackWrongMessage);
+            binding.tvFeedbackBanner.setTextColor(ContextCompat.getColor(this, R.color.wrong_red));
+            binding.tvFeedbackBanner.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updatePowerupButtonsState() {
@@ -727,7 +945,12 @@ public final class GameActivity extends AppCompatActivity {
         }
 
         updateWordSlotsUI();
-        startQuestionTimer(questionTimeLimitSeconds);
+        if (!isTimeAttack) {
+            startQuestionTimer(questionTimeLimitSeconds);
+        } else if (!globalTimerStarted) {
+            globalTimerStarted = true;
+            startQuestionTimer(60);
+        }
     }
 
     private void onLetterTileClicked(int tileIndex) {
@@ -794,7 +1017,8 @@ public final class GameActivity extends AppCompatActivity {
 
         isAnsweringLocked = true;
         hasCheckedAnswer = true;
-        if (countDownTimer != null) {
+        answeredCount++;
+        if (!isTimeAttack && countDownTimer != null) {
             countDownTimer.cancel();
         }
 
@@ -823,6 +1047,9 @@ public final class GameActivity extends AppCompatActivity {
             int questionScore = (int) Math.round((120 + timeBonus + streakBonus) * currentDifficulty.getScoreMultiplier());
             score += questionScore;
             feedbackManager.playCorrect();
+            damageBossIfActive();
+            updateComboBadge();
+            syncQuestionMistakeState(question, true);
 
             for (TextView slot : slotViews) {
                 slot.setBackgroundResource(R.drawable.bg_quiz_option_correct);
@@ -837,18 +1064,15 @@ public final class GameActivity extends AppCompatActivity {
             binding.tvFeedbackBanner.setVisibility(View.VISIBLE);
         } else {
             currentStreak = 0;
-            lives--;
-            updateLivesDisplay();
-            feedbackManager.playWrong();
+            updateComboBadge();
 
             for (TextView slot : slotViews) {
                 slot.setBackgroundResource(R.drawable.bg_quiz_option_wrong);
                 animateShake(slot);
             }
 
-            binding.tvFeedbackBanner.setText(getString(R.string.game_feedback_wrong_word, target));
-            binding.tvFeedbackBanner.setTextColor(ContextCompat.getColor(this, R.color.wrong_red));
-            binding.tvFeedbackBanner.setVisibility(View.VISIBLE);
+            applyLifeLossOrShield(getString(R.string.game_feedback_wrong_word, target));
+            syncQuestionMistakeState(question, false);
         }
 
         showQuestionExplanation(question);
@@ -859,7 +1083,21 @@ public final class GameActivity extends AppCompatActivity {
             if (hasCheckedAnswer && !isFinishing()) {
                 advanceToNextQuestion();
             }
-        }, 2600L);
+        }, isTimeAttack ? 850L : 2600L);
+    }
+
+    private void syncQuestionMistakeState(Question question, boolean isCorrect) {
+        long userId = prefsManager.getCurrentUserId();
+        if (userId <= 0 || question == null || question.getId() <= 0) {
+            return;
+        }
+        if (isCorrect) {
+            if (isReviewMistakes) {
+                userRepository.clearWrongQuestion(userId, question.getId(), null);
+            }
+        } else {
+            userRepository.recordWrongQuestion(userId, question.getId(), null);
+        }
     }
 
     private void animateSuccess(View view) {
@@ -884,7 +1122,18 @@ public final class GameActivity extends AppCompatActivity {
         handler.removeCallbacksAndMessages(null);
 
         int stars;
-        if (lives <= 0) {
+        int reportedTotal = isTimeAttack ? Math.max(1, answeredCount) : questions.size();
+        if (isTimeAttack) {
+            if (correctAnswers >= 8) {
+                stars = 3;
+            } else if (correctAnswers >= 5) {
+                stars = 2;
+            } else if (correctAnswers >= 1) {
+                stars = 1;
+            } else {
+                stars = 0;
+            }
+        } else if (lives <= 0) {
             stars = 0;
         } else {
             float ratio = !questions.isEmpty() ? (float) correctAnswers / questions.size() : 0.0f;
@@ -906,17 +1155,19 @@ public final class GameActivity extends AppCompatActivity {
         intent.putExtra(ResultActivity.EXTRA_FINAL_SCORE, score);
         intent.putExtra(ResultActivity.EXTRA_MAX_STREAK, maxStreak);
         intent.putExtra(ResultActivity.EXTRA_CORRECT_COUNT, correctAnswers);
-        intent.putExtra(ResultActivity.EXTRA_TOTAL_QUESTIONS, questions.size());
+        intent.putExtra(ResultActivity.EXTRA_TOTAL_QUESTIONS, reportedTotal);
         intent.putExtra(ResultActivity.EXTRA_LIVES_LEFT, lives);
         intent.putExtra("extra_level_id", levelId);
         intent.putExtra(ResultActivity.EXTRA_EARNED_STARS, stars);
         intent.putExtra("extra_is_quick_play", isQuickPlay);
+        intent.putExtra(MapActivity.EXTRA_IS_TIME_ATTACK, isTimeAttack);
         intent.putExtra(MapActivity.EXTRA_DIFFICULTY, currentDifficulty.name());
         intent.putExtra(MapActivity.EXTRA_SPECIAL_TITLE, specialTitle);
         intent.putExtra(MapActivity.EXTRA_SPECIAL_MIN_LEVEL, specialMinLevel);
         intent.putExtra(MapActivity.EXTRA_SPECIAL_MAX_LEVEL, specialMaxLevel);
         intent.putExtra(MapActivity.EXTRA_SPECIAL_COUNT, specialCount);
         intent.putExtra(MapActivity.EXTRA_SPECIAL_HOTSPOT_ID, specialHotspotId);
+        intent.putExtra(ResultActivity.EXTRA_BOSS_DEFEATED, isBossBattle && stars > 0 && lives > 0);
         startActivity(intent);
         finish();
     }

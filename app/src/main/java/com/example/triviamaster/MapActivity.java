@@ -25,8 +25,12 @@ import com.example.triviamaster.models.Difficulty;
 import com.example.triviamaster.models.Level;
 import com.example.triviamaster.models.Question;
 import com.example.triviamaster.models.User;
+import com.example.triviamaster.utils.AvatarFrameHelper;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public final class MapActivity extends AppCompatActivity {
 
@@ -38,6 +42,7 @@ public final class MapActivity extends AppCompatActivity {
     public static final String EXTRA_SPECIAL_MAX_LEVEL = "extra_special_max_level";
     public static final String EXTRA_SPECIAL_COUNT = "extra_special_count";
     public static final String EXTRA_SPECIAL_HOTSPOT_ID = "extra_special_hotspot_id";
+    public static final String EXTRA_IS_TIME_ATTACK = "extra_is_time_attack";
 
     private ActivityMapBinding binding;
     private PreferencesManager prefsManager;
@@ -49,6 +54,7 @@ public final class MapActivity extends AppCompatActivity {
     private ObjectAnimator giftPulseAnimX;
     private ObjectAnimator giftPulseAnimY;
     private boolean guideAutoChecked;
+    private boolean dailyRewardChecked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,12 +119,77 @@ public final class MapActivity extends AppCompatActivity {
                 updateHeaderStats();
                 updateAdminNavVisibility();
                 renderRoadmap();
+                checkDailyReward(user);
             }
 
             @Override
             public void onError(Exception error) {
             }
         });
+    }
+
+    private void checkDailyReward(User user) {
+        if (dailyRewardChecked || user == null) {
+            return;
+        }
+        long userId = prefsManager.getCurrentUserId();
+        if (!prefsManager.hasSeenGameGuide(userId)) {
+            return;
+        }
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        if (today.equals(user.getLastDailyClaim())) {
+            dailyRewardChecked = true;
+            return;
+        }
+        String yesterday = new SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                .format(new Date(System.currentTimeMillis() - 86400000L));
+        int nextStreak = yesterday.equals(user.getLastDailyClaim()) ? user.getDailyStreak() + 1 : 1;
+        dailyRewardChecked = true;
+        showDailyRewardDialog(today, yesterday, nextStreak);
+    }
+
+    private void showDailyRewardDialog(String todayDate, String yesterdayDate, int nextStreak) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_gift_claimed, (ViewGroup) null);
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        TextView tvTitle = dialogView.findViewById(R.id.tvClaimedTitle);
+        TextView tvSubtitle = dialogView.findViewById(R.id.tvClaimedSubtitle);
+        Button btnAwesome = dialogView.findViewById(R.id.btnClaimedAwesome);
+
+        int previewCoins = Math.min(150, 30 + (nextStreak - 1) * 20);
+        if (tvTitle != null) {
+            tvTitle.setText(getString(R.string.daily_reward_streak_title, nextStreak));
+        }
+        if (tvSubtitle != null) {
+            tvSubtitle.setText(getString(R.string.daily_reward_streak_desc, nextStreak, userName, previewCoins));
+        }
+        if (btnAwesome != null) {
+            btnAwesome.setText(getString(R.string.daily_reward_btn));
+            btnAwesome.setOnClickListener(v -> {
+                dialog.dismiss();
+                long userId = prefsManager.getCurrentUserId();
+                if (userId > 0) {
+                    userRepository.claimDailyReward(userId, todayDate, yesterdayDate, new DbCallback<User>() {
+                        @Override
+                        public void onSuccess(User updated) {
+                            if (isFinishing() || updated == null) {
+                                return;
+                            }
+                            prefsManager.syncFromUser(updated);
+                            updateHeaderStats();
+                        }
+
+                        @Override
+                        public void onError(Exception error) {
+                        }
+                    });
+                }
+            });
+        }
+        dialog.show();
     }
 
     private void extractIntentData() {
@@ -139,6 +210,8 @@ public final class MapActivity extends AppCompatActivity {
 
         binding.btnHeaderGuide.setOnClickListener(v -> showGameGuideDialog());
 
+        binding.btnTimeAttack.setOnClickListener(v -> launchTimeAttack());
+
         binding.btnHeaderGift.setOnClickListener(v -> handleGiftClick());
     }
 
@@ -149,6 +222,7 @@ public final class MapActivity extends AppCompatActivity {
         updateGiftBadge();
         binding.tvHeaderGreeting.setText(getString(R.string.map_greeting_format, userName));
         binding.ivHeaderAvatar.setImageResource(avatarResId);
+        AvatarFrameHelper.applyFrame(binding.btnHeaderAvatarContainer, prefsManager.getEquippedFrame());
     }
 
     private void updateGiftBadge() {
@@ -463,6 +537,15 @@ public final class MapActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void launchTimeAttack() {
+        Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra(EXTRA_LEVEL_ID, -1);
+        intent.putExtra(EXTRA_IS_QUICK_PLAY, true);
+        intent.putExtra(EXTRA_IS_TIME_ATTACK, true);
+        intent.putExtra(EXTRA_DIFFICULTY, Difficulty.NORMAL.name());
+        startActivity(intent);
+    }
+
     private void launchSpecialChallenge(int hotspotId, String title, int minLevel, int maxLevel, int count, Difficulty difficulty) {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra(EXTRA_LEVEL_ID, -1);
@@ -687,10 +770,14 @@ public final class MapActivity extends AppCompatActivity {
     private void setupBottomNav() {
         ImageView ivNavMap = findViewById(R.id.ivNavMap);
         ImageView ivNavLeaderboard = findViewById(R.id.ivNavLeaderboard);
+        ImageView ivNavSocial = findViewById(R.id.ivNavSocial);
+        ImageView ivNavQuests = findViewById(R.id.ivNavQuests);
         ImageView ivNavQuestions = findViewById(R.id.ivNavQuestions);
         ImageView ivNavProfile = findViewById(R.id.ivNavProfile);
         View btnNavMap = findViewById(R.id.btnNavMap);
         View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
+        View btnNavSocial = findViewById(R.id.btnNavSocial);
+        View btnNavQuests = findViewById(R.id.btnNavQuests);
         View btnNavQuestions = findViewById(R.id.btnNavQuestions);
         View btnNavProfile = findViewById(R.id.btnNavProfile);
 
@@ -700,6 +787,12 @@ public final class MapActivity extends AppCompatActivity {
         }
         if (ivNavLeaderboard != null) {
             ivNavLeaderboard.setColorFilter(inactiveColor);
+        }
+        if (ivNavSocial != null) {
+            ivNavSocial.setColorFilter(inactiveColor);
+        }
+        if (ivNavQuests != null) {
+            ivNavQuests.setColorFilter(inactiveColor);
         }
         if (ivNavQuestions != null) {
             ivNavQuestions.setColorFilter(inactiveColor);
@@ -713,6 +806,12 @@ public final class MapActivity extends AppCompatActivity {
         }
         if (btnNavLeaderboard != null) {
             btnNavLeaderboard.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, RankingActivity.class)));
+        }
+        if (btnNavSocial != null) {
+            btnNavSocial.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, SocialActivity.class)));
+        }
+        if (btnNavQuests != null) {
+            btnNavQuests.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, QuestsActivity.class)));
         }
         if (btnNavQuestions != null) {
             btnNavQuestions.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, QuestionManagerActivity.class)));

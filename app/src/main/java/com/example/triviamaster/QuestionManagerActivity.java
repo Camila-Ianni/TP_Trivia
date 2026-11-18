@@ -347,17 +347,30 @@ public final class QuestionManagerActivity extends AppCompatActivity {
     private void setupBottomNav() {
         ImageView ivNavMap = findViewById(R.id.ivNavMap);
         ImageView ivNavLeaderboard = findViewById(R.id.ivNavLeaderboard);
+        ImageView ivNavSocial = findViewById(R.id.ivNavSocial);
+        ImageView ivNavQuests = findViewById(R.id.ivNavQuests);
         ImageView ivNavQuestions = findViewById(R.id.ivNavQuestions);
         ImageView ivNavProfile = findViewById(R.id.ivNavProfile);
         View btnNavMap = findViewById(R.id.btnNavMap);
         View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
+        View btnNavSocial = findViewById(R.id.btnNavSocial);
+        View btnNavQuests = findViewById(R.id.btnNavQuests);
         View btnNavProfile = findViewById(R.id.btnNavProfile);
 
         int inactiveColor = ContextCompat.getColor(this, R.color.text_muted);
         if (ivNavMap != null) ivNavMap.setColorFilter(inactiveColor);
         if (ivNavLeaderboard != null) ivNavLeaderboard.setColorFilter(inactiveColor);
+        if (ivNavSocial != null) ivNavSocial.setColorFilter(inactiveColor);
+        if (ivNavQuests != null) ivNavQuests.setColorFilter(inactiveColor);
         if (ivNavQuestions != null) ivNavQuestions.setColorFilter(ContextCompat.getColor(this, R.color.ref_btn_coral));
         if (ivNavProfile != null) ivNavProfile.setColorFilter(inactiveColor);
+
+        if (btnNavQuests != null) {
+            btnNavQuests.setOnClickListener(v -> {
+                startActivity(new Intent(QuestionManagerActivity.this, QuestsActivity.class));
+                finish();
+            });
+        }
 
         if (btnNavMap != null) {
             btnNavMap.setOnClickListener(v -> {
@@ -370,6 +383,12 @@ public final class QuestionManagerActivity extends AppCompatActivity {
         if (btnNavLeaderboard != null) {
             btnNavLeaderboard.setOnClickListener(v -> {
                 startActivity(new Intent(QuestionManagerActivity.this, RankingActivity.class));
+                finish();
+            });
+        }
+        if (btnNavSocial != null) {
+            btnNavSocial.setOnClickListener(v -> {
+                startActivity(new Intent(QuestionManagerActivity.this, SocialActivity.class));
                 finish();
             });
         }

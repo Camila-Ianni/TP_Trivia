@@ -48,6 +48,44 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/btnNavSocial"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ivNavSocial"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_nav_duel"
+            app:tint="#A09BB0"
+            android:contentDescription="@string/nav_desc_social" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btnNavQuests"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ivNavQuests"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_nav_checklist"
+            app:tint="#A09BB0"
+            android:contentDescription="@string/quests_title" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/btnNavQuestions"
         android:layout_width="0dp"
         android:layout_height="match_parent"

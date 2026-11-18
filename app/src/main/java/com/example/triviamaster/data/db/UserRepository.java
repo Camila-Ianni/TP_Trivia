@@ -63,10 +63,22 @@ public final class UserRepository {
             values.put(TriviaDbHelper.COL_USER_CREATED_AT, createdAt);
             values.put(TriviaDbHelper.COL_USER_ROLE, role);
             values.put(TriviaDbHelper.COL_USER_SPECIAL_COMPLETED, "");
+            values.put(TriviaDbHelper.COL_USER_COINS, 100);
+            values.put(TriviaDbHelper.COL_USER_SHIELDS, 0);
+            values.put(TriviaDbHelper.COL_USER_OWNED_TITLES, "");
+            values.put(TriviaDbHelper.COL_USER_EQUIPPED_TITLE, "");
+            values.put(TriviaDbHelper.COL_USER_CLAIMED_QUESTS, "");
+            values.put(TriviaDbHelper.COL_USER_XP, 0);
+            values.put(TriviaDbHelper.COL_USER_LAST_DAILY_CLAIM, "");
+            values.put(TriviaDbHelper.COL_USER_OWNED_FRAMES, "");
+            values.put(TriviaDbHelper.COL_USER_EQUIPPED_FRAME, "");
+            values.put(TriviaDbHelper.COL_USER_DAILY_STREAK, 0);
+            values.put(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS, "");
 
             long newId = db.insertOrThrow(TriviaDbHelper.TABLE_USERS, null, values);
             return new User(newId, cleanUsername, password, cleanEmail, avatarId,
-                    0, 0, 1, 12, 1, "", createdAt, role, "");
+                    0, 0, 1, 12, 1, "", createdAt, role, "",
+                    100, 0, "", "", "", 0, "", "", "", 0, "");
         }, callback);
     }
 
@@ -74,6 +86,38 @@ public final class UserRepository {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             return getUserByIdInternal(db, userId);
+        }, callback);
+    }
+
+    public void getUserByUsername(String username, DbCallback<User> callback) {
+        executor.execute(() -> {
+            if (username == null || username.trim().isEmpty()) {
+                return null;
+            }
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String sql = "SELECT * FROM " + TriviaDbHelper.TABLE_USERS
+                    + " WHERE " + TriviaDbHelper.COL_USER_USERNAME + " = ? COLLATE NOCASE LIMIT 1";
+            try (Cursor cursor = db.rawQuery(sql, new String[]{username.trim()})) {
+                if (cursor.moveToFirst()) {
+                    return mapCursorToUser(cursor);
+                }
+            }
+            return null;
+        }, callback);
+    }
+
+    public void getRandomOpponent(long excludeUserId, DbCallback<User> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String sql = "SELECT * FROM " + TriviaDbHelper.TABLE_USERS
+                    + " WHERE " + TriviaDbHelper.COL_USER_ID + " != ?"
+                    + " ORDER BY RANDOM() LIMIT 1";
+            try (Cursor cursor = db.rawQuery(sql, new String[]{String.valueOf(excludeUserId)})) {
+                if (cursor.moveToFirst()) {
+                    return mapCursorToUser(cursor);
+                }
+            }
+            return null;
         }, callback);
     }
 
@@ -205,11 +249,13 @@ public final class UserRepository {
             user.setAvailableGifts(Math.max(0, user.getAvailableGifts() - 1));
             user.setEnergy(user.getEnergy() + energyBonus);
             user.setHighScore(user.getHighScore() + pointsBonus);
+            user.setCoins(user.getCoins() + 50);
 
             ContentValues values = new ContentValues();
             values.put(TriviaDbHelper.COL_USER_AVAILABLE_GIFTS, user.getAvailableGifts());
             values.put(TriviaDbHelper.COL_USER_ENERGY, user.getEnergy());
             values.put(TriviaDbHelper.COL_USER_HIGH_SCORE, user.getHighScore());
+            values.put(TriviaDbHelper.COL_USER_COINS, user.getCoins());
 
             db.update(TriviaDbHelper.TABLE_USERS, values,
                     TriviaDbHelper.COL_USER_ID + " = ?",
@@ -279,6 +325,235 @@ public final class UserRepository {
         }, callback);
     }
 
+    public void grantCoins(long userId, int coinsToAdd, DbCallback<User> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            user.setCoins(user.getCoins() + coinsToAdd);
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_COINS, user.getCoins());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
+    public void consumeShield(long userId, DbCallback<User> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            user.setShields(Math.max(0, user.getShields() - 1));
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_SHIELDS, user.getShields());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
+    public void buyShopItem(long userId, String itemType, String titleKey, int price, DbCallback<User> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            if (user.getCoins() < price) {
+                throw new IllegalStateException("INSUFFICIENT_COINS");
+            }
+            user.setCoins(user.getCoins() - price);
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_COINS, user.getCoins());
+            if ("ENERGY".equals(itemType)) {
+                user.setEnergy(user.getEnergy() + 5);
+                values.put(TriviaDbHelper.COL_USER_ENERGY, user.getEnergy());
+            } else if ("SHIELD".equals(itemType)) {
+                user.setShields(user.getShields() + 1);
+                values.put(TriviaDbHelper.COL_USER_SHIELDS, user.getShields());
+            } else if ("TITLE".equals(itemType) && titleKey != null) {
+                user.addOwnedTitle(titleKey);
+                user.setEquippedTitle(titleKey);
+                values.put(TriviaDbHelper.COL_USER_OWNED_TITLES, user.getOwnedTitlesSerialized());
+                values.put(TriviaDbHelper.COL_USER_EQUIPPED_TITLE, user.getEquippedTitle());
+            } else if ("FRAME".equals(itemType) && titleKey != null) {
+                user.addOwnedFrame(titleKey);
+                user.setEquippedFrame(titleKey);
+                values.put(TriviaDbHelper.COL_USER_OWNED_FRAMES, user.getOwnedFramesSerialized());
+                values.put(TriviaDbHelper.COL_USER_EQUIPPED_FRAME, user.getEquippedFrame());
+            }
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
+    public void equipTitle(long userId, String titleKey, DbCallback<User> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            user.setEquippedTitle(titleKey != null ? titleKey : "");
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_EQUIPPED_TITLE, user.getEquippedTitle());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
+    public void claimQuestReward(long userId, String questId, int coinsBonus, int energyBonus,
+                                 int chestBonus, DbCallback<User> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            if (user.hasClaimedQuest(questId)) {
+                return user;
+            }
+            user.markQuestClaimed(questId);
+            user.setCoins(user.getCoins() + coinsBonus);
+            user.setEnergy(user.getEnergy() + energyBonus);
+            user.setAvailableGifts(user.getAvailableGifts() + chestBonus);
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_CLAIMED_QUESTS, user.getClaimedQuestsSerialized());
+            values.put(TriviaDbHelper.COL_USER_COINS, user.getCoins());
+            values.put(TriviaDbHelper.COL_USER_ENERGY, user.getEnergy());
+            values.put(TriviaDbHelper.COL_USER_AVAILABLE_GIFTS, user.getAvailableGifts());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
+    public void grantXpAndCheckLevelUp(long userId, int xpEarned, DbCallback<int[]> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            int oldLevel = user.getAccountLevel();
+            user.setXp(user.getXp() + Math.max(0, xpEarned));
+            int newLevel = user.getAccountLevel();
+            int levelDiff = Math.max(0, newLevel - oldLevel);
+            int levelUpCoins = levelDiff * 50;
+            if (levelUpCoins > 0) {
+                user.setCoins(user.getCoins() + levelUpCoins);
+            }
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_XP, user.getXp());
+            values.put(TriviaDbHelper.COL_USER_COINS, user.getCoins());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return new int[]{oldLevel, newLevel, levelUpCoins, user.getXp()};
+        }, callback);
+    }
+
+    public void equipFrame(long userId, String frameKey, DbCallback<User> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            user.setEquippedFrame(frameKey != null ? frameKey : "");
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_EQUIPPED_FRAME, user.getEquippedFrame());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
+    public void claimDailyReward(long userId, String todayDate, String yesterdayDate,
+                                 DbCallback<User> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            if (todayDate.equals(user.getLastDailyClaim())) {
+                return user;
+            }
+            int newStreak = (yesterdayDate != null && yesterdayDate.equals(user.getLastDailyClaim()))
+                    ? user.getDailyStreak() + 1
+                    : 1;
+            int coinsBonus = Math.min(150, 30 + (newStreak - 1) * 20);
+            int energyBonus = 2;
+            user.setLastDailyClaim(todayDate);
+            user.setDailyStreak(newStreak);
+            user.setCoins(user.getCoins() + coinsBonus);
+            user.setEnergy(user.getEnergy() + energyBonus);
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_LAST_DAILY_CLAIM, todayDate);
+            values.put(TriviaDbHelper.COL_USER_DAILY_STREAK, newStreak);
+            values.put(TriviaDbHelper.COL_USER_COINS, user.getCoins());
+            values.put(TriviaDbHelper.COL_USER_ENERGY, user.getEnergy());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
+    public void recordWrongQuestion(long userId, int questionId, DbCallback<User> callback) {
+        executor.execute(() -> {
+            if (questionId <= 0) {
+                return null;
+            }
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            user.addWrongQuestionId(questionId);
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS, user.getWrongQuestionIdsSerialized());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
+    public void clearWrongQuestion(long userId, int questionId, DbCallback<User> callback) {
+        executor.execute(() -> {
+            if (questionId <= 0) {
+                return null;
+            }
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            User user = getUserByIdInternal(db, userId);
+            if (user == null) {
+                return null;
+            }
+            user.removeWrongQuestionId(questionId);
+            ContentValues values = new ContentValues();
+            values.put(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS, user.getWrongQuestionIdsSerialized());
+            db.update(TriviaDbHelper.TABLE_USERS, values,
+                    TriviaDbHelper.COL_USER_ID + " = ?",
+                    new String[]{String.valueOf(userId)});
+            return user;
+        }, callback);
+    }
+
     public void deleteUser(long userId, DbCallback<Boolean> callback) {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -328,7 +603,18 @@ public final class UserRepository {
                 c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_LEVEL_STARS)),
                 c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_CREATED_AT)),
                 c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_ROLE)),
-                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_SPECIAL_COMPLETED))
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_SPECIAL_COMPLETED)),
+                c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_COINS)),
+                c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_SHIELDS)),
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_OWNED_TITLES)),
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_EQUIPPED_TITLE)),
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_CLAIMED_QUESTS)),
+                c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_XP)),
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_LAST_DAILY_CLAIM)),
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_OWNED_FRAMES)),
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_EQUIPPED_FRAME)),
+                c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_DAILY_STREAK)),
+                c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_USER_WRONG_QUESTION_IDS))
         );
     }
 }
