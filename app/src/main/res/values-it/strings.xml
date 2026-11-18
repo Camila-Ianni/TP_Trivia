@@ -460,4 +460,6 @@
     <string name="label_pick_country">Seleziona il tuo paese (lingua e regione duelli)</string>
     <string name="duel_searching_country_desc">Ricerca giocatori di %1$s nella tua zona...</string>
     <string name="duel_no_players_country_desc">Nessuno di %1$s sta giocando nella tua zona al momento.</string>
+    <string name="notif_center_title">Centro Notifiche</string>
+    <string name="notif_empty">Non hai richieste di amicizia in sospeso.</string>
 </resources>

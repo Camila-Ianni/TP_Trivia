@@ -14,9 +14,13 @@ Aplicación móvil nativa desarrollada en **Java** para Android con estética ar
 
 ## Capturas de la App
 
-| Mapa y Cueva de Retos | Barra de Progreso y Recompensas | Duelo 1 vs 1 | Arte del Roadmap |
-| :---: | :---: | :---: | :---: |
-| <img src="docs/screenshots/cueva_retos_mapa.jpg" width="210" alt="Cueva de Retos y Mapa" /> | <img src="docs/screenshots/mapa_header.jpg" width="210" alt="Header del Mapa" /> | <img src="docs/screenshots/duelo_1v1.png" width="210" alt="Duelo 1 vs 1" /> | <img src="docs/screenshots/roadmap_preview.png" width="210" alt="Roadmap de Niveles" /> |
+| Login (`MindClash`) | Registro + País / Idioma | Mapa Interactivo |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/login.jpg" width="210" alt="Login MindClash" /> | <img src="docs/screenshots/registro.png" width="210" alt="Registro con País" /> | <img src="docs/screenshots/mapa.jpg" width="210" alt="Mapa Interactivo" /> |
+
+| Salón de la Fama | Duelos y Amistades | Perfil de Aventurero |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/ranking.jpg" width="210" alt="Ranking" /> | <img src="docs/screenshots/duelos_amigos.png" width="210" alt="Duelos y Amistades" /> | <img src="docs/screenshots/perfil.jpg" width="210" alt="Perfil" /> |
 
 ---
 
@@ -49,7 +53,8 @@ Aplicación móvil nativa desarrollada en **Java** para Android con estética ar
 - **Sección dedicada en la barra inferior** (`SocialActivity`):
   - **Partida Random 1 vs 1 en Red Local**: descubrimiento y conexión real en tu área mediante `NsdManager` (`_triviamaster._tcp.`) y `Socket` TCP (`LocalAreaMatchmaker`, `ActiveDuelSession`), sin bots ni simulaciones. Si no hay otro jugador conectado en tu área, la app informa que no hay jugadores disponibles en ese momento.
   - **Duelo Local (2 Jugadores)**: modalidad "Pasar y Jugar" en el mismo dispositivo con turnos alternados y temporizador de 15s.
-  - **Amistades en SQLite**: buscador de usuarios por nombre, envío de solicitudes, aceptación/rechazo y lista de amigos para desafiar 1 vs 1.
+  - **Amistades y Centro de Notificaciones en SQLite**: buscador de usuarios por nombre, envío de solicitudes pendientes (`PENDING`), **Centro de Notificaciones** (campanita con contador en Mapa y Duelos) para aceptar o rechazar solicitudes recibidas, y lista de amigos para desafiar 1 vs 1.
+  - **País e Idioma Automático (ES / EN / IT)**: selector de 15 países con banderas al registrarse que traduce automáticamente toda la app y las 80 preguntas base (`QuestionTranslator`), emparejando duelos por país.
   - **Interacción desde el Ranking** (`RankingActivity`): tocá cualquier jugador del podio o de la tabla para enviarle solicitud de amistad o desafiarlo.
 
 ### 6. Gestión CRUD e Historial (SQLite)

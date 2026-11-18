@@ -171,6 +171,9 @@ public final class SocialActivity extends AppCompatActivity {
         binding.btnLocalDuel.setOnClickListener(v ->
                 startActivity(new Intent(SocialActivity.this, DuelActivity.class)));
         binding.btnSocialSearch.setOnClickListener(v -> performSearch());
+        binding.btnSocialNotifications.setOnClickListener(v ->
+                com.example.triviamaster.utils.NotificationsDialogHelper.show(
+                        SocialActivity.this, prefsManager, friendshipRepository, this::loadFriendsAndRequests));
     }
 
     private void startRandomDuel() {
@@ -322,9 +325,12 @@ public final class SocialActivity extends AppCompatActivity {
                 if (incoming.isEmpty()) {
                     binding.tvRequestsHeader.setVisibility(View.GONE);
                     binding.rvIncomingRequests.setVisibility(View.GONE);
+                    binding.badgeSocialNotif.setVisibility(View.GONE);
                 } else {
                     binding.tvRequestsHeader.setVisibility(View.VISIBLE);
                     binding.rvIncomingRequests.setVisibility(View.VISIBLE);
+                    binding.badgeSocialNotif.setText(String.valueOf(incoming.size()));
+                    binding.badgeSocialNotif.setVisibility(View.VISIBLE);
                     requestsAdapter.setFriendships(incoming);
                 }
 

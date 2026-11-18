@@ -460,4 +460,6 @@
     <string name="label_pick_country">Select your country (sets language &amp; duel region)</string>
     <string name="duel_searching_country_desc">Searching for players from %1$s in your area...</string>
     <string name="duel_no_players_country_desc">No one from %1$s is playing in your area right now.</string>
+    <string name="notif_center_title">Notification Center</string>
+    <string name="notif_empty">You have no pending friend requests.</string>
 </resources>

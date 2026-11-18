@@ -47,6 +47,7 @@ public final class MapActivity extends AppCompatActivity {
     private ActivityMapBinding binding;
     private PreferencesManager prefsManager;
     private UserRepository userRepository;
+    private com.example.triviamaster.data.db.FriendshipRepository friendshipRepository;
     private QuestionRepository questionRepository;
     private String userName = "Jugador";
     private int avatarId = 1;
@@ -63,6 +64,7 @@ public final class MapActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         prefsManager = new PreferencesManager(this);
         userRepository = new UserRepository(this);
+        friendshipRepository = new com.example.triviamaster.data.db.FriendshipRepository(this);
         questionRepository = new QuestionRepository(this);
         extractIntentData();
         setupHeader();
@@ -101,6 +103,38 @@ public final class MapActivity extends AppCompatActivity {
         updateHeaderStats();
         renderRoadmap();
         refreshUserFromDb();
+        updateNotificationsBadge();
+    }
+
+    private void updateNotificationsBadge() {
+        long myId = prefsManager.getCurrentUserId();
+        if (myId <= 0 || friendshipRepository == null) {
+            return;
+        }
+        friendshipRepository.getFriendsAndRequests(myId, new DbCallback<java.util.List<com.example.triviamaster.models.Friendship>>() {
+            @Override
+            public void onSuccess(java.util.List<com.example.triviamaster.models.Friendship> items) {
+                if (isFinishing()) return;
+                int pending = 0;
+                if (items != null) {
+                    for (com.example.triviamaster.models.Friendship f : items) {
+                        if (f.isIncoming()) {
+                            pending++;
+                        }
+                    }
+                }
+                if (pending > 0) {
+                    binding.badgeNotifCount.setText(String.valueOf(pending));
+                    binding.badgeNotifCount.setVisibility(View.VISIBLE);
+                } else {
+                    binding.badgeNotifCount.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onError(Exception error) {
+            }
+        });
     }
 
     private void refreshUserFromDb() {
@@ -206,6 +240,10 @@ public final class MapActivity extends AppCompatActivity {
         binding.btnHeaderAvatarContainer.setOnClickListener(v -> {
             startActivity(new Intent(MapActivity.this, ProfileActivity.class));
         });
+
+        binding.btnHeaderNotifications.setOnClickListener(v ->
+                com.example.triviamaster.utils.NotificationsDialogHelper.show(
+                        MapActivity.this, prefsManager, friendshipRepository, this::updateNotificationsBadge));
 
         binding.btnHeaderGuide.setOnClickListener(v -> showGameGuideDialog());
 

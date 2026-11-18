@@ -460,4 +460,6 @@
     <string name="label_pick_country">Selecciona tu país (define el idioma y tu región de duelos)</string>
     <string name="duel_searching_country_desc">Buscando jugadores de %1$s en tu área...</string>
     <string name="duel_no_players_country_desc">No hay nadie de %1$s jugando en tu área en este momento.</string>
+    <string name="notif_center_title">Centro de Notificaciones</string>
+    <string name="notif_empty">No tienes solicitudes de amistad pendientes.</string>
 </resources>
