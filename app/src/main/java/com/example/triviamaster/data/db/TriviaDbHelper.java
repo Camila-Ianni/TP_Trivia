@@ -12,7 +12,7 @@ import java.util.List;
 public class TriviaDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "triviamaster.db";
-    public static final int DATABASE_VERSION = 11;
+    public static final int DATABASE_VERSION = 12;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_USER_ID = "id";
@@ -145,6 +145,7 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
         createFriendshipsTable(db);
 
         seedInitialQuestions(db);
+        seedDefaultAdmin(db);
     }
 
     private void createFriendshipsTable(SQLiteDatabase db) {
@@ -213,6 +214,39 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
         if (oldVersion < 11) {
             db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COL_USER_COUNTRY + " TEXT NOT NULL DEFAULT 'AR'");
         }
+        if (oldVersion < 12) {
+            seedDefaultAdmin(db);
+        }
+    }
+
+    private void seedDefaultAdmin(SQLiteDatabase db) {
+        ContentValues values = new ContentValues();
+        values.put(COL_USER_USERNAME, "mimi");
+        values.put(COL_USER_PASSWORD, "1234");
+        values.put(COL_USER_EMAIL, "mimi@mindclash.com");
+        values.put(COL_USER_AVATAR_ID, 4);
+        values.put(COL_USER_HIGH_SCORE, 0);
+        values.put(COL_USER_MAX_STREAK, 0);
+        values.put(COL_USER_MAX_LEVEL, 1);
+        values.put(COL_USER_ENERGY, 12);
+        values.put(COL_USER_AVAILABLE_GIFTS, 1);
+        values.put(COL_USER_LEVEL_STARS, "");
+        values.put(COL_USER_CREATED_AT, "Admin");
+        values.put(COL_USER_ROLE, "ADMIN");
+        values.put(COL_USER_SPECIAL_COMPLETED, "");
+        values.put(COL_USER_COINS, 100);
+        values.put(COL_USER_SHIELDS, 0);
+        values.put(COL_USER_OWNED_TITLES, "");
+        values.put(COL_USER_EQUIPPED_TITLE, "");
+        values.put(COL_USER_CLAIMED_QUESTS, "");
+        values.put(COL_USER_XP, 0);
+        values.put(COL_USER_LAST_DAILY_CLAIM, "");
+        values.put(COL_USER_OWNED_FRAMES, "");
+        values.put(COL_USER_EQUIPPED_FRAME, "");
+        values.put(COL_USER_DAILY_STREAK, 0);
+        values.put(COL_USER_WRONG_QUESTION_IDS, "");
+        values.put(COL_USER_COUNTRY, "AR");
+        db.insertWithOnConflict(TABLE_USERS, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     private void seedInitialQuestions(SQLiteDatabase db) {
