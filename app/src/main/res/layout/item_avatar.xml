@@ -38,11 +38,7 @@
         android:layout_marginTop="6dp"
         android:textSize="12sp"
         android:textStyle="bold"
-<<<<<<< HEAD
-        android:textColor="@color/text_navy"
-=======
         android:textColor="@color/text_primary"
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         android:gravity="center" />
 
 </LinearLayout>

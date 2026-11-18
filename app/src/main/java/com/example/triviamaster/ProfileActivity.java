@@ -1,17 +1,10 @@
 package com.example.triviamaster;
 
 import android.content.Intent;
-<<<<<<< HEAD
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
-=======
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.os.Bundle;
-import android.text.Editable;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+import android.util.Patterns;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -21,43 +14,42 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.triviamaster.adapters.AvatarAdapter;
 import com.example.triviamaster.data.PreferencesManager;
+import com.example.triviamaster.data.db.DbCallback;
+import com.example.triviamaster.data.db.DuplicateRecordException;
+import com.example.triviamaster.data.db.MatchHistoryRepository;
+import com.example.triviamaster.data.db.UserRepository;
+import com.example.triviamaster.databinding.DialogMonsterInfoBinding;
 import com.example.triviamaster.models.Avatar;
+import com.example.triviamaster.models.User;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.util.List;
-<<<<<<< HEAD
 
 public final class ProfileActivity extends AppCompatActivity {
-=======
-import org.jetbrains.annotations.Nullable;
-
-public class ProfileActivity extends AppCompatActivity {
-    private static final class MedalInfo {
-        private final int iconRes;
-        private final String title;
-        private final String description;
-
-        private MedalInfo(int iconRes, String title, String description) {
-            this.iconRes = iconRes;
-            this.title = title;
-            this.description = description;
-        }
-    }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
     private PreferencesManager prefsManager;
+    private UserRepository userRepository;
+    private MatchHistoryRepository historyRepository;
+    private User currentUser;
     private AvatarAdapter avatarAdapter;
     private TextInputEditText etProfileName;
+    private TextInputEditText etProfileEmail;
+    private TextInputEditText etProfilePassword;
     private TextInputLayout tilProfileName;
+    private TextInputLayout tilProfileEmail;
+    private TextInputLayout tilProfilePassword;
     private ImageView ivCurrentProfileAvatar;
     private TextView tvProfileTotalStars;
     private TextView tvProfileHighScore;
     private TextView tvProfileMaxLevel;
+    private TextView tvProfileMatchesCount;
+    private TextView tvProfileAccuracy;
     private TextView tvPlayerTitleBadge;
     private RecyclerView rvProfileAvatars;
     private ImageView ivMedal1;
@@ -69,37 +61,65 @@ public class ProfileActivity extends AppCompatActivity {
     private View cardMedal1;
     private View cardMedal2;
     private View cardMedal3;
+    private ImageView ivGuardian1;
+    private ImageView ivGuardian2;
+    private ImageView ivGuardian3;
+    private ImageView ivGuardian4;
+    private TextView tvGuardian1Status;
+    private TextView tvGuardian2Status;
+    private TextView tvGuardian3Status;
+    private TextView tvGuardian4Status;
+    private View cardGuardian1;
+    private View cardGuardian2;
+    private View cardGuardian3;
+    private View cardGuardian4;
     private View btnProfileBack;
     private Button btnSaveProfile;
-<<<<<<< HEAD
+    private Button btnManageUsers;
+    private Button btnManageQuestions;
+    private Button btnMatchHistory;
+    private Button btnLogout;
+    private Button btnDeleteAccount;
+    private SwitchCompat switchSound;
+    private SwitchCompat switchVibration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         prefsManager = new PreferencesManager(this);
-=======
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
-        this.prefsManager = new PreferencesManager(this);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+        userRepository = new UserRepository(this);
+        historyRepository = new MatchHistoryRepository(this);
         initViews();
         setupStats();
         setupAvatarList();
         setupMedals();
+        setupBestiary();
         setupListeners();
         setupBottomNav();
+        applyRolePermissions();
+        loadUserFromDb();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserFromDb();
     }
 
     private void initViews() {
-<<<<<<< HEAD
         etProfileName = findViewById(R.id.etProfileName);
+        etProfileEmail = findViewById(R.id.etProfileEmail);
+        etProfilePassword = findViewById(R.id.etProfilePassword);
         tilProfileName = findViewById(R.id.tilProfileName);
+        tilProfileEmail = findViewById(R.id.tilProfileEmail);
+        tilProfilePassword = findViewById(R.id.tilProfilePassword);
         ivCurrentProfileAvatar = findViewById(R.id.ivCurrentProfileAvatar);
         tvProfileTotalStars = findViewById(R.id.tvProfileTotalStars);
         tvProfileHighScore = findViewById(R.id.tvProfileHighScore);
         tvProfileMaxLevel = findViewById(R.id.tvProfileMaxLevel);
+        tvProfileMatchesCount = findViewById(R.id.tvProfileMatchesCount);
+        tvProfileAccuracy = findViewById(R.id.tvProfileAccuracy);
         tvPlayerTitleBadge = findViewById(R.id.tvPlayerTitleBadge);
         rvProfileAvatars = findViewById(R.id.rvProfileAvatars);
         ivMedal1 = findViewById(R.id.ivMedal1);
@@ -111,29 +131,102 @@ public class ProfileActivity extends AppCompatActivity {
         cardMedal1 = findViewById(R.id.cardMedal1);
         cardMedal2 = findViewById(R.id.cardMedal2);
         cardMedal3 = findViewById(R.id.cardMedal3);
+        ivGuardian1 = findViewById(R.id.ivGuardian1);
+        ivGuardian2 = findViewById(R.id.ivGuardian2);
+        ivGuardian3 = findViewById(R.id.ivGuardian3);
+        ivGuardian4 = findViewById(R.id.ivGuardian4);
+        tvGuardian1Status = findViewById(R.id.tvGuardian1Status);
+        tvGuardian2Status = findViewById(R.id.tvGuardian2Status);
+        tvGuardian3Status = findViewById(R.id.tvGuardian3Status);
+        tvGuardian4Status = findViewById(R.id.tvGuardian4Status);
+        cardGuardian1 = findViewById(R.id.cardGuardian1);
+        cardGuardian2 = findViewById(R.id.cardGuardian2);
+        cardGuardian3 = findViewById(R.id.cardGuardian3);
+        cardGuardian4 = findViewById(R.id.cardGuardian4);
         btnProfileBack = findViewById(R.id.btnProfileBack);
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
+        btnManageUsers = findViewById(R.id.btnManageUsers);
+        btnManageQuestions = findViewById(R.id.btnManageQuestions);
+        btnMatchHistory = findViewById(R.id.btnMatchHistory);
+        btnLogout = findViewById(R.id.btnLogout);
+        btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
+        switchSound = findViewById(R.id.switchSound);
+        switchVibration = findViewById(R.id.switchVibration);
+        switchSound.setChecked(prefsManager.isSoundEnabled());
+        switchVibration.setChecked(prefsManager.isVibrationEnabled());
+    }
+
+    private void loadUserFromDb() {
+        long userId = prefsManager.getCurrentUserId();
+        if (userId <= 0) {
+            return;
+        }
+        historyRepository.getUserStatsSummary(userId, new DbCallback<int[]>() {
+            @Override
+            public void onSuccess(int[] summary) {
+                if (isFinishing() || summary == null || summary.length < 2) {
+                    return;
+                }
+                tvProfileMatchesCount.setText(String.valueOf(summary[0]));
+                tvProfileAccuracy.setText(getString(R.string.profile_accuracy_format, summary[1]));
+            }
+
+            @Override
+            public void onError(Exception error) {
+            }
+        });
+        userRepository.getUserById(userId, new DbCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (isFinishing() || user == null) {
+                    return;
+                }
+                currentUser = user;
+                prefsManager.syncFromUser(user);
+                etProfileName.setText(user.getUsername());
+                etProfileEmail.setText(user.getEmail());
+                etProfilePassword.setText(user.getPassword());
+                setupAvatarList();
+                setupStats();
+                setupMedals();
+                setupBestiary();
+                applyRolePermissions();
+            }
+
+            @Override
+            public void onError(Exception error) {
+            }
+        });
     }
 
     private void setupStats() {
-        String lastPlayerName = prefsManager.getLastPlayerName();
+        String lastPlayerName = currentUser != null ? currentUser.getUsername() : prefsManager.getLastPlayerName();
         String currentName = (lastPlayerName == null || lastPlayerName.trim().isEmpty()) ? "Jugador" : lastPlayerName;
-        etProfileName.setText(currentName);
+        if (etProfileName.getText() == null || etProfileName.getText().toString().trim().isEmpty()) {
+            etProfileName.setText(currentName);
+        }
 
-        Avatar currentAvatar = prefsManager.getAvatarById(prefsManager.getLastAvatarId());
+        int avatarId = currentUser != null ? currentUser.getAvatarId() : prefsManager.getLastAvatarId();
+        Avatar currentAvatar = prefsManager.getAvatarById(avatarId);
         ivCurrentProfileAvatar.setImageResource(currentAvatar.getIconResId());
 
-        int totalStars = prefsManager.getTotalStars();
+        int totalStars = currentUser != null ? currentUser.getTotalStars() : prefsManager.getTotalStars();
+        int highScore = currentUser != null ? currentUser.getHighScore() : prefsManager.getHighScore();
+        int maxLevel = currentUser != null ? currentUser.getMaxLevel() : prefsManager.getMaxUnlockedLevel();
         tvProfileTotalStars.setText(getString(R.string.profile_stars_format, totalStars));
-        tvProfileHighScore.setText(getString(R.string.profile_score_format, prefsManager.getHighScore()));
-        tvProfileMaxLevel.setText(getString(R.string.profile_level_format, prefsManager.getMaxUnlockedLevel()));
+        tvProfileHighScore.setText(getString(R.string.profile_score_format, highScore));
+        tvProfileMaxLevel.setText(getString(R.string.profile_level_format, maxLevel));
+
+        boolean m1 = currentUser != null ? currentUser.isMedal1Unlocked() : prefsManager.isMedal1Unlocked();
+        boolean m2 = currentUser != null ? currentUser.isMedal2Unlocked() : prefsManager.isMedal2Unlocked();
+        boolean m3 = currentUser != null ? currentUser.isMedal3Unlocked() : prefsManager.isMedal3Unlocked();
 
         String title;
-        if (prefsManager.isMedal3Unlocked()) {
+        if (m3) {
             title = getString(R.string.profile_title_lord);
-        } else if (prefsManager.isMedal2Unlocked()) {
+        } else if (m2) {
             title = getString(R.string.profile_title_master);
-        } else if (prefsManager.isMedal1Unlocked()) {
+        } else if (m1) {
             title = getString(R.string.profile_title_initiate);
         } else {
             title = getString(R.string.profile_title_adventurer, currentName);
@@ -143,19 +236,22 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupAvatarList() {
         List<Avatar> avatars = PreferencesManager.getAvailableAvatars();
-        int selectedId = prefsManager.getLastAvatarId();
+        int selectedId = currentUser != null ? currentUser.getAvatarId() : prefsManager.getLastAvatarId();
         avatarAdapter = new AvatarAdapter(avatars, selectedId, avatar -> {
+            if (currentUser != null) {
+                currentUser.setAvatarId(avatar.getId());
+            }
             prefsManager.setLastAvatarId(avatar.getId());
-            setupStats();
+            ivCurrentProfileAvatar.setImageResource(avatar.getIconResId());
         });
         rvProfileAvatars.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvProfileAvatars.setAdapter(avatarAdapter);
     }
 
     private void setupMedals() {
-        boolean medal1Unlocked = prefsManager.isMedal1Unlocked();
-        boolean medal2Unlocked = prefsManager.isMedal2Unlocked();
-        boolean medal3Unlocked = prefsManager.isMedal3Unlocked();
+        boolean medal1Unlocked = currentUser != null ? currentUser.isMedal1Unlocked() : prefsManager.isMedal1Unlocked();
+        boolean medal2Unlocked = currentUser != null ? currentUser.isMedal2Unlocked() : prefsManager.isMedal2Unlocked();
+        boolean medal3Unlocked = currentUser != null ? currentUser.isMedal3Unlocked() : prefsManager.isMedal3Unlocked();
 
         updateMedalView(ivMedal1, tvMedal1Status, medal1Unlocked);
         updateMedalView(ivMedal2, tvMedal2Status, medal2Unlocked);
@@ -164,6 +260,92 @@ public class ProfileActivity extends AppCompatActivity {
         cardMedal1.setOnClickListener(v -> showMedalDetailDialog(1, medal1Unlocked));
         cardMedal2.setOnClickListener(v -> showMedalDetailDialog(2, medal2Unlocked));
         cardMedal3.setOnClickListener(v -> showMedalDetailDialog(3, medal3Unlocked));
+    }
+
+    private void setupBestiary() {
+        int maxLevel = currentUser != null ? currentUser.getMaxLevel() : prefsManager.getMaxUnlockedLevel();
+        String playerName = currentUser != null ? currentUser.getUsername() : prefsManager.getLastPlayerName();
+        if (playerName == null || playerName.trim().isEmpty()) {
+            playerName = "Jugador";
+        }
+        final String displayName = playerName;
+
+        boolean g1 = maxLevel >= 1;
+        boolean g2 = maxLevel >= 5;
+        boolean g3 = maxLevel >= 9;
+        boolean g4 = maxLevel >= 13;
+
+        updateGuardianView(ivGuardian1, tvGuardian1Status, g1, 1);
+        updateGuardianView(ivGuardian2, tvGuardian2Status, g2, 5);
+        updateGuardianView(ivGuardian3, tvGuardian3Status, g3, 9);
+        updateGuardianView(ivGuardian4, tvGuardian4Status, g4, 13);
+
+        cardGuardian1.setOnClickListener(v -> showGuardianDialog(
+                R.drawable.img_monster_rosa,
+                getString(R.string.monster_start_name),
+                getString(R.string.monster_start_zone),
+                g1 ? getString(R.string.monster_start_msg, displayName) : getString(R.string.bestiary_locked_msg, 1),
+                g1
+        ));
+        cardGuardian2.setOnClickListener(v -> showGuardianDialog(
+                R.drawable.img_monster_celeste,
+                getString(R.string.monster_river_name),
+                getString(R.string.monster_river_zone),
+                g2 ? getString(R.string.monster_lake_msg, displayName) : getString(R.string.bestiary_locked_msg, 5),
+                g2
+        ));
+        cardGuardian3.setOnClickListener(v -> showGuardianDialog(
+                R.drawable.img_monster_naranja,
+                getString(R.string.monster_waterfall_name),
+                getString(R.string.monster_waterfall_zone),
+                g3 ? getString(R.string.monster_waterfall_msg, displayName) : getString(R.string.bestiary_locked_msg, 9),
+                g3
+        ));
+        cardGuardian4.setOnClickListener(v -> showGuardianDialog(
+                R.drawable.img_monster_violeta,
+                getString(R.string.monster_mountain_name),
+                getString(R.string.monster_mountain_zone),
+                g4 ? getString(R.string.monster_mountain_msg, displayName) : getString(R.string.bestiary_locked_msg, 13),
+                g4
+        ));
+    }
+
+    private void updateGuardianView(ImageView iv, TextView tvStatus, boolean unlocked, int reqLevel) {
+        if (unlocked) {
+            iv.setColorFilter(null);
+            iv.setAlpha(1.0f);
+            tvStatus.setText(getString(R.string.bestiary_status_unlocked));
+            tvStatus.setTextColor(ContextCompat.getColor(this, R.color.correct_green));
+        } else {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0.0f);
+            iv.setColorFilter(new ColorMatrixColorFilter(matrix));
+            iv.setAlpha(0.42f);
+            tvStatus.setText(getString(R.string.bestiary_status_locked, reqLevel));
+            tvStatus.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
+        }
+    }
+
+    private void showGuardianDialog(int spriteRes, String name, String zone, String msg, boolean unlocked) {
+        DialogMonsterInfoBinding dialogBinding = DialogMonsterInfoBinding.inflate(getLayoutInflater());
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogBinding.getRoot()).create();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        dialogBinding.ivMonsterDialogSprite.setImageResource(spriteRes);
+        if (!unlocked) {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0.0f);
+            dialogBinding.ivMonsterDialogSprite.setColorFilter(new ColorMatrixColorFilter(matrix));
+            dialogBinding.ivMonsterDialogSprite.setAlpha(0.5f);
+        }
+        dialogBinding.tvMonsterDialogName.setText(name);
+        dialogBinding.tvMonsterZoneBadge.setText(getString(R.string.monster_badge_format, zone));
+        dialogBinding.tvMonsterDialogMsg.setText(msg);
+        dialogBinding.btnMonsterOk.setOnClickListener(v -> dialog.dismiss());
+        dialogBinding.btnMonsterOpenGuide.setVisibility(View.GONE);
+        dialog.show();
     }
 
     private void updateMedalView(ImageView imageView, TextView statusView, boolean isUnlocked) {
@@ -183,133 +365,12 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showMedalDetailDialog(int medalNum, boolean isUnlocked) {
-=======
-        this.etProfileName = findViewById(R.id.etProfileName);
-        this.tilProfileName = findViewById(R.id.tilProfileName);
-        this.ivCurrentProfileAvatar = findViewById(R.id.ivCurrentProfileAvatar);
-        this.tvProfileTotalStars = findViewById(R.id.tvProfileTotalStars);
-        this.tvProfileHighScore = findViewById(R.id.tvProfileHighScore);
-        this.tvProfileMaxLevel = findViewById(R.id.tvProfileMaxLevel);
-        this.tvPlayerTitleBadge = findViewById(R.id.tvPlayerTitleBadge);
-        this.rvProfileAvatars = findViewById(R.id.rvProfileAvatars);
-        this.ivMedal1 = findViewById(R.id.ivMedal1);
-        this.tvMedal1Status = findViewById(R.id.tvMedal1Status);
-        this.ivMedal2 = findViewById(R.id.ivMedal2);
-        this.tvMedal2Status = findViewById(R.id.tvMedal2Status);
-        this.ivMedal3 = findViewById(R.id.ivMedal3);
-        this.tvMedal3Status = findViewById(R.id.tvMedal3Status);
-        this.cardMedal1 = findViewById(R.id.cardMedal1);
-        this.cardMedal2 = findViewById(R.id.cardMedal2);
-        this.cardMedal3 = findViewById(R.id.cardMedal3);
-        this.btnProfileBack = findViewById(R.id.btnProfileBack);
-        this.btnSaveProfile = findViewById(R.id.btnSaveProfile);
-    }
-
-    private void setupStats() {
-        String string;
-        PreferencesManager preferencesManager = this.prefsManager;
-        String lastPlayerName = preferencesManager.getLastPlayerName();
-        String currentName = lastPlayerName == null || lastPlayerName.trim().isEmpty()
-                ? "Jugador" : lastPlayerName;
-        TextInputEditText textInputEditText = this.etProfileName;
-        textInputEditText.setText(currentName);
-        PreferencesManager preferencesManager2 = this.prefsManager;
-        PreferencesManager preferencesManager3 = this.prefsManager;
-        Avatar currentAvatar = preferencesManager2.getAvatarById(preferencesManager3.getLastAvatarId());
-        ImageView imageView = this.ivCurrentProfileAvatar;
-        imageView.setImageResource(currentAvatar.getIconResId());
-        PreferencesManager preferencesManager4 = this.prefsManager;
-        int totalStars = preferencesManager4.getTotalStars();
-        TextView textView = this.tvProfileTotalStars;
-        textView.setText(getString(R.string.profile_stars_format, totalStars));
-        TextView textView2 = this.tvProfileHighScore;
-        textView2.setText(getString(
-                R.string.profile_score_format, this.prefsManager.getHighScore()));
-        TextView textView3 = this.tvProfileMaxLevel;
-        textView3.setText(getString(
-                R.string.profile_level_format, this.prefsManager.getMaxUnlockedLevel()));
-        TextView textView4 = this.tvPlayerTitleBadge;
-        PreferencesManager preferencesManager7 = this.prefsManager;
-        if (preferencesManager7.isMedal3Unlocked()) {
-            string = getString(R.string.profile_title_lord);
-        } else {
-            PreferencesManager preferencesManager8 = this.prefsManager;
-            if (preferencesManager8.isMedal2Unlocked()) {
-                string = getString(R.string.profile_title_master);
-            } else {
-                PreferencesManager preferencesManager9 = this.prefsManager;
-                string = preferencesManager9.isMedal1Unlocked() ? getString(R.string.profile_title_initiate) : getString(R.string.profile_title_adventurer, new Object[]{currentName});
-            }
-        }
-        textView4.setText(string);
-    }
-    private void setupAvatarList() {
-        List<Avatar> avatars = PreferencesManager.getAvailableAvatars();
-        PreferencesManager preferencesManager = this.prefsManager;
-        int selectedId = preferencesManager.getLastAvatarId();
-        this.avatarAdapter = new AvatarAdapter(avatars, selectedId, avatar -> {
-            PreferencesManager manager = this.prefsManager;
-            if (manager == null) return;
-            manager.setLastAvatarId(avatar.getId());
-            setupStats();
-        });
-        RecyclerView recyclerView = this.rvProfileAvatars;
-        recyclerView.setLayoutManager(
-                new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
-        );
-        RecyclerView recyclerView2 = this.rvProfileAvatars;
-        AvatarAdapter avatarAdapter = this.avatarAdapter;
-        recyclerView2.setAdapter(avatarAdapter);
-    }
-
-    private void setupMedals() {
-        PreferencesManager preferencesManager = this.prefsManager;
-        boolean medal1Unlocked = preferencesManager.isMedal1Unlocked();
-        PreferencesManager preferencesManager2 = this.prefsManager;
-        boolean medal2Unlocked = preferencesManager2.isMedal2Unlocked();
-        PreferencesManager preferencesManager3 = this.prefsManager;
-        boolean medal3Unlocked = preferencesManager3.isMedal3Unlocked();
-        ImageView imageView = this.ivMedal1;
-        TextView textView = this.tvMedal1Status;
-        updateMedalView(imageView, textView, medal1Unlocked);
-        ImageView imageView2 = this.ivMedal2;
-        TextView textView2 = this.tvMedal2Status;
-        updateMedalView(imageView2, textView2, medal2Unlocked);
-        ImageView imageView3 = this.ivMedal3;
-        TextView textView3 = this.tvMedal3Status;
-        updateMedalView(imageView3, textView3, medal3Unlocked);
-        View view = this.cardMedal1;
-        view.setOnClickListener(v -> showMedalDetailDialog(1, medal1Unlocked));
-        View view2 = this.cardMedal2;
-        view2.setOnClickListener(v -> showMedalDetailDialog(2, medal2Unlocked));
-        View view3 = this.cardMedal3;
-        view3.setOnClickListener(v -> showMedalDetailDialog(3, medal3Unlocked));
-    }
-    private void updateMedalView(ImageView imageView, TextView statusView, boolean isUnlocked) {
-        if (isUnlocked) {
-            imageView.setColorFilter((ColorFilter) null);
-            imageView.setAlpha(1.0f);
-            statusView.setText(getString(R.string.medal_status_unlocked));
-            statusView.setTextColor(ContextCompat.getColor(this, R.color.correct_green));
-            return;
-        }
-        ColorMatrix grayscale = new ColorMatrix();
-        grayscale.setSaturation(0.0f);
-        imageView.setColorFilter(new ColorMatrixColorFilter(grayscale));
-        imageView.setAlpha(0.42f);
-        statusView.setText(getString(R.string.medal_status_locked));
-        statusView.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
-    }
-    private void showMedalDetailDialog(int medalNum, boolean isUnlocked) {
-        MedalInfo medal;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_medal_detail, (ViewGroup) null);
         AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
         Window window = dialog.getWindow();
         if (window != null) {
             window.setBackgroundDrawableResource(android.R.color.transparent);
         }
-<<<<<<< HEAD
 
         int iconRes;
         String title;
@@ -332,187 +393,208 @@ public class ProfileActivity extends AppCompatActivity {
                 break;
         }
 
-=======
-        switch (medalNum) {
-            case 1:
-                medal = new MedalInfo(R.drawable.img_medalla1, getString(R.string.medal_1_title), getString(R.string.medal_1_desc));
-                break;
-            case 2:
-                medal = new MedalInfo(R.drawable.img_medalla2, getString(R.string.medal_2_title), getString(R.string.medal_2_desc));
-                break;
-            default:
-                medal = new MedalInfo(R.drawable.img_medalla3, getString(R.string.medal_3_title), getString(R.string.medal_3_desc));
-                break;
-        }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         ImageView ivIcon = dialogView.findViewById(R.id.ivDetailMedalIcon);
         TextView tvTitle = dialogView.findViewById(R.id.tvDetailMedalTitle);
         TextView tvDesc = dialogView.findViewById(R.id.tvDetailMedalDesc);
         TextView tvState = dialogView.findViewById(R.id.tvDetailMedalState);
         TextView tvBadge = dialogView.findViewById(R.id.tvDetailMedalStatusBadge);
         Button btnClose = dialogView.findViewById(R.id.btnDetailMedalClose);
-<<<<<<< HEAD
 
-        if (ivIcon != null) {
-            ivIcon.setImageResource(iconRes);
-        }
-        if (tvTitle != null) {
-            tvTitle.setText(title);
-        }
-        if (tvDesc != null) {
-            tvDesc.setText(desc);
-        }
+        if (ivIcon != null) ivIcon.setImageResource(iconRes);
+        if (tvTitle != null) tvTitle.setText(title);
+        if (tvDesc != null) tvDesc.setText(desc);
 
         if (isUnlocked) {
             if (ivIcon != null) {
                 ivIcon.setColorFilter(null);
-=======
-        if (ivIcon != null) {
-            ivIcon.setImageResource(medal.iconRes);
-        }
-        if (tvTitle != null) {
-            tvTitle.setText(medal.title);
-        }
-        if (tvDesc != null) {
-            tvDesc.setText(medal.description);
-        }
-        if (isUnlocked) {
-            if (ivIcon != null) {
-                ivIcon.setColorFilter((ColorFilter) null);
-            }
-            if (ivIcon != null) {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                 ivIcon.setAlpha(1.0f);
             }
             if (tvState != null) {
                 tvState.setText(getString(R.string.medal_detail_unlocked_text));
-<<<<<<< HEAD
-=======
-            }
-            if (tvState != null) {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                 tvState.setTextColor(ContextCompat.getColor(this, R.color.correct_green));
             }
-            if (tvBadge != null) {
-                tvBadge.setText(getString(R.string.medal_badge_unlocked));
-            }
+            if (tvBadge != null) tvBadge.setText(getString(R.string.medal_badge_unlocked));
         } else {
-<<<<<<< HEAD
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation(0.0f);
             if (ivIcon != null) {
                 ivIcon.setColorFilter(new ColorMatrixColorFilter(matrix));
-=======
-            ColorMatrix grayscale = new ColorMatrix();
-            grayscale.setSaturation(0.0f);
-            if (ivIcon != null) {
-                ivIcon.setColorFilter(new ColorMatrixColorFilter(grayscale));
-            }
-            if (ivIcon != null) {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                 ivIcon.setAlpha(0.42f);
             }
             if (tvState != null) {
                 tvState.setText(getString(R.string.medal_detail_locked_text));
-<<<<<<< HEAD
-=======
-            }
-            if (tvState != null) {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                 tvState.setTextColor(ContextCompat.getColor(this, R.color.wrong_red));
             }
-            if (tvBadge != null) {
-                tvBadge.setText(getString(R.string.medal_badge_locked));
-            }
+            if (tvBadge != null) tvBadge.setText(getString(R.string.medal_badge_locked));
         }
-<<<<<<< HEAD
 
         if (btnClose != null) {
             btnClose.setOnClickListener(v -> dialog.dismiss());
         }
 
-=======
-        if (btnClose != null) {
-            btnClose.setOnClickListener(v -> dialog.dismiss());
-        }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         dialog.show();
     }
 
     private void setupListeners() {
-<<<<<<< HEAD
         btnProfileBack.setOnClickListener(v -> finish());
 
-        btnSaveProfile.setOnClickListener(v -> {
-            String newName = etProfileName.getText() != null ? etProfileName.getText().toString().trim() : "";
-            if (newName.isEmpty()) {
-                tilProfileName.setError(getString(R.string.profile_name_required));
-                return;
-            }
-            tilProfileName.setError(null);
-            Avatar selectedAvatar = avatarAdapter.getSelectedAvatar();
-            prefsManager.updatePlayerProfile(newName, selectedAvatar.getId());
-            Toast.makeText(ProfileActivity.this, getString(R.string.profile_updated_success, newName), Toast.LENGTH_SHORT).show();
+        btnSaveProfile.setOnClickListener(v -> saveProfileChanges());
 
-            Intent intent = new Intent(ProfileActivity.this, MapActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+        btnManageUsers.setOnClickListener(v ->
+                startActivity(new Intent(ProfileActivity.this, UserManagerActivity.class)));
+
+        btnManageQuestions.setOnClickListener(v ->
+                startActivity(new Intent(ProfileActivity.this, QuestionManagerActivity.class)));
+
+        btnMatchHistory.setOnClickListener(v ->
+                startActivity(new Intent(ProfileActivity.this, MatchHistoryActivity.class)));
+
+        switchSound.setOnCheckedChangeListener((buttonView, isChecked) ->
+                prefsManager.setSoundEnabled(isChecked));
+
+        switchVibration.setOnCheckedChangeListener((buttonView, isChecked) ->
+                prefsManager.setVibrationEnabled(isChecked));
+
+        btnLogout.setOnClickListener(v -> logoutToLogin());
+
+        btnDeleteAccount.setOnClickListener(v -> confirmDeleteAccount());
+    }
+
+    private void saveProfileChanges() {
+        String newName = etProfileName.getText() != null ? etProfileName.getText().toString().trim() : "";
+        String newEmail = etProfileEmail.getText() != null ? etProfileEmail.getText().toString().trim() : "";
+        String newPassword = etProfilePassword.getText() != null ? etProfilePassword.getText().toString() : "";
+
+        boolean valid = true;
+        if (newName.isEmpty()) {
+            tilProfileName.setError(getString(R.string.profile_name_required));
+            valid = false;
+        } else {
+            tilProfileName.setError(null);
+        }
+
+        if (newEmail.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+            tilProfileEmail.setError(getString(R.string.error_email_invalid));
+            valid = false;
+        } else {
+            tilProfileEmail.setError(null);
+        }
+
+        if (newPassword.length() < 4) {
+            tilProfilePassword.setError(getString(R.string.error_password_short));
+            valid = false;
+        } else {
+            tilProfilePassword.setError(null);
+        }
+
+        if (!valid) {
+            return;
+        }
+
+        Avatar selectedAvatar = avatarAdapter.getSelectedAvatar();
+        if (currentUser == null) {
+            prefsManager.updatePlayerProfile(newName, selectedAvatar.getId());
+            Toast.makeText(this, getString(R.string.profile_updated_success, newName), Toast.LENGTH_SHORT).show();
             finish();
+            return;
+        }
+
+        currentUser.setUsername(newName);
+        currentUser.setEmail(newEmail);
+        currentUser.setPassword(newPassword);
+        currentUser.setAvatarId(selectedAvatar.getId());
+        btnSaveProfile.setEnabled(false);
+
+        userRepository.updateUser(currentUser, new DbCallback<User>() {
+            @Override
+            public void onSuccess(User updated) {
+                if (isFinishing()) {
+                    return;
+                }
+                btnSaveProfile.setEnabled(true);
+                currentUser = updated;
+                prefsManager.syncFromUser(updated);
+                Toast.makeText(ProfileActivity.this,
+                        getString(R.string.profile_updated_success, updated.getUsername()),
+                        Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(ProfileActivity.this, MapActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onError(Exception error) {
+                if (isFinishing()) {
+                    return;
+                }
+                btnSaveProfile.setEnabled(true);
+                if (error instanceof DuplicateRecordException) {
+                    tilProfileName.setError(getString(R.string.error_username_exists));
+                } else {
+                    Toast.makeText(ProfileActivity.this, getString(R.string.error_db_generic), Toast.LENGTH_SHORT).show();
+                }
+            }
         });
+    }
+
+    private void confirmDeleteAccount() {
+        long userId = prefsManager.getCurrentUserId();
+        if (userId <= 0) {
+            logoutToLogin();
+            return;
+        }
+        String displayName = currentUser != null ? currentUser.getUsername() : prefsManager.getLastPlayerName();
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.dialog_delete_account_title))
+                .setMessage(getString(R.string.dialog_delete_account_msg, displayName))
+                .setPositiveButton(getString(R.string.btn_confirm_delete), (dialog, which) ->
+                        userRepository.deleteUser(userId, new DbCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean deleted) {
+                                if (isFinishing()) {
+                                    return;
+                                }
+                                Toast.makeText(ProfileActivity.this,
+                                        getString(R.string.msg_account_deleted), Toast.LENGTH_SHORT).show();
+                                logoutToLogin();
+                            }
+
+                            @Override
+                            public void onError(Exception error) {
+                                if (isFinishing()) {
+                                    return;
+                                }
+                                Toast.makeText(ProfileActivity.this,
+                                        getString(R.string.error_db_generic), Toast.LENGTH_SHORT).show();
+                            }
+                        }))
+                .setNegativeButton(getString(R.string.btn_cancel), null)
+                .show();
+    }
+
+    private void logoutToLogin() {
+        prefsManager.clearSession();
+        Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void setupBottomNav() {
         ImageView ivNavMap = findViewById(R.id.ivNavMap);
         ImageView ivNavLeaderboard = findViewById(R.id.ivNavLeaderboard);
+        ImageView ivNavQuestions = findViewById(R.id.ivNavQuestions);
         ImageView ivNavProfile = findViewById(R.id.ivNavProfile);
         View btnNavMap = findViewById(R.id.btnNavMap);
         View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
+        View btnNavQuestions = findViewById(R.id.btnNavQuestions);
 
-=======
-        View view = this.btnProfileBack;
-        view.setOnClickListener(v -> finish());
-        Button button = this.btnSaveProfile;
-        button.setOnClickListener(v -> saveProfile());
-    }
-
-    private void saveProfile() {
-        TextInputEditText textInputEditText = etProfileName;
-        Editable text = textInputEditText.getText();
-        String newName = text == null ? "" : text.toString().trim();
-        if (newName.length() == 0) {
-            tilProfileName.setError(getString(R.string.profile_name_required));
-            return;
-        }
-        tilProfileName.setError(null);
-        AvatarAdapter avatarAdapter = this.avatarAdapter;
-        Avatar selectedAvatar = avatarAdapter.getSelectedAvatar();
-        PreferencesManager preferencesManager = this.prefsManager;
-        preferencesManager.updatePlayerProfile(newName, selectedAvatar.getId());
-        Toast.makeText(this, getString(R.string.profile_updated_success, newName), Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, MapActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
-        finish();
-    }
-    private void setupBottomNav() {
-        ImageView ivNavMap = (ImageView) findViewById(R.id.ivNavMap);
-        ImageView ivNavLeaderboard = (ImageView) findViewById(R.id.ivNavLeaderboard);
-        ImageView ivNavProfile = (ImageView) findViewById(R.id.ivNavProfile);
-        View btnNavMap = findViewById(R.id.btnNavMap);
-        View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
-        View btnNavProfile = findViewById(R.id.btnNavProfile);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         int inactiveColor = ContextCompat.getColor(this, R.color.text_muted);
-        if (ivNavMap != null) {
-            ivNavMap.setColorFilter(inactiveColor);
-        }
-        if (ivNavLeaderboard != null) {
-            ivNavLeaderboard.setColorFilter(inactiveColor);
-        }
-        if (ivNavProfile != null) {
-            ivNavProfile.setColorFilter(ContextCompat.getColor(this, R.color.ref_btn_coral));
-        }
-<<<<<<< HEAD
+        if (ivNavMap != null) ivNavMap.setColorFilter(inactiveColor);
+        if (ivNavLeaderboard != null) ivNavLeaderboard.setColorFilter(inactiveColor);
+        if (ivNavQuestions != null) ivNavQuestions.setColorFilter(inactiveColor);
+        if (ivNavProfile != null) ivNavProfile.setColorFilter(ContextCompat.getColor(this, R.color.ref_btn_coral));
 
         if (btnNavMap != null) {
             btnNavMap.setOnClickListener(v -> {
@@ -523,28 +605,28 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }
         if (btnNavLeaderboard != null) {
-            btnNavLeaderboard.setOnClickListener(v -> startActivity(new Intent(ProfileActivity.this, RankingActivity.class)));
+            btnNavLeaderboard.setOnClickListener(v -> {
+                startActivity(new Intent(ProfileActivity.this, RankingActivity.class));
+                finish();
+            });
+        }
+        if (btnNavQuestions != null) {
+            btnNavQuestions.setVisibility(prefsManager.isCurrentUserAdmin() ? View.VISIBLE : View.GONE);
+            btnNavQuestions.setOnClickListener(v -> {
+                startActivity(new Intent(ProfileActivity.this, QuestionManagerActivity.class));
+                finish();
+            });
         }
     }
-=======
-        if (btnNavMap != null) {
-            btnNavMap.setOnClickListener(v -> openMap());
-        }
-        if (btnNavLeaderboard != null) {
-            btnNavLeaderboard.setOnClickListener(v -> openRanking());
-        }
-        if (btnNavProfile != null) {
-            btnNavProfile.setOnClickListener(v -> { });
+
+    private void applyRolePermissions() {
+        boolean isAdmin = currentUser != null ? currentUser.isAdmin() : prefsManager.isCurrentUserAdmin();
+        int visibility = isAdmin ? View.VISIBLE : View.GONE;
+        btnManageUsers.setVisibility(visibility);
+        btnManageQuestions.setVisibility(visibility);
+        View btnNavQuestions = findViewById(R.id.btnNavQuestions);
+        if (btnNavQuestions != null) {
+            btnNavQuestions.setVisibility(visibility);
         }
     }
-    private void openMap() {
-        Intent intent = new Intent(this, MapActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
-        finish();
-    }
-    private void openRanking() {
-        startActivity(new Intent(this, RankingActivity.class));
-    }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 }

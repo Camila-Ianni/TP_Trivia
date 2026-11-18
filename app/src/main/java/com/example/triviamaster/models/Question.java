@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public class Question implements Serializable {
-<<<<<<< HEAD
     private final int id;
+    private final int levelId;
     private final String questionText;
     private final String category;
     private final int categoryColor;
@@ -16,30 +16,27 @@ public class Question implements Serializable {
     private final String targetWord;
     private final int missingCharIndex;
     private final int clueIconRes;
-=======
-    private int id;
-    private String questionText;
-    private String category;
-    private int categoryColor;
-    private List<String> options;
-    private int correctAnswerIndex;
-    private String explanation;
-    private boolean wordPuzzle;
-    private String targetWord;
-    private int missingCharIndex;
-    private int clueIconRes;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+    private final boolean custom;
 
     public Question(int id, String questionText, String category, int categoryColor,
                     List<String> options, int correctAnswerIndex, String explanation) {
-        this(id, questionText, category, categoryColor, options, correctAnswerIndex,
-                explanation, false, "", 0, 0);
+        this(id, 1, questionText, category, categoryColor, options, correctAnswerIndex,
+                explanation, false, "", 0, 0, false);
     }
 
     public Question(int id, String questionText, String category, int categoryColor,
                     List<String> options, int correctAnswerIndex, String explanation,
                     boolean wordPuzzle, String targetWord, int missingCharIndex, int clueIconRes) {
+        this(id, 1, questionText, category, categoryColor, options, correctAnswerIndex,
+                explanation, wordPuzzle, targetWord, missingCharIndex, clueIconRes, false);
+    }
+
+    public Question(int id, int levelId, String questionText, String category, int categoryColor,
+                    List<String> options, int correctAnswerIndex, String explanation,
+                    boolean wordPuzzle, String targetWord, int missingCharIndex, int clueIconRes,
+                    boolean custom) {
         this.id = id;
+        this.levelId = levelId;
         this.questionText = questionText;
         this.category = category;
         this.categoryColor = categoryColor;
@@ -50,11 +47,15 @@ public class Question implements Serializable {
         this.targetWord = targetWord;
         this.missingCharIndex = missingCharIndex;
         this.clueIconRes = clueIconRes;
+        this.custom = custom;
     }
 
-<<<<<<< HEAD
     public int getId() {
         return id;
+    }
+
+    public int getLevelId() {
+        return levelId;
     }
 
     public String getQuestionText() {
@@ -96,17 +97,8 @@ public class Question implements Serializable {
     public int getClueIconRes() {
         return clueIconRes;
     }
-=======
-    public int getId() { return id; }
-    public String getQuestionText() { return questionText; }
-    public String getCategory() { return category; }
-    public int getCategoryColor() { return categoryColor; }
-    public List<String> getOptions() { return options; }
-    public int getCorrectAnswerIndex() { return correctAnswerIndex; }
-    public String getExplanation() { return explanation; }
-    public boolean isWordPuzzle() { return wordPuzzle; }
-    public String getTargetWord() { return targetWord; }
-    public int getMissingCharIndex() { return missingCharIndex; }
-    public int getClueIconRes() { return clueIconRes; }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+
+    public boolean isCustom() {
+        return custom;
+    }
 }

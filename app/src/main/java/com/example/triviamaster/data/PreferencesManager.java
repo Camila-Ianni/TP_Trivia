@@ -2,17 +2,11 @@ package com.example.triviamaster.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-<<<<<<< HEAD
 import com.example.triviamaster.R;
 import com.example.triviamaster.models.Avatar;
+import com.example.triviamaster.models.Difficulty;
 import com.example.triviamaster.models.RankingItem;
-=======
-
-import com.example.triviamaster.R;
-import com.example.triviamaster.models.Avatar;
-import com.example.triviamaster.models.RankingItem;
-
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+import com.example.triviamaster.models.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -24,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class PreferencesManager {
-<<<<<<< HEAD
     private static final String PREFS = "trivia_master_prefs";
     private static final String KEY_NAME = "last_player_name";
     private static final String KEY_AVATAR = "last_avatar_id";
@@ -39,44 +32,139 @@ public class PreferencesManager {
     private static final String KEY_MEDAL_2 = "medal_2_notified";
     private static final String KEY_MEDAL_3 = "medal_3_notified";
     private static final String KEY_ENERGY = "player_energy";
+    private static final String KEY_CURRENT_USER_ID = "current_user_id";
+    private static final String KEY_GUIDE_SEEN = "game_guide_seen_";
+    private static final String KEY_SOUND_ENABLED = "sound_enabled";
+    private static final String KEY_VIBRATION_ENABLED = "vibration_enabled";
+    private static final String KEY_USER_ROLE = "current_user_role";
+    private static final String KEY_SPECIAL_COMPLETED = "special_completed";
 
     private static final List<Avatar> AVAILABLE_AVATARS = Arrays.asList(
-=======
-    private static String PREFS = "trivia_master_prefs";
-    private static String KEY_NAME = "last_player_name";
-    private static String KEY_AVATAR = "last_avatar_id";
-    private static String KEY_SCORE = "high_score";
-    private static String KEY_RANKING = "ranking_data";
-    private static String KEY_LEVEL = "max_unlocked_level";
-    private static String KEY_STARS = "level_stars_";
-    private static String KEY_GIFT = "gift_claimed";
-    private static String KEY_GIFTS = "available_gifts";
-    private static String KEY_GIFT_INIT = "first_run_gift_init";
-    private static String KEY_MEDAL_1 = "medal_1_notified";
-    private static String KEY_MEDAL_2 = "medal_2_notified";
-    private static String KEY_MEDAL_3 = "medal_3_notified";
-    private static String KEY_ENERGY = "player_energy";
-
-    private static List<Avatar> AVAILABLE_AVATARS = Arrays.asList(
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
             new Avatar(1, "Wincky", R.drawable.img_avatar_perfil1, "#E0F7FA"),
             new Avatar(2, "Bloop", R.drawable.img_avatar_perfil2, "#FFF0F4"),
             new Avatar(3, "Chomp", R.drawable.img_avatar_perfil3, "#FFF4E6"),
             new Avatar(4, "Zook", R.drawable.img_avatar_perfil4, "#F3EFFF"));
 
-<<<<<<< HEAD
     private final SharedPreferences prefs;
-=======
-    private SharedPreferences prefs;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
     public PreferencesManager(Context context) {
         prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-<<<<<<< HEAD
     public static List<Avatar> getAvailableAvatars() {
         return AVAILABLE_AVATARS;
+    }
+
+    public long getCurrentUserId() {
+        return prefs.getLong(KEY_CURRENT_USER_ID, -1L);
+    }
+
+    public void setCurrentUserId(long userId) {
+        prefs.edit().putLong(KEY_CURRENT_USER_ID, userId).apply();
+    }
+
+    public boolean hasSeenGameGuide(long userId) {
+        String key = KEY_GUIDE_SEEN + (userId > 0 ? userId : 0L);
+        return prefs.getBoolean(key, false);
+    }
+
+    public void setGameGuideSeen(long userId) {
+        String key = KEY_GUIDE_SEEN + (userId > 0 ? userId : 0L);
+        prefs.edit().putBoolean(key, true).apply();
+    }
+
+    public boolean isSoundEnabled() {
+        return prefs.getBoolean(KEY_SOUND_ENABLED, true);
+    }
+
+    public void setSoundEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply();
+    }
+
+    public boolean isVibrationEnabled() {
+        return prefs.getBoolean(KEY_VIBRATION_ENABLED, true);
+    }
+
+    public void setVibrationEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_VIBRATION_ENABLED, enabled).apply();
+    }
+
+    public boolean isCurrentUserAdmin() {
+        return "ADMIN".equalsIgnoreCase(prefs.getString(KEY_USER_ROLE, "USER"));
+    }
+
+    public boolean isSpecialCompleted(int hotspotId, Difficulty difficulty) {
+        if (hotspotId < 0 || difficulty == null) {
+            return false;
+        }
+        String raw = prefs.getString(KEY_SPECIAL_COMPLETED, "");
+        if (raw.isEmpty()) {
+            return false;
+        }
+        String token = hotspotId + "_" + difficulty.name();
+        for (String item : raw.split(",")) {
+            if (token.equals(item.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void markSpecialCompleted(int hotspotId, Difficulty difficulty) {
+        if (hotspotId < 0 || difficulty == null || isSpecialCompleted(hotspotId, difficulty)) {
+            return;
+        }
+        String raw = prefs.getString(KEY_SPECIAL_COMPLETED, "");
+        String token = hotspotId + "_" + difficulty.name();
+        String updated = raw.trim().isEmpty() ? token : raw + "," + token;
+        prefs.edit().putString(KEY_SPECIAL_COMPLETED, updated).apply();
+    }
+
+    public boolean isAllSpecialCompleted(int hotspotId) {
+        return isSpecialCompleted(hotspotId, Difficulty.EASY)
+                && isSpecialCompleted(hotspotId, Difficulty.NORMAL)
+                && isSpecialCompleted(hotspotId, Difficulty.HARD);
+    }
+
+    public void syncFromUser(User user) {
+        if (user == null) {
+            return;
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(KEY_CURRENT_USER_ID, user.getId());
+        editor.putString(KEY_NAME, user.getUsername());
+        editor.putInt(KEY_AVATAR, user.getAvatarId());
+        editor.putInt(KEY_SCORE, user.getHighScore());
+        editor.putInt(KEY_LEVEL, user.getMaxLevel());
+        editor.putInt(KEY_ENERGY, user.getEnergy());
+        editor.putInt(KEY_GIFTS, user.getAvailableGifts());
+        editor.putString(KEY_USER_ROLE, user.getRole());
+        editor.putString(KEY_SPECIAL_COMPLETED, user.getSpecialCompletedSerialized());
+        editor.putBoolean(KEY_GIFT_INIT, true);
+        for (int i = 1; i <= 16; i++) {
+            editor.putInt(KEY_STARS + i, user.getLevelStars(i));
+        }
+        editor.apply();
+    }
+
+    public void clearSession() {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(KEY_CURRENT_USER_ID, -1L);
+        editor.putString(KEY_NAME, "");
+        editor.putInt(KEY_AVATAR, 1);
+        editor.putInt(KEY_SCORE, 0);
+        editor.putInt(KEY_LEVEL, 1);
+        editor.putInt(KEY_ENERGY, 12);
+        editor.putInt(KEY_GIFTS, 1);
+        editor.putString(KEY_USER_ROLE, "USER");
+        editor.putString(KEY_SPECIAL_COMPLETED, "");
+        editor.putBoolean(KEY_MEDAL_1, false);
+        editor.putBoolean(KEY_MEDAL_2, false);
+        editor.putBoolean(KEY_MEDAL_3, false);
+        for (int i = 1; i <= 16; i++) {
+            editor.putInt(KEY_STARS + i, 0);
+        }
+        editor.apply();
     }
 
     public String getLastPlayerName() {
@@ -142,44 +230,6 @@ public class PreferencesManager {
     public void addChestRewards() {
         addChestRewards(1, 100);
     }
-=======
-    public static List<Avatar> getAvailableAvatars() { return AVAILABLE_AVATARS; }
-    public String getLastPlayerName() { return prefs.getString(KEY_NAME, ""); }
-    public void setLastPlayerName(String value) {
-        if (normalize(value).equals(normalize(getLastPlayerName()))) {
-            migrateLegacyProfile(value);
-        }
-        prefs.edit().putString(KEY_NAME, value).apply();
-    }
-    public int getLastAvatarId() { return prefs.getInt(profileKey(KEY_AVATAR), 1); }
-    public void setLastAvatarId(int value) { prefs.edit().putInt(profileKey(KEY_AVATAR), value).apply(); }
-    public int getHighScore() { return prefs.getInt(profileKey(KEY_SCORE), 0); }
-    public void setHighScore(int value) { prefs.edit().putInt(profileKey(KEY_SCORE), value).apply(); }
-    public int getMaxUnlockedLevel() { return prefs.getInt(profileKey(KEY_LEVEL), 1); }
-    public void setMaxUnlockedLevel(int value) { prefs.edit().putInt(profileKey(KEY_LEVEL), value).apply(); }
-    public boolean isGiftClaimed() { return prefs.getBoolean(profileKey(KEY_GIFT), false); }
-    public void setGiftClaimed(boolean value) { prefs.edit().putBoolean(profileKey(KEY_GIFT), value).apply(); }
-
-    public int getAvailableGifts() {
-        if (!prefs.getBoolean(profileKey(KEY_GIFT_INIT), false)) {
-            prefs.edit().putBoolean(profileKey(KEY_GIFT_INIT), true)
-                    .putInt(profileKey(KEY_GIFTS), 1).apply();
-            return 1;
-        }
-        return prefs.getInt(profileKey(KEY_GIFTS), 0);
-    }
-
-    public void setAvailableGifts(int value) {
-        prefs.edit().putInt(profileKey(KEY_GIFTS), Math.max(0, value)).apply();
-    }
-
-    public int getPlayerEnergy() { return prefs.getInt(profileKey(KEY_ENERGY), 12); }
-    public void setPlayerEnergy(int value) {
-        prefs.edit().putInt(profileKey(KEY_ENERGY), Math.max(0, value)).apply();
-    }
-
-    public void addChestRewards() { addChestRewards(1, 100); }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
     public void addChestRewards(int energyBonus, int pointsBonus) {
         setPlayerEnergy(getPlayerEnergy() + energyBonus);
@@ -198,7 +248,6 @@ public class PreferencesManager {
         saveRankings(rankings);
     }
 
-<<<<<<< HEAD
     public boolean isMedal1Unlocked() {
         return getMaxUnlockedLevel() >= 6 || getLevelStars(5) >= 1;
     }
@@ -237,83 +286,45 @@ public class PreferencesManager {
 
     public int getLevelStars(int levelId) {
         return prefs.getInt(KEY_STARS + levelId, 0);
-=======
-    public boolean isMedal1Unlocked() { return getMaxUnlockedLevel() >= 6 || getLevelStars(5) >= 1; }
-    public boolean isMedal2Unlocked() { return getMaxUnlockedLevel() >= 11 || getLevelStars(10) >= 1; }
-    public boolean isMedal3Unlocked() { return getMaxUnlockedLevel() > 16 || getLevelStars(16) >= 1; }
-    public boolean isMedal1Notified() { return prefs.getBoolean(profileKey(KEY_MEDAL_1), false); }
-    public void setMedal1Notified(boolean value) { prefs.edit().putBoolean(profileKey(KEY_MEDAL_1), value).apply(); }
-    public boolean isMedal2Notified() { return prefs.getBoolean(profileKey(KEY_MEDAL_2), false); }
-    public void setMedal2Notified(boolean value) { prefs.edit().putBoolean(profileKey(KEY_MEDAL_2), value).apply(); }
-    public boolean isMedal3Notified() { return prefs.getBoolean(profileKey(KEY_MEDAL_3), false); }
-    public void setMedal3Notified(boolean value) { prefs.edit().putBoolean(profileKey(KEY_MEDAL_3), value).apply(); }
-
-    public int getLevelStars(int levelId) {
-        return prefs.getInt(profileKey(KEY_STARS + levelId), 0);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
     }
 
     public void saveLevelProgress(int levelId, int stars, int score) {
         if (stars > getLevelStars(levelId)) {
-<<<<<<< HEAD
             prefs.edit().putInt(KEY_STARS + levelId, stars).apply();
         }
         if (stars >= 1 && levelId >= getMaxUnlockedLevel()) {
             setMaxUnlockedLevel(levelId + 1);
-=======
-            prefs.edit().putInt(profileKey(KEY_STARS + levelId), stars).apply();
-        }
-        if (stars >= 1) {
-            int nextLevel = Math.min(levelId + 1, 17);
-            setMaxUnlockedLevel(Math.max(getMaxUnlockedLevel(), nextLevel));
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         }
     }
 
     public int getTotalStars() {
         int total = 0;
-<<<<<<< HEAD
         for (int i = 1; i <= 16; i++) {
             total += getLevelStars(i);
         }
-=======
-        for (int i = 1; i <= 16; i++) total += getLevelStars(i);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         return total;
     }
 
     public Avatar getAvatarById(int id) {
-<<<<<<< HEAD
         for (Avatar avatar : AVAILABLE_AVATARS) {
             if (avatar.getId() == id) {
                 return avatar;
             }
         }
-=======
-        for (Avatar avatar : AVAILABLE_AVATARS) if (avatar.getId() == id) return avatar;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         return AVAILABLE_AVATARS.get(0);
     }
 
     public void updatePlayerProfile(String newName, int newAvatarId) {
         String oldName = getLastPlayerName();
-<<<<<<< HEAD
-=======
-        copyProfileIfNeeded(oldName, newName);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         setLastPlayerName(newName);
         setLastAvatarId(newAvatarId);
         int avatar = getAvatarById(newAvatarId).getIconResId();
         Map<String, RankingItem> users = new HashMap<>();
         for (RankingItem item : getRankings()) {
             String key = normalize(item.getPlayerName());
-<<<<<<< HEAD
             if (key.equals(normalize(oldName)) || key.equals(normalize(newName))) {
                 key = normalize(newName);
             }
-=======
-            if (key.equals(normalize(oldName)) || key.equals(normalize(newName))) key = normalize(newName);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
             RankingItem current = users.get(key);
             users.put(key, merge(current, item, key.equals(normalize(newName)) ? newName : item.getPlayerName(),
                     key.equals(normalize(newName)) ? avatar : item.getAvatarResId()));
@@ -323,7 +334,6 @@ public class PreferencesManager {
 
     public boolean saveGameScore(String name, int avatarResId, int score, int maxStreak, String date) {
         boolean newHighScore = score > getHighScore();
-<<<<<<< HEAD
         if (newHighScore) {
             setHighScore(score);
         }
@@ -331,11 +341,6 @@ public class PreferencesManager {
         for (RankingItem item : getRankings()) {
             users.put(normalize(item.getPlayerName()), item);
         }
-=======
-        if (newHighScore) setHighScore(score);
-        Map<String, RankingItem> users = new HashMap<>();
-        for (RankingItem item : getRankings()) users.put(normalize(item.getPlayerName()), item);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         String key = normalize(name);
         RankingItem current = users.get(key);
         users.put(key, merge(current, new RankingItem(name, avatarResId, score, maxStreak, date), name, avatarResId));
@@ -373,7 +378,6 @@ public class PreferencesManager {
         return result;
     }
 
-<<<<<<< HEAD
     private static String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
@@ -384,73 +388,13 @@ public class PreferencesManager {
                 return i;
             }
         }
-=======
-    private static String normalize(String value) { return value == null ? "" : value.trim().toLowerCase(Locale.ROOT); }
-
-    private String profileKey(String key) {
-        String player = normalize(getLastPlayerName());
-        return key + "_" + (player.isEmpty() ? "default" : player);
-    }
-
-    private void migrateLegacyProfile(String playerName) {
-        if (normalize(playerName).isEmpty() || prefs.contains(profileKey(KEY_LEVEL))) return;
-
-        String suffix = "_" + normalize(playerName);
-        SharedPreferences.Editor editor = prefs.edit();
-        String[] profileKeys = {KEY_AVATAR, KEY_SCORE, KEY_LEVEL, KEY_GIFT, KEY_GIFTS,
-                KEY_GIFT_INIT, KEY_MEDAL_1, KEY_MEDAL_2, KEY_MEDAL_3, KEY_ENERGY};
-        for (String key : profileKeys) if (prefs.contains(key)) {
-            copyPreference(editor, prefs.getAll().get(key), key + suffix);
-        }
-        for (int levelId = 1; levelId <= 16; levelId++) {
-            String key = KEY_STARS + levelId;
-            if (prefs.contains(key)) copyPreference(editor, prefs.getAll().get(key), key + suffix);
-        }
-        editor.apply();
-    }
-
-    private static void copyPreference(SharedPreferences.Editor editor, Object value, String target) {
-        if (value instanceof String) editor.putString(target, (String) value);
-        else if (value instanceof Integer) editor.putInt(target, (Integer) value);
-        else if (value instanceof Boolean) editor.putBoolean(target, (Boolean) value);
-    }
-
-    private void copyProfileIfNeeded(String oldName, String newName) {
-        String oldPrefix = normalize(oldName);
-        String newPrefix = normalize(newName);
-        if (oldPrefix.isEmpty() || oldPrefix.equals(newPrefix)) return;
-
-        String oldProfilePrefix = "_";
-        String newProfilePrefix = "_";
-        SharedPreferences.Editor editor = prefs.edit();
-        for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
-            String key = entry.getKey();
-            if (!key.endsWith(oldProfilePrefix + oldPrefix)
-                    && !key.contains(oldProfilePrefix + oldPrefix + "_")) continue;
-            String newKey = key.replace(oldProfilePrefix + oldPrefix, newProfilePrefix + newPrefix);
-            if (prefs.contains(newKey)) continue;
-            Object value = entry.getValue();
-            if (value instanceof String) editor.putString(newKey, (String) value);
-            else if (value instanceof Integer) editor.putInt(newKey, (Integer) value);
-            else if (value instanceof Boolean) editor.putBoolean(newKey, (Boolean) value);
-        }
-        editor.apply();
-    }
-
-    private static int findPlayer(List<RankingItem> list, String key) {
-        for (int i = 0; i < list.size(); i++) if (normalize(list.get(i).getPlayerName()).equals(key)) return i;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         return -1;
     }
 
     private static RankingItem merge(RankingItem current, RankingItem incoming, String name, int avatar) {
-<<<<<<< HEAD
         if (current == null) {
             return new RankingItem(name, avatar, incoming.getScore(), incoming.getMaxStreak(), incoming.getDate());
         }
-=======
-        if (current == null) return new RankingItem(name, avatar, incoming.getScore(), incoming.getMaxStreak(), incoming.getDate());
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         return new RankingItem(name, avatar, Math.max(current.getScore(), incoming.getScore()),
                 Math.max(current.getMaxStreak(), incoming.getMaxStreak()),
                 incoming.getScore() >= current.getScore() ? incoming.getDate() : current.getDate());

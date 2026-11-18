@@ -43,7 +43,7 @@
             android:id="@+id/tvRankingPlayerName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Jonathan Doe"
+            android:text="@string/placeholder_player_name"
             android:textColor="@color/ref_text_dark"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="Racha: 3 • 18/09/2026"
+            android:text="@string/placeholder_ranking_details"
             android:textColor="#7A7886"
             android:textSize="12sp" />
     </LinearLayout>
@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:text="890 Point"
+            android:text="@string/placeholder_ranking_score"
             android:textColor="#2D234A"
             android:textSize="13sp"
             android:textStyle="bold" />

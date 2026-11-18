@@ -6,11 +6,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-<<<<<<< HEAD
 import androidx.core.content.res.ResourcesCompat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,22 +18,27 @@ import java.util.List;
 
 public final class RoadmapLayout extends FrameLayout {
 
-=======
+    public static final int HOTSPOT_MONSTER_START = 0;
+    public static final int HOTSPOT_CAVE = 1;
+    public static final int HOTSPOT_MONSTER_RIVER = 2;
+    public static final int HOTSPOT_MONSTER_LAKE = 3;
+    public static final int HOTSPOT_MONSTER_WATERFALL = 4;
+    public static final int HOTSPOT_MONSTER_MOUNTAIN = 5;
 
-import androidx.core.content.res.ResourcesCompat;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class RoadmapLayout extends FrameLayout {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
     public interface StarsProvider {
         int getStars(int levelId);
     }
 
-<<<<<<< HEAD
     public interface OnNodeClickListener {
         void onNodeClick(int levelId, boolean isUnlocked, int stars);
+    }
+
+    public interface OnHotspotClickListener {
+        void onHotspotClick(int hotspotId);
+    }
+
+    public interface SpecialCompletedProvider {
+        boolean isAllCompleted(int hotspotId);
     }
 
     public static final class NodeCoord {
@@ -54,23 +59,23 @@ public class RoadmapLayout extends FrameLayout {
         }
     }
 
+    private static final class HotspotSpec {
+        final int id;
+        final float xFrac;
+        final float yFrac;
+        final float sizeFrac;
+        final boolean showAlertBadge;
+
+        HotspotSpec(int id, float xFrac, float yFrac, float sizeFrac, boolean showAlertBadge) {
+            this.id = id;
+            this.xFrac = xFrac;
+            this.yFrac = yFrac;
+            this.sizeFrac = sizeFrac;
+            this.showAlertBadge = showAlertBadge;
+        }
+    }
+
     public static final List<NodeCoord> COORDS = Arrays.asList(
-=======
-    public interface LevelClickListener {
-        void onLevelClick(int levelId, boolean unlocked, int stars);
-    }
-
-    public interface CastleClickListener {
-        void onCastleClick();
-    }
-
-    private static final int LEVEL_COUNT = 16;
-    private static final int CASTLE_INDEX = LEVEL_COUNT;
-    private static final float BACKGROUND_HEIGHT_RATIO = 3.0235784f;
-    private static final float NODE_SIZE_RATIO = 0.09153953f;
-
-    private static final List<NodeCoord> COORDINATES = List.of(
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
             new NodeCoord(0.5065f, 0.0586f),
             new NodeCoord(0.5982f, 0.1061f),
             new NodeCoord(0.4594f, 0.1466f),
@@ -90,13 +95,19 @@ public class RoadmapLayout extends FrameLayout {
             new NodeCoord(0.4993f, 0.9731f)
     );
 
-<<<<<<< HEAD
+    private static final List<HotspotSpec> HOTSPOTS = Arrays.asList(
+            new HotspotSpec(HOTSPOT_MONSTER_START, 0.42f, 0.025f, 0.15f, true),
+            new HotspotSpec(HOTSPOT_CAVE, 0.85f, 0.125f, 0.22f, true),
+            new HotspotSpec(HOTSPOT_MONSTER_RIVER, 0.19f, 0.245f, 0.18f, true),
+            new HotspotSpec(HOTSPOT_MONSTER_LAKE, 0.20f, 0.395f, 0.18f, true),
+            new HotspotSpec(HOTSPOT_MONSTER_WATERFALL, 0.87f, 0.395f, 0.18f, true),
+            new HotspotSpec(HOTSPOT_MONSTER_MOUNTAIN, 0.84f, 0.545f, 0.18f, true)
+    );
+
+    private static final int HOTSPOT_TAG_OFFSET = 100;
+
     private final ImageView bgImageView;
     private final List<ValueAnimator> activeAnimators = new ArrayList<>();
-=======
-    private final ImageView backgroundImage;
-    private final List<ValueAnimator> activeAnimations = new ArrayList<>();
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
     public RoadmapLayout(Context context) {
         this(context, null);
@@ -108,36 +119,15 @@ public class RoadmapLayout extends FrameLayout {
 
     public RoadmapLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-<<<<<<< HEAD
         bgImageView = new ImageView(context);
         bgImageView.setScaleType(ImageView.ScaleType.FIT_XY);
         bgImageView.setImageResource(R.drawable.img_roadmap_full);
         bgImageView.setContentDescription("Roadmap");
         addView(bgImageView, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-=======
-        backgroundImage = createBackgroundImage(context);
-        addView(backgroundImage, new FrameLayout.LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT
-        ));
-    }
-
-    public static List<NodeCoord> getCoords() {
-        return COORDINATES;
-    }
-
-    private static ImageView createBackgroundImage(Context context) {
-        ImageView image = new ImageView(context);
-        image.setScaleType(ImageView.ScaleType.FIT_XY);
-        image.setImageResource(R.drawable.img_roadmap_full);
-        image.setContentDescription("Roadmap");
-        return image;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-<<<<<<< HEAD
         int width = View.MeasureSpec.getSize(widthMeasureSpec);
         int height = (int) (width * 3.0235784f);
         int exactWidthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
@@ -150,19 +140,16 @@ public class RoadmapLayout extends FrameLayout {
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child != bgImageView && child.getVisibility() != View.GONE) {
-=======
-        int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = (int) (width * BACKGROUND_HEIGHT_RATIO);
-        int exactWidth = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
-        int exactHeight = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-        backgroundImage.measure(exactWidth, exactHeight);
-
-        int nodeSize = (int) (width * NODE_SIZE_RATIO);
-        int nodeSpec = MeasureSpec.makeMeasureSpec(nodeSize, MeasureSpec.EXACTLY);
-        for (int index = 0; index < getChildCount(); index++) {
-            View child = getChildAt(index);
-            if (child != backgroundImage && child.getVisibility() != View.GONE) {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+                Object tag = child.getTag();
+                if (tag instanceof Integer && (Integer) tag >= HOTSPOT_TAG_OFFSET) {
+                    int hotspotIdx = (Integer) tag - HOTSPOT_TAG_OFFSET;
+                    if (hotspotIdx >= 0 && hotspotIdx < HOTSPOTS.size()) {
+                        int hotspotSize = (int) (width * HOTSPOTS.get(hotspotIdx).sizeFrac);
+                        int hotspotSpec = View.MeasureSpec.makeMeasureSpec(hotspotSize, View.MeasureSpec.EXACTLY);
+                        child.measure(hotspotSpec, hotspotSpec);
+                        continue;
+                    }
+                }
                 child.measure(nodeSpec, nodeSpec);
             }
         }
@@ -171,7 +158,6 @@ public class RoadmapLayout extends FrameLayout {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-<<<<<<< HEAD
         int w = right - left;
         int h = bottom - top;
         bgImageView.layout(0, 0, w, h);
@@ -182,7 +168,17 @@ public class RoadmapLayout extends FrameLayout {
                 Object tag = child.getTag();
                 if (tag instanceof Integer) {
                     int tagIndex = (Integer) tag;
-                    if (tagIndex >= 0 && tagIndex < COORDS.size()) {
+                    if (tagIndex >= HOTSPOT_TAG_OFFSET) {
+                        int hotspotIdx = tagIndex - HOTSPOT_TAG_OFFSET;
+                        if (hotspotIdx >= 0 && hotspotIdx < HOTSPOTS.size()) {
+                            HotspotSpec spec = HOTSPOTS.get(hotspotIdx);
+                            int cx = (int) (w * spec.xFrac);
+                            int cy = (int) (h * spec.yFrac);
+                            int halfW = child.getMeasuredWidth() / 2;
+                            int halfH = child.getMeasuredHeight() / 2;
+                            child.layout(cx - halfW, cy - halfH, cx + halfW, cy + halfH);
+                        }
+                    } else if (tagIndex >= 0 && tagIndex < COORDS.size()) {
                         NodeCoord coord = COORDS.get(tagIndex);
                         int cx = (int) (w * coord.getXFrac());
                         int cy = (int) (h * coord.getYFrac());
@@ -195,7 +191,21 @@ public class RoadmapLayout extends FrameLayout {
         }
     }
 
-    public void populateRoadmap(int maxUnlocked, StarsProvider starsProvider, OnNodeClickListener onNodeClick, Runnable onCastleClick) {
+    public void populateRoadmap(int maxUnlocked, StarsProvider starsProvider,
+                                OnNodeClickListener onNodeClick, Runnable onCastleClick) {
+        populateRoadmap(maxUnlocked, starsProvider, onNodeClick, onCastleClick, null);
+    }
+
+    public void populateRoadmap(int maxUnlocked, StarsProvider starsProvider,
+                                OnNodeClickListener onNodeClick, Runnable onCastleClick,
+                                OnHotspotClickListener onHotspotClick) {
+        populateRoadmap(maxUnlocked, starsProvider, onNodeClick, onCastleClick, onHotspotClick, null);
+    }
+
+    public void populateRoadmap(int maxUnlocked, StarsProvider starsProvider,
+                                OnNodeClickListener onNodeClick, Runnable onCastleClick,
+                                OnHotspotClickListener onHotspotClick,
+                                SpecialCompletedProvider specialCompletedProvider) {
         for (ValueAnimator anim : activeAnimators) {
             anim.cancel();
         }
@@ -206,6 +216,57 @@ public class RoadmapLayout extends FrameLayout {
         }
 
         float density = getResources().getDisplayMetrics().density;
+        Typeface pixelFont = ResourcesCompat.getFont(getContext(), R.font.pixelify_sans_family);
+        if (pixelFont == null) {
+            pixelFont = Typeface.DEFAULT_BOLD;
+        }
+
+        for (int i = 0; i < HOTSPOTS.size(); i++) {
+            HotspotSpec spec = HOTSPOTS.get(i);
+            FrameLayout hotspotView = new FrameLayout(getContext());
+            hotspotView.setTag(HOTSPOT_TAG_OFFSET + i);
+            hotspotView.setClickable(true);
+            hotspotView.setFocusable(true);
+
+            boolean allSpecialDone = specialCompletedProvider != null
+                    && specialCompletedProvider.isAllCompleted(spec.id);
+            if (spec.showAlertBadge && !allSpecialDone) {
+                TextView badge = new TextView(getContext());
+                int badgeSize = (int) (22 * density);
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(badgeSize, badgeSize);
+                lp.gravity = Gravity.TOP | Gravity.END;
+                lp.topMargin = (int) (4 * density);
+                lp.rightMargin = (int) (4 * density);
+                badge.setLayoutParams(lp);
+                badge.setBackgroundResource(R.drawable.bg_badge_gift_alert);
+                badge.setText("!");
+                badge.setTextColor(Color.WHITE);
+                badge.setTextSize(12.0f);
+                badge.setTypeface(pixelFont);
+                badge.setGravity(Gravity.CENTER);
+                hotspotView.addView(badge);
+
+                ObjectAnimator pulseX = ObjectAnimator.ofFloat(badge, "scaleX", 1.0f, 1.18f, 1.0f);
+                pulseX.setDuration(1400L);
+                pulseX.setRepeatCount(ObjectAnimator.INFINITE);
+                pulseX.start();
+                ObjectAnimator pulseY = ObjectAnimator.ofFloat(badge, "scaleY", 1.0f, 1.18f, 1.0f);
+                pulseY.setDuration(1400L);
+                pulseY.setRepeatCount(ObjectAnimator.INFINITE);
+                pulseY.start();
+                activeAnimators.add(pulseX);
+                activeAnimators.add(pulseY);
+            }
+
+            final int hotspotId = spec.id;
+            hotspotView.setOnClickListener(v -> {
+                if (onHotspotClick != null) {
+                    onHotspotClick.onHotspotClick(hotspotId);
+                }
+            });
+            addView(hotspotView);
+        }
+
         for (int levelId = 1; levelId <= 16; levelId++) {
             int index = levelId - 1;
             int stars = starsProvider.getStars(levelId);
@@ -246,11 +307,7 @@ public class RoadmapLayout extends FrameLayout {
                 tvLevelNum.setLayoutParams(lp);
                 tvLevelNum.setText(String.valueOf(levelId));
                 tvLevelNum.setTextSize(15.0f);
-                Typeface font = ResourcesCompat.getFont(getContext(), R.font.pixelify_sans_family);
-                if (font == null) {
-                    font = Typeface.DEFAULT_BOLD;
-                }
-                tvLevelNum.setTypeface(font);
+                tvLevelNum.setTypeface(pixelFont);
                 tvLevelNum.setTextColor(Color.WHITE);
                 tvLevelNum.setShadowLayer(3.0f, 2.0f, 2.0f, Color.parseColor("#7E3800"));
                 nodeLayout.addView(tvLevelNum);
@@ -293,75 +350,10 @@ public class RoadmapLayout extends FrameLayout {
         });
         addView(castleLayout);
 
-=======
-        int width = right - left;
-        int height = bottom - top;
-        backgroundImage.layout(0, 0, width, height);
-
-        for (int index = 0; index < getChildCount(); index++) {
-            View child = getChildAt(index);
-            if (child == backgroundImage || child.getVisibility() == View.GONE) {
-                continue;
-            }
-
-            Object tag = child.getTag();
-            if (!(tag instanceof Integer)) {
-                continue;
-            }
-
-            int coordinateIndex = (Integer) tag;
-            if (coordinateIndex < 0 || coordinateIndex >= COORDINATES.size()) {
-                continue;
-            }
-
-            NodeCoord coordinate = COORDINATES.get(coordinateIndex);
-            int centerX = (int) (width * coordinate.xFraction);
-            int centerY = (int) (height * coordinate.yFraction);
-            int halfWidth = child.getMeasuredWidth() / 2;
-            int halfHeight = child.getMeasuredHeight() / 2;
-            child.layout(
-                    centerX - halfWidth,
-                    centerY - halfHeight,
-                    centerX + halfWidth,
-                    centerY + halfHeight
-            );
-        }
-    }
-
-    public void populateRoadmap(
-            int maxUnlocked,
-            StarsProvider starsProvider,
-            LevelClickListener nodeClick,
-            CastleClickListener castleClick
-    ) {
-        stopAnimations();
-        removeLevelNodes();
-
-        float density = getResources().getDisplayMetrics().density;
-        for (int levelId = 1; levelId <= LEVEL_COUNT; levelId++) {
-            int stars = starsProvider.getStars(levelId);
-            boolean completed = levelId < maxUnlocked || stars > 0;
-            boolean current = levelId == maxUnlocked && !completed;
-            boolean locked = levelId > maxUnlocked;
-            int selectedLevel = levelId;
-            boolean selectedLevelLocked = locked;
-
-            FrameLayout node = createNode(levelId - 1, density, completed, current);
-            if (current) {
-                addCurrentLevelLabel(node, levelId);
-            }
-            node.setOnClickListener(view ->
-                    nodeClick.onLevelClick(selectedLevel, !selectedLevelLocked, stars));
-            addView(node);
-        }
-
-        addCastleNode(maxUnlocked > LEVEL_COUNT, density, castleClick);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         requestLayout();
         invalidate();
     }
 
-<<<<<<< HEAD
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -369,109 +361,5 @@ public class RoadmapLayout extends FrameLayout {
             anim.cancel();
         }
         activeAnimators.clear();
-=======
-    private FrameLayout createNode(int coordinateIndex, float density, boolean completed, boolean current) {
-        FrameLayout node = new FrameLayout(getContext());
-        node.setTag(coordinateIndex);
-        node.setElevation((current ? 7 : 6) * density);
-
-        if (completed) {
-            node.setBackgroundResource(R.drawable.pixel_node_completed);
-        } else if (current) {
-            node.setBackgroundResource(R.drawable.pixel_node_current);
-            addPulseAnimation(node);
-        } else {
-            node.setBackgroundResource(R.drawable.pixel_node_locked);
-        }
-        return node;
-    }
-
-    private void addPulseAnimation(View node) {
-        ObjectAnimator scaleX = createPulse(node, "scaleX");
-        ObjectAnimator scaleY = createPulse(node, "scaleY");
-        scaleX.start();
-        scaleY.start();
-        activeAnimations.add(scaleX);
-        activeAnimations.add(scaleY);
-    }
-
-    private ObjectAnimator createPulse(View node, String property) {
-        ObjectAnimator animator = ObjectAnimator.ofFloat(node, property, 1.0f, 1.1f, 1.0f);
-        animator.setDuration(1200L);
-        animator.setRepeatCount(ValueAnimator.INFINITE);
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        return animator;
-    }
-
-    private void addCurrentLevelLabel(FrameLayout node, int levelId) {
-        TextView label = new TextView(getContext());
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT
-        );
-        params.gravity = 17;
-        label.setLayoutParams(params);
-        label.setText(String.valueOf(levelId));
-        label.setTextSize(15.0f);
-        Typeface font = ResourcesCompat.getFont(getContext(), R.font.pixelify_sans_family);
-        label.setTypeface(font != null ? font : Typeface.DEFAULT_BOLD);
-        label.setTextColor(Color.WHITE);
-        label.setShadowLayer(3.0f, 2.0f, 2.0f, Color.parseColor("#7E3800"));
-        node.addView(label);
-    }
-
-    private void addCastleNode(
-            boolean completed, float density, CastleClickListener castleClick) {
-        FrameLayout castle = createNode(CASTLE_INDEX, density, completed, false);
-        if (completed) {
-            ImageView star = new ImageView(getContext());
-            int size = (int) (16 * density);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(size, size);
-            params.gravity = 17;
-            star.setLayoutParams(params);
-            star.setImageResource(R.drawable.ic_star_golden);
-            star.setContentDescription("Completado");
-            castle.addView(star);
-        }
-        castle.setOnClickListener(view -> castleClick.onCastleClick());
-        addView(castle);
-    }
-
-    private void stopAnimations() {
-        for (ValueAnimator animation : activeAnimations) {
-            animation.cancel();
-        }
-        activeAnimations.clear();
-    }
-
-    private void removeLevelNodes() {
-        while (getChildCount() > 1) {
-            removeViewAt(getChildCount() - 1);
-        }
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        stopAnimations();
-        super.onDetachedFromWindow();
-    }
-
-    public static final class NodeCoord {
-        private final float xFraction;
-        private final float yFraction;
-
-        public NodeCoord(float xFraction, float yFraction) {
-            this.xFraction = xFraction;
-            this.yFraction = yFraction;
-        }
-
-        public float getXFrac() {
-            return xFraction;
-        }
-
-        public float getYFrac() {
-            return yFraction;
-        }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
     }
 }

@@ -14,15 +14,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class AvatarAdapter extends RecyclerView.Adapter<AvatarAdapter.AvatarViewHolder> {
-<<<<<<< HEAD
     private final List<Avatar> avatars;
     private int selectedAvatarId;
     private final Consumer<Avatar> onAvatarSelected;
-=======
-    private List<Avatar> avatars;
-    private int selectedAvatarId;
-    private Consumer<Avatar> onAvatarSelected;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
     public AvatarAdapter(List<Avatar> avatars, int selectedAvatarId, Consumer<Avatar> onAvatarSelected) {
         this.avatars = avatars;
@@ -31,11 +25,7 @@ public class AvatarAdapter extends RecyclerView.Adapter<AvatarAdapter.AvatarView
     }
 
     public class AvatarViewHolder extends RecyclerView.ViewHolder {
-<<<<<<< HEAD
         private final ItemAvatarBinding binding;
-=======
-        private ItemAvatarBinding binding;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
         AvatarViewHolder(ItemAvatarBinding binding) {
             super(binding.getRoot());

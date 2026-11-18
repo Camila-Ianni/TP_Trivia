@@ -40,7 +40,7 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:layout_marginStart="14dp"
-            android:text="Basic Algebra"
+            android:text="@string/placeholder_topic"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -111,7 +111,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Question 2 of 15"
+            android:text="@string/placeholder_progress"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -183,14 +183,8 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentStart="true"
                         android:layout_marginStart="4dp"
-<<<<<<< HEAD
                         android:layout_marginTop="4dp"
                         android:background="@drawable/bg_word_bubble_badge"
-=======
-                        android:layout_marginTop="40dp"
-                        android:background="@drawable/bg_word_bubble_badge"
-                        android:visibility="visible"
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                         android:elevation="6dp">
 
                         <ImageView
@@ -207,23 +201,14 @@
                         android:layout_height="wrap_content"
                         android:layout_toEndOf="@id/bubbleClueContainer"
                         android:layout_alignTop="@id/bubbleClueContainer"
-<<<<<<< HEAD
                         android:layout_marginStart="10dp"
-=======
-                        android:layout_marginStart="8dp"
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/bg_word_hint_bubble"
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp"
-<<<<<<< HEAD
                         android:orientation="vertical">
-=======
-                        android:orientation="vertical"
-                        android:visibility="visible">
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
                         <TextView
                             android:id="@+id/tvWordPuzzleHint"
@@ -236,39 +221,20 @@
                             android:textStyle="bold" />
 
                         <TextView
-<<<<<<< HEAD
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Toca una letra para colocarla o quitarla."
                             android:textColor="#5A4570"
                             android:fontFamily="@font/pixelify_sans"
                             android:textSize="11sp" />
-=======
-                            android:id="@+id/tvWordPuzzleHintDescription"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Pista de la palabra"
-                            android:textColor="#5A4570"
-                            android:fontFamily="@font/pixelify_sans"
-                            android:textSize="11sp"
-                            android:maxLines="2"
-                            android:ellipsize="end" />
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                     </LinearLayout>
 
                     <HorizontalScrollView
                         android:id="@+id/scrollWordSlots"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-<<<<<<< HEAD
                         android:layout_below="@id/bubbleClueContainer"
                         android:layout_marginTop="22dp"
-=======
-                        android:layout_alignParentTop="true"
-                        android:layout_marginTop="138dp"
-                        android:layout_marginStart="44dp"
-                        android:layout_marginEnd="4dp"
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                         android:scrollbars="none">
 
                         <LinearLayout
@@ -285,7 +251,6 @@
 
 
                     <ImageView
-<<<<<<< HEAD
                         android:id="@+id/ivWordCharacter"
                         android:layout_width="115dp"
                         android:layout_height="115dp"
@@ -296,19 +261,6 @@
                         android:scaleType="fitCenter"
                         android:src="@drawable/img_monster_puzzle_character"
                         android:contentDescription="Personaje" />
-=======
-                        android:id="@+id/ivWordMonster"
-                        android:layout_width="172dp"
-                        android:layout_height="150dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="86dp"
-                        android:adjustViewBounds="true"
-                        android:contentDescription="Monstruo rosa"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/img_monster_rosa" />
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -332,12 +284,7 @@
                             android:paddingEnd="12dp"
                             android:paddingTop="4dp"
                             android:paddingBottom="5dp"
-<<<<<<< HEAD
                             android:layout_marginBottom="10dp" />
-=======
-                            android:layout_marginBottom="10dp"
-                            android:visibility="visible" />
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
                         <LinearLayout
                             android:id="@+id/layoutLetterTilesRow1"
@@ -561,9 +508,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:background="#33FFFFFF"
-                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_pill_score_white"
+                android:textColor="@color/ref_text_dark"
                 android:textSize="12sp"
+                android:textStyle="bold"
+                android:lineSpacingExtra="3dp"
                 android:padding="12dp"
                 android:visibility="gone" />
 
@@ -574,17 +523,113 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="24dp"
-        android:paddingTop="8dp">
+        android:paddingBottom="20dp"
+        android:paddingTop="6dp">
+
+        <LinearLayout
+            android:id="@+id/layoutPowerupsBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_pill_badge"
+                android:gravity="center_vertical"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_bolt"
+                    android:contentDescription="@string/header_lives_format" />
+
+                <TextView
+                    android:id="@+id/tvGameEnergy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="12/12"
+                    android:textColor="#2D234A"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnPowerupHint"
+                android:layout_width="0dp"
+                android:layout_height="34dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_pill_score_yellow"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_powerup_5050"
+                    android:contentDescription="@string/game_powerup_5050" />
+
+                <TextView
+                    android:id="@+id/tvPowerupHintLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="@string/game_powerup_5050"
+                    android:textColor="#2D234A"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnPowerupTime"
+                android:layout_width="0dp"
+                android:layout_height="34dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_pill_score_yellow"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_powerup_time"
+                    android:contentDescription="@string/game_powerup_time" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="@string/game_powerup_time"
+                    android:textColor="#2D234A"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnCheckAnswer"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:background="@drawable/bg_btn_pill_white"
-            android:text="Check"
+            android:text="@string/game_btn_check"
             android:textColor="#6C5CE7"
             android:textSize="15sp"
             android:textStyle="bold"

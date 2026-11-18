@@ -42,9 +42,5 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.recyclerview)
-<<<<<<< HEAD
-=======
-
-    testImplementation("junit:junit:4.13.2")
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+    testImplementation(libs.junit)
 }

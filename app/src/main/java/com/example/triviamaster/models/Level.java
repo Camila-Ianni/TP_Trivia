@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 
 public class Level implements Serializable {
-<<<<<<< HEAD
     private final int id;
     private final int worldId;
     private final int levelNumber;
@@ -13,16 +12,6 @@ public class Level implements Serializable {
     private final String category;
     private final int categoryColor;
     private final List<Question> questions;
-=======
-    private int id;
-    private int worldId;
-    private int levelNumber;
-    private String title;
-    private String subtitle;
-    private String category;
-    private int categoryColor;
-    private List<Question> questions;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
     public Level(int id, int worldId, int levelNumber, String title, String subtitle,
                  String category, int categoryColor, List<Question> questions) {

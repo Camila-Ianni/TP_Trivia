@@ -4,13 +4,8 @@
     <style name="Base.Theme.TriviaMaster" parent="Theme.Material3.DayNight.NoActionBar">
 
         <item name="colorPrimary">@color/primary</item>
-<<<<<<< HEAD
-        <item name="colorPrimaryVariant">@color/primary_variant</item>
-        <item name="colorOnPrimary">@color/text_white</item>
-=======
         <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/on_primary</item>
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         
         <item name="colorSecondary">@color/secondary</item>
         <item name="android:statusBarColor">@color/bg_app</item>

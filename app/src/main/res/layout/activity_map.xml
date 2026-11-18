@@ -118,6 +118,26 @@
         </LinearLayout>
 
         <FrameLayout
+            android:id="@+id/btnHeaderGuide"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_pill_score_yellow"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="?"
+                android:textColor="#2D234A"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:contentDescription="@string/map_guide_btn_desc" />
+        </FrameLayout>
+
+        <FrameLayout
             android:id="@+id/layoutHeaderGift"
             android:layout_width="48dp"
             android:layout_height="48dp">

@@ -1,71 +1,64 @@
-# TriviaMaster - TP 1 Aplicaciones Moviles
+# TriviaMaster - TP 2 Aplicaciones Moviles
 
-Trabajo Practico N° 1 para la materia **Aplicaciones Moviles** de la carrera **Analista de Sistemas**.
+Trabajo Practico N° 2 (Sistema de Gestion sobre el TP1) para la materia **Aplicaciones Moviles** de la carrera **Analista de Sistemas**.
 
 ---
 
 ## Descripcion del Proyecto
 
-**TriviaMaster** es una aplicacion movil nativa desarrollada en **Kotlin** para Android con estetica arcade pixel art retro y tematica de monstruos amigables. Integra un **Roadmap interactivo vertical de 16 niveles y Castillo Final**, sistema de **4 Avatares Pixel Art**, sistema de **Medallas de Honor desbloqueables**, minijuego de ordenar letras, sistema de vidas, multiplicador de racha, temporizador interactivo y persistencia 100% local sin base de datos.
+**TriviaMaster** es una aplicacion movil nativa desarrollada en **Java** para Android con estetica arcade pixel art retro y tematica de monstruos. Evoluciona la base del TP1 integrando persistencia completa en **SQLite** mediante `SQLiteOpenHelper`, acceso asincrono en hilos secundarios con `ExecutorService`, sistema de **Login y Registro**, **CRUD de Usuarios**, **CRUD de Preguntas de Trivia**, **Historial de Partidas**, **Guia de Juego interactiva**, **Mapa interactivo** (16 niveles, Castillo Final, Cueva de Retos y Guardianes), **Dificultad seleccionable**, **Comodines con energia**, **Medallas de Honor** y **Coleccion de Guardianes**.
 
 ---
 
 ## Caracteristicas Principales
 
-1. **Roadmap de Niveles Pixel Art (16 Niveles + Gran Castillo Final):**
-   - Mapa con scroll continuo y 17 nodos interactivos.
-   - Niveles tematicos (Ciencia, Historia, Cine, Musica, Deportes, Videojuegos, etc.).
-   - Conquista final del Gran Castillo de la Sabiduria al completar el nivel 16.
-2. **Sistema de Avatares Exclusivos (4 Fotos de Perfil Pixel):**
-   - Perfil 1: Wincky
-   - Perfil 2: Bloop
-   - Perfil 3: Chomp
-   - Perfil 4: Zook
-3. **Sistema de Medallas de Honor:**
-   - **Medalla 1 (Iniciado de Trivia):** Superar el Nivel 5 del mapa.
-   - **Medalla 2 (Maestro de Sabiduria):** Superar el Nivel 10 del mapa.
-   - **Medalla 3 (Conquistador del Castillo):** Superar los 16 niveles y conquistar el Gran Castillo.
-   - Visualizacion en escala de grises mientras estan bloqueadas y a todo color al desbloquearse.
-   - Dialogo emergente de celebracion al obtener cada medalla.
-4. **Minijuego de Ordenar Palabras:**
-   - Letras desordenadas para ubicar en casillas interactivas, con escena natural pixel art y feedback inmediato.
-5. **Cofre Sorpresa:**
-   - Recompensas con animaciones y regalos interactivos de vidas y bonificaciones.
+1. **Autenticacion y CRUD de Usuarios (SQLite):**
+   - Login con validacion de credenciales en SQLite.
+   - Registro de nuevas cuentas con validacion de correo, contraseña y usuario unico (`UNIQUE COLLATE NOCASE`).
+   - Edicion de perfil, cierre de sesion, eliminacion de cuenta y pantalla dedicada de administracion de usuarios (`UserManagerActivity`).
+2. **Gestor de Preguntas de Trivia (CRUD en SQLite):**
+   - Creacion, busqueda, filtrado por nivel (1 al 16), edicion (con `RadioGroup` para elegir la respuesta correcta) y eliminacion de preguntas (`QuestionManagerActivity`).
+   - Integracion directa con las partidas en `GameActivity`.
+3. **Historial de Partidas (SQLite):**
+   - Registro automatico de cada partida jugada (modo/nivel, dificultad, aciertos, puntaje, estrellas y fecha) en la tabla `match_history`.
+   - Visualizacion y eliminacion individual o total desde `MatchHistoryActivity`.
+4. **Guia de Juego y Mapa Interactivo:**
+   - Guia interactiva de 4 pasos al primer ingreso y accesible desde el boton `?` del mapa.
+   - **Cueva de Retos** interactiva para jugar Desafios Rapidos de 10 preguntas aleatorias.
+   - **Guardianes del Mapa** interactivos con dialogos de pistas y progreso por zona.
+5. **Jugabilidad Avanzada:**
+   - 3 niveles de dificultad (*Principiante*, *Veterano*, *Leyenda*) con variacion real de tiempo, vidas y multiplicador de puntaje.
+   - Comodines en partida (*50/50* o *Letra* en puzzles de palabras, y *+5s*) consumiendo energia.
+   - Explicaciones educativas al validar cada respuesta y feedback sensorial retro opcional (sonido y vibracion).
 
 ---
 
-## Cumplimiento de Consignas Academicas del TP1
+## Arquitectura y Pantallas (Activities)
 
-- [x] **Minimo 3 Pantallas (Activities):** La aplicacion cuenta con **6 Activities**:
-  1. `MainActivity`: Pantalla de bienvenida, solicitud obligatoria de nombre y lanzamiento del juego.
-  2. `MapActivity`: Roadmap interactivo con los 16 niveles y el Castillo Final.
-  3. `GameActivity`: Mecanica de trivia con preguntas de opcion multiple, minijuego de palabra desordenada, temporizador y vidas.
-  4. `ResultActivity`: Pantalla de resultados con calculo de estrellas, felicitaciones personalizadas y desbloqueo de medallas.
-  5. `RankingActivity`: Tabla de posiciones con record personal y podio.
-  6. `ProfileActivity`: Gestion del nombre, selector entre los 4 avatares pixel y galeria interactiva de medallas de honor.
-- [x] **Navegacion hacia atras permitida en todas las pantallas:** Control del BackStack con botones de retorno dedicados y `android:parentActivityName` en `AndroidManifest.xml`.
-- [x] **Solicitud del nombre de usuario utilizado en los mensajes:**
-  - Solicitado al ingresar con validacion.
-  - Utilizado en el saludo del mapa (*"¡Hola, [Nombre]!"*), en mensajes de victoria, en dialogos de recompensa y en el perfil.
-- [x] **Uso de recursos graficos:**
-  - Ilustraciones pixel art de monstruos, roadmap ilustrado, 4 avatares exclusivos, 3 medallas de honor, iconos tematicos y botones con relieve retro.
-- [x] **SIN USO DE BASES DE DATOS:**
-  - Cumplimiento estricto: No se utiliza SQLite, ni Room, ni Firebase, ni bases de datos remotas.
-  - La persistencia es 100% local mediante la API nativa de `SharedPreferences` de Android y listas en memoria.
+- `MainActivity`: Login de usuarios y acceso a Registro y Salon de la Fama.
+- `RegisterActivity`: Registro de nuevos usuarios con selector de avatar.
+- `MapActivity`: Roadmap interactivo de 16 niveles, Castillo Final, Cueva de Retos, Guardianes y Guia de Juego.
+- `GameActivity`: Trivia de opcion multiple, puzzles de letras, temporizador, dificultad, comodines y explicaciones.
+- `ResultActivity`: Calculo de estrellas, medallas, cofres y guardado en SQLite (`users` y `match_history`).
+- `RankingActivity`: Salon de la Fama ordenado desde SQLite.
+- `ProfileActivity`: Edicion de cuenta, preferencias arcade (sonido/vibracion), Medallas, Bestiario de Guardianes y accesos a CRUDs/Historial.
+- `UserManagerActivity`: CRUD completo de usuarios en SQLite.
+- `QuestionManagerActivity`: CRUD completo de preguntas de trivia en SQLite.
+- `MatchHistoryActivity`: Historial de partidas del usuario en SQLite.
 
 ---
 
 ## Tecnologias
 
-- **Lenguaje:** Kotlin 2.0+
-- **Arquitectura:** Android Nativo con ViewBinding
-- **Persistencia:** Android SharedPreferences (Sin bases de datos)
-- **SDK Minimo:** Android 7.0 (API 24)
-- **SDK Target:** Android 14 (API 34)
+- **Lenguaje:** Java 17
+- **Base de datos:** SQLite (`TriviaDbHelper`, version 2: tablas `users`, `questions`, `match_history`)
+- **Concurrencia:** `ExecutorService` + `Handler(Looper.getMainLooper())` (`DbExecutor`)
+- **UI:** ViewBinding, Material Components, RecyclerView, recursos centralizados en `strings.xml` y `android:hint`
+- **SDK Minimo:** Android 7.0 (API 24) | **SDK Target:** Android 14 (API 34)
 
 ---
 
-## Autora / Integrantes
+## Autora
 
 - **Alumna:** Camila Ianni
 - **Materia:** Aplicaciones Moviles

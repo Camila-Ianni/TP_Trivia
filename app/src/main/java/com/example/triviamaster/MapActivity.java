@@ -1,10 +1,6 @@
 package com.example.triviamaster;
 
 import android.animation.ObjectAnimator;
-<<<<<<< HEAD
-=======
-import android.animation.ValueAnimator;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -19,9 +15,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.example.triviamaster.data.PreferencesManager;
 import com.example.triviamaster.data.QuestionBank;
+import com.example.triviamaster.data.db.DbCallback;
+import com.example.triviamaster.data.db.QuestionRepository;
+import com.example.triviamaster.data.db.UserRepository;
 import com.example.triviamaster.databinding.ActivityMapBinding;
+import com.example.triviamaster.databinding.DialogCaveChallengeBinding;
+import com.example.triviamaster.databinding.DialogGameGuideBinding;
+import com.example.triviamaster.models.Difficulty;
 import com.example.triviamaster.models.Level;
-<<<<<<< HEAD
+import com.example.triviamaster.models.Question;
+import com.example.triviamaster.models.User;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,14 +32,23 @@ public final class MapActivity extends AppCompatActivity {
 
     public static final String EXTRA_LEVEL_ID = "extra_level_id";
     public static final String EXTRA_IS_QUICK_PLAY = "extra_is_quick_play";
+    public static final String EXTRA_DIFFICULTY = "extra_difficulty";
+    public static final String EXTRA_SPECIAL_TITLE = "extra_special_title";
+    public static final String EXTRA_SPECIAL_MIN_LEVEL = "extra_special_min_level";
+    public static final String EXTRA_SPECIAL_MAX_LEVEL = "extra_special_max_level";
+    public static final String EXTRA_SPECIAL_COUNT = "extra_special_count";
+    public static final String EXTRA_SPECIAL_HOTSPOT_ID = "extra_special_hotspot_id";
 
     private ActivityMapBinding binding;
     private PreferencesManager prefsManager;
+    private UserRepository userRepository;
+    private QuestionRepository questionRepository;
     private String userName = "Jugador";
     private int avatarId = 1;
     private int avatarResId = R.drawable.img_avatar_perfil1;
     private ObjectAnimator giftPulseAnimX;
     private ObjectAnimator giftPulseAnimY;
+    private boolean guideAutoChecked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,73 +56,72 @@ public final class MapActivity extends AppCompatActivity {
         binding = ActivityMapBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         prefsManager = new PreferencesManager(this);
-=======
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-public class MapActivity extends AppCompatActivity {
-
-    private ActivityMapBinding binding;
-    private PreferencesManager prefsManager;
-
-    @NotNull
-    private String userName = "Jugador";
-    private int avatarId = 1;
-    private int avatarResId = R.drawable.img_avatar_perfil1;
-
-    @Nullable
-    private ObjectAnimator giftPulseAnimX;
-
-    @Nullable
-    private ObjectAnimator giftPulseAnimY;
-
-    @NotNull
-    public static String EXTRA_LEVEL_ID = "extra_level_id";
-
-    @NotNull
-    public static String EXTRA_IS_QUICK_PLAY = "extra_is_quick_play";
-
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        this.binding = ActivityMapBinding.inflate(getLayoutInflater());
-        ActivityMapBinding activityMapBinding = this.binding;
-        setContentView(activityMapBinding.getRoot());
-        this.prefsManager = new PreferencesManager(this);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+        userRepository = new UserRepository(this);
+        questionRepository = new QuestionRepository(this);
         extractIntentData();
         setupHeader();
         setupBottomNav();
         renderRoadmap();
+        checkFirstTimeGuide();
     }
 
-<<<<<<< HEAD
+    private void checkFirstTimeGuide() {
+        if (guideAutoChecked) {
+            return;
+        }
+        guideAutoChecked = true;
+        long userId = prefsManager.getCurrentUserId();
+        if (!prefsManager.hasSeenGameGuide(userId)) {
+            binding.getRoot().post(() -> {
+                if (!isFinishing()) {
+                    showGameGuideDialog();
+                }
+            });
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
-=======
-    protected void onNewIntent(@NotNull Intent intent) {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         super.onNewIntent(intent);
         setIntent(intent);
         extractIntentData();
         updateHeaderStats();
-<<<<<<< HEAD
     }
 
     @Override
-=======
-        renderRoadmap();
-    }
-
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
     protected void onResume() {
         super.onResume();
         extractIntentData();
         updateHeaderStats();
         renderRoadmap();
+        refreshUserFromDb();
+    }
+
+    private void refreshUserFromDb() {
+        long userId = prefsManager.getCurrentUserId();
+        if (userId <= 0) {
+            return;
+        }
+        userRepository.getUserById(userId, new DbCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (isFinishing() || user == null) {
+                    return;
+                }
+                prefsManager.syncFromUser(user);
+                extractIntentData();
+                updateHeaderStats();
+                updateAdminNavVisibility();
+                renderRoadmap();
+            }
+
+            @Override
+            public void onError(Exception error) {
+            }
+        });
     }
 
     private void extractIntentData() {
-<<<<<<< HEAD
         String lastPlayerName = prefsManager.getLastPlayerName();
         userName = (lastPlayerName == null || lastPlayerName.trim().isEmpty()) ? "Jugador" : lastPlayerName;
         avatarId = prefsManager.getLastAvatarId();
@@ -125,6 +136,8 @@ public class MapActivity extends AppCompatActivity {
         binding.btnHeaderAvatarContainer.setOnClickListener(v -> {
             startActivity(new Intent(MapActivity.this, ProfileActivity.class));
         });
+
+        binding.btnHeaderGuide.setOnClickListener(v -> showGameGuideDialog());
 
         binding.btnHeaderGift.setOnClickListener(v -> handleGiftClick());
     }
@@ -175,105 +188,19 @@ public class MapActivity extends AppCompatActivity {
         if (gifts > 0) {
             prefsManager.setAvailableGifts(gifts - 1);
             prefsManager.addChestRewards(1, 100);
-            updateGiftBadge();
-            updateHeaderStats();
-
-=======
-        PreferencesManager preferencesManager = this.prefsManager;
-        String lastPlayerName = preferencesManager.getLastPlayerName();
-        this.userName = lastPlayerName == null || lastPlayerName.isBlank()
-                ? getString(R.string.default_player_name) : lastPlayerName;
-        PreferencesManager preferencesManager2 = this.prefsManager;
-        this.avatarId = preferencesManager2.getLastAvatarId();
-        PreferencesManager preferencesManager3 = this.prefsManager;
-        this.avatarResId = preferencesManager3.getAvatarById(this.avatarId).getIconResId();
-    }
-
-    private void setupHeader() {
-        ActivityMapBinding activityMapBinding = this.binding;
-        activityMapBinding.tvHeaderGreeting.setText(getString(R.string.map_greeting_format, this.userName));
-                binding.ivHeaderAvatar.setImageResource(this.avatarResId);
-        updateHeaderStats();
-                binding.btnHeaderAvatarContainer.setOnClickListener(
-                view -> openProfile());
-                binding.btnHeaderGift.setOnClickListener(view -> handleGiftClick());
-    }
-    private void openProfile() {
-        startActivity(new Intent(this, ProfileActivity.class));
-    }
-
-    private void updateHeaderStats() {
-        PreferencesManager preferencesManager = this.prefsManager;
-        int totalStars = preferencesManager.getTotalStars();
-        ActivityMapBinding activityMapBinding = this.binding;
-        activityMapBinding.tvHeaderStars.setText(getString(R.string.header_stars_format, totalStars));
-                TextView textView = binding.tvHeaderLives;
-        PreferencesManager preferencesManager2 = this.prefsManager;
-        textView.setText(getString(R.string.header_lives_format, preferencesManager2.getPlayerEnergy()));
-        updateGiftBadge();
-                binding.tvHeaderGreeting.setText(getString(R.string.map_greeting_format, this.userName));
-                binding.ivHeaderAvatar.setImageResource(this.avatarResId);
-    }
-
-    private void updateGiftBadge() {
-        PreferencesManager preferencesManager = this.prefsManager;
-        int gifts = preferencesManager.getAvailableGifts();
-        if (gifts > 0) {
-            ActivityMapBinding activityMapBinding = this.binding;
-            activityMapBinding.badgeGiftAlert.setVisibility(View.VISIBLE);
-                        binding.badgeGiftAlert.setText("!");
-            if (this.giftPulseAnimX != null) {
-                ObjectAnimator objectAnimator = this.giftPulseAnimX;
-                if (objectAnimator.isRunning()) {
-                    return;
-                }
+            long userId = prefsManager.getCurrentUserId();
+            if (userId > 0) {
+                userRepository.claimChestReward(userId, 1, 100, null);
             }
-                        ObjectAnimator pulseX = ObjectAnimator.ofFloat(
-                    binding.btnHeaderGift, "scaleX", 1.0f, 1.12f, 1.0f);
-            pulseX.setDuration(1600L);
-            pulseX.setRepeatCount(ValueAnimator.INFINITE);
-            pulseX.start();
-            this.giftPulseAnimX = pulseX;
-                        ObjectAnimator pulseY = ObjectAnimator.ofFloat(
-                    binding.btnHeaderGift, "scaleY", 1.0f, 1.12f, 1.0f);
-            pulseY.setDuration(1600L);
-            pulseY.setRepeatCount(ValueAnimator.INFINITE);
-            pulseY.start();
-            this.giftPulseAnimY = pulseY;
-            return;
-        }
-                binding.badgeGiftAlert.setVisibility(View.GONE);
-        ObjectAnimator objectAnimator2 = this.giftPulseAnimX;
-        if (objectAnimator2 != null) {
-            objectAnimator2.cancel();
-        }
-        ObjectAnimator objectAnimator3 = this.giftPulseAnimY;
-        if (objectAnimator3 != null) {
-            objectAnimator3.cancel();
-        }
-        this.giftPulseAnimX = null;
-        this.giftPulseAnimY = null;
-                binding.btnHeaderGift.setScaleX(1.0f);
-                binding.btnHeaderGift.setScaleY(1.0f);
-    }
-    private void handleGiftClick() {
-        PreferencesManager preferencesManager = this.prefsManager;
-        int gifts = preferencesManager.getAvailableGifts();
-        if (gifts > 0) {
-            PreferencesManager preferencesManager2 = this.prefsManager;
-            preferencesManager2.setAvailableGifts(preferencesManager2.getAvailableGifts() - 1);
-            PreferencesManager preferencesManager3 = this.prefsManager;
-            preferencesManager3.addChestRewards(1, 100);
             updateGiftBadge();
             updateHeaderStats();
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_gift_claimed, (ViewGroup) null);
             AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
             Window window = dialog.getWindow();
             if (window != null) {
                 window.setBackgroundDrawableResource(android.R.color.transparent);
             }
-<<<<<<< HEAD
             TextView tvTitle = dialogView.findViewById(R.id.tvClaimedTitle);
             TextView tvSubtitle = dialogView.findViewById(R.id.tvClaimedSubtitle);
             Button btnAwesome = dialogView.findViewById(R.id.btnClaimedAwesome);
@@ -310,7 +237,9 @@ public class MapActivity extends AppCompatActivity {
                         return;
                     }
                     showCastleVictoryDialog();
-                }
+                },
+                this::handleHotspotClick,
+                hotspotId -> prefsManager.isAllSpecialCompleted(hotspotId)
         );
 
         binding.scrollMap.post(() -> {
@@ -322,71 +251,6 @@ public class MapActivity extends AppCompatActivity {
         });
     }
 
-=======
-            TextView tvTitle = (TextView) dialogView.findViewById(R.id.tvClaimedTitle);
-            TextView tvSubtitle = (TextView) dialogView.findViewById(R.id.tvClaimedSubtitle);
-            Button btnAwesome = (Button) dialogView.findViewById(R.id.btnClaimedAwesome);
-            if (tvTitle != null) {
-                tvTitle.setText(getString(R.string.gift_claimed_title, new Object[]{this.userName}));
-            }
-            if (tvSubtitle != null) {
-                tvSubtitle.setText(getString(R.string.gift_claimed_desc, new Object[]{this.userName}));
-            }
-            if (btnAwesome != null) {
-                btnAwesome.setOnClickListener(view -> dialog.dismiss());
-            }
-            dialog.show();
-            return;
-        }
-        Toast.makeText(this, getString(R.string.gift_none_available), Toast.LENGTH_SHORT).show();
-    }
-
-    private void renderRoadmap() {
-        PreferencesManager preferencesManager = this.prefsManager;
-        int maxUnlocked = preferencesManager.getMaxUnlockedLevel();
-        ActivityMapBinding activityMapBinding = this.binding;
-        activityMapBinding.roadmapLayout.populateRoadmap(
-                maxUnlocked,
-                this::getStarsForLevel,
-                this::showLevelPreview,
-                () -> handleCastleClick(maxUnlocked));
-                binding.scrollMap.post(() -> {
-            scrollToCurrentLevel(maxUnlocked);
-        });
-    }
-
-    private int getStarsForLevel(int levelId) {
-        PreferencesManager preferencesManager = this.prefsManager;
-        return preferencesManager.getLevelStars(levelId);
-    }
-
-    private void showLevelPreview(int levelId, boolean isUnlocked, int stars) {
-        Level level = QuestionBank.INSTANCE.getLevelById(levelId);
-        if (level != null) {
-            showLevelPreviewDialog(level, isUnlocked, stars);
-        }
-    }
-    private void handleCastleClick(int maxUnlocked) {
-        if (maxUnlocked <= 16) {
-            PreferencesManager preferencesManager = prefsManager;
-            if (preferencesManager.getLevelStars(16) < 1) {
-                Toast.makeText(this, getString(R.string.castle_locked_msg), Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-        showCastleVictoryDialog();
-    }
-
-    private void scrollToCurrentLevel(int maxUnlocked) {
-        int currentIdx = Math.max(0, Math.min(maxUnlocked - 1, 16));
-        float yFrac = RoadmapLayout.getCoords().get(currentIdx).getYFrac();
-        ActivityMapBinding activityMapBinding = this.binding;
-        float height = activityMapBinding.roadmapLayout.getHeight() * yFrac;
-                int scrollTarget = Math.max(
-                (int) (height - (binding.scrollMap.getHeight() / 2.5f)), 0);
-                binding.scrollMap.smoothScrollTo(0, scrollTarget);
-    }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
     private void showLevelPreviewDialog(Level level, boolean isUnlocked, int stars) {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_level_preview, (ViewGroup) null);
         AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
@@ -394,7 +258,6 @@ public class MapActivity extends AppCompatActivity {
         if (window != null) {
             window.setBackgroundDrawableResource(android.R.color.transparent);
         }
-<<<<<<< HEAD
 
         TextView tvCategory = dialogView.findViewById(R.id.tvDialogCategory);
         TextView tvLevelNumber = dialogView.findViewById(R.id.tvDialogLevelNumber);
@@ -408,43 +271,26 @@ public class MapActivity extends AppCompatActivity {
         ImageView ivStar1 = dialogView.findViewById(R.id.ivDialogStar1);
         ImageView ivStar2 = dialogView.findViewById(R.id.ivDialogStar2);
         ImageView ivStar3 = dialogView.findViewById(R.id.ivDialogStar3);
+        View layoutDifficulty = dialogView.findViewById(R.id.layoutLevelDifficulty);
+        TextView chipEasy = dialogView.findViewById(R.id.chipDiffEasy);
+        TextView chipNormal = dialogView.findViewById(R.id.chipDiffNormal);
+        TextView chipHard = dialogView.findViewById(R.id.chipDiffHard);
+        TextView tvDiffSummary = dialogView.findViewById(R.id.tvDiffSummary);
+        final Difficulty[] selectedDifficulty = {Difficulty.NORMAL};
 
-=======
-        TextView tvCategory = (TextView) dialogView.findViewById(R.id.tvDialogCategory);
-        TextView tvLevelNumber = (TextView) dialogView.findViewById(R.id.tvDialogLevelNumber);
-        TextView tvLevelTitle = (TextView) dialogView.findViewById(R.id.tvDialogLevelTitle);
-        TextView tvLevelDesc = (TextView) dialogView.findViewById(R.id.tvDialogLevelDesc);
-        ImageView ivStatusIcon = (ImageView) dialogView.findViewById(R.id.ivDialogStatusIcon);
-        View layoutStars = dialogView.findViewById(R.id.layoutDialogStars);
-        TextView tvQuestionCount = (TextView) dialogView.findViewById(R.id.tvDialogQuestionCount);
-        Button btnPlayLevel = (Button) dialogView.findViewById(R.id.btnDialogPlayLevel);
-        ImageView ivClose = (ImageView) dialogView.findViewById(R.id.ivDialogClose);
-        ImageView ivStar1 = (ImageView) dialogView.findViewById(R.id.ivDialogStar1);
-        ImageView ivStar2 = (ImageView) dialogView.findViewById(R.id.ivDialogStar2);
-        ImageView ivStar3 = (ImageView) dialogView.findViewById(R.id.ivDialogStar3);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         if (tvCategory != null) {
             tvCategory.setText(level.getCategory());
         }
         if (tvLevelNumber != null) {
-<<<<<<< HEAD
             tvLevelNumber.setText(getString(R.string.level_dialog_header, level.getId(), level.getCategory()));
-=======
-            tvLevelNumber.setText(getString(R.string.level_dialog_header, new Object[]{Integer.valueOf(level.getId()), level.getCategory()}));
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         }
         if (tvLevelTitle != null) {
             tvLevelTitle.setText(level.getTitle());
         }
         if (tvLevelDesc != null) {
-<<<<<<< HEAD
             tvLevelDesc.setText(getString(R.string.level_dialog_desc_format, userName, level.getSubtitle()));
         }
 
-=======
-            tvLevelDesc.setText(getString(R.string.level_dialog_desc_format, new Object[]{this.userName, level.getSubtitle()}));
-        }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         if (isUnlocked) {
             if (ivStatusIcon != null) {
                 ivStatusIcon.setImageResource(R.drawable.ic_rocket);
@@ -452,17 +298,29 @@ public class MapActivity extends AppCompatActivity {
             if (layoutStars != null) {
                 layoutStars.setVisibility(View.VISIBLE);
             }
+            if (layoutDifficulty != null) {
+                layoutDifficulty.setVisibility(View.VISIBLE);
+                bindDifficultyChips(chipEasy, chipNormal, chipHard, tvDiffSummary, selectedDifficulty);
+            }
             if (tvQuestionCount != null) {
-<<<<<<< HEAD
                 tvQuestionCount.setText(getString(R.string.level_dialog_stats_format, level.getQuestions().size(), level.getQuestions().size() * 120));
-=======
-                tvQuestionCount.setText(getString(R.string.level_dialog_stats_format, new Object[]{Integer.valueOf(level.getQuestions().size()), Integer.valueOf(level.getQuestions().size() * 120)}));
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
+                questionRepository.getQuestionsByLevel(level.getId(), new DbCallback<List<Question>>() {
+                    @Override
+                    public void onSuccess(List<Question> dbQuestions) {
+                        if (dialog.isShowing() && dbQuestions != null && !dbQuestions.isEmpty()) {
+                            int count = dbQuestions.size();
+                            tvQuestionCount.setText(getString(R.string.level_dialog_stats_format, count, count * 120));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception error) {
+                    }
+                });
             }
             if (btnPlayLevel != null) {
                 btnPlayLevel.setText(getString(R.string.dialog_level_play_btn));
             }
-<<<<<<< HEAD
 
             List<ImageView> starViews = Arrays.asList(ivStar1, ivStar2, ivStar3);
             for (int i = 0; i < starViews.size(); i++) {
@@ -480,26 +338,8 @@ public class MapActivity extends AppCompatActivity {
 
             if (btnPlayLevel != null) {
                 btnPlayLevel.setOnClickListener(v -> {
-=======
-            ImageView[] starViews = {ivStar1, ivStar2, ivStar3};
-            for (int index = 0; index < starViews.length; index++) {
-                ImageView iv = starViews[index];
-                if (iv == null) {
-                    continue;
-                }
-                if (index < stars) {
-                    iv.setAlpha(1.0f);
-                    iv.setImageResource(R.drawable.ic_star_golden);
-                } else {
-                    iv.setAlpha(0.35f);
-                    iv.setImageResource(R.drawable.ic_star_golden);
-                }
-            }
-            if (btnPlayLevel != null) {
-                btnPlayLevel.setOnClickListener(view -> {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
                     dialog.dismiss();
-                    launchGameForLevel(level.getId());
+                    launchGameForLevel(level.getId(), selectedDifficulty[0]);
                 });
             }
         } else {
@@ -509,8 +349,10 @@ public class MapActivity extends AppCompatActivity {
             if (layoutStars != null) {
                 layoutStars.setVisibility(View.GONE);
             }
+            if (layoutDifficulty != null) {
+                layoutDifficulty.setVisibility(View.GONE);
+            }
             if (tvQuestionCount != null) {
-<<<<<<< HEAD
                 tvQuestionCount.setText(getString(R.string.level_dialog_locked_req, level.getId() - 1));
             }
             if (btnPlayLevel != null) {
@@ -525,26 +367,6 @@ public class MapActivity extends AppCompatActivity {
             ivClose.setOnClickListener(v -> dialog.dismiss());
         }
 
-=======
-                tvQuestionCount.setText(getString(R.string.level_dialog_locked_req, new Object[]{Integer.valueOf(level.getId() - 1)}));
-            }
-            if (btnPlayLevel != null) {
-                btnPlayLevel.setText(getString(R.string.level_dialog_btn_locked));
-            }
-            if (btnPlayLevel != null) {
-                btnPlayLevel.setBackgroundResource(R.drawable.bg_pill_secondary);
-            }
-            if (btnPlayLevel != null) {
-                btnPlayLevel.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
-            }
-            if (btnPlayLevel != null) {
-                btnPlayLevel.setOnClickListener(view -> dialog.dismiss());
-            }
-        }
-        if (ivClose != null) {
-            ivClose.setOnClickListener(view -> dialog.dismiss());
-        }
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         dialog.show();
     }
 
@@ -555,7 +377,6 @@ public class MapActivity extends AppCompatActivity {
         if (window != null) {
             window.setBackgroundDrawableResource(android.R.color.transparent);
         }
-<<<<<<< HEAD
 
         TextView tvBadge = dialogView.findViewById(R.id.tvMedalUnlockedBadge);
         ImageView ivIcon = dialogView.findViewById(R.id.ivMedalDialogIcon);
@@ -563,13 +384,6 @@ public class MapActivity extends AppCompatActivity {
         TextView tvSubtitle = dialogView.findViewById(R.id.tvMedalDialogSubtitle);
         Button btnAwesome = dialogView.findViewById(R.id.btnMedalAwesome);
 
-=======
-        TextView tvBadge = (TextView) dialogView.findViewById(R.id.tvMedalUnlockedBadge);
-        ImageView ivIcon = (ImageView) dialogView.findViewById(R.id.ivMedalDialogIcon);
-        TextView tvTitle = (TextView) dialogView.findViewById(R.id.tvMedalDialogTitle);
-        TextView tvSubtitle = (TextView) dialogView.findViewById(R.id.tvMedalDialogSubtitle);
-        Button btnAwesome = (Button) dialogView.findViewById(R.id.btnMedalAwesome);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         if (tvBadge != null) {
             tvBadge.setText(getString(R.string.medal_castle_conquered));
         }
@@ -580,54 +394,306 @@ public class MapActivity extends AppCompatActivity {
             tvTitle.setText(getString(R.string.medal_castle_title));
         }
         if (tvSubtitle != null) {
-<<<<<<< HEAD
             tvSubtitle.setText(getString(R.string.medal_castle_desc, userName));
         }
         if (btnAwesome != null) {
             btnAwesome.setText(getString(R.string.medal_castle_btn));
             btnAwesome.setOnClickListener(v -> dialog.dismiss());
-=======
-            tvSubtitle.setText(getString(R.string.medal_castle_desc, new Object[]{this.userName}));
-        }
-        if (btnAwesome != null) {
-            btnAwesome.setText(getString(R.string.medal_castle_btn));
-        }
-        if (btnAwesome != null) {
-            btnAwesome.setOnClickListener(view -> dialog.dismiss());
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         }
         dialog.show();
     }
 
-    private void launchGameForLevel(int levelId) {
+    private void bindDifficultyChips(TextView chipEasy, TextView chipNormal, TextView chipHard,
+                                       TextView tvSummary, Difficulty[] selectedHolder) {
+        bindDifficultyChips(chipEasy, chipNormal, chipHard, tvSummary, selectedHolder, null);
+    }
+
+    private void bindDifficultyChips(TextView chipEasy, TextView chipNormal, TextView chipHard,
+                                       TextView tvSummary, Difficulty[] selectedHolder,
+                                       Runnable onAfterSelect) {
+        if (chipEasy == null || chipNormal == null || chipHard == null) {
+            return;
+        }
+        Runnable refresh = () -> {
+            Difficulty d = selectedHolder[0];
+            chipEasy.setBackgroundResource(d == Difficulty.EASY
+                    ? R.drawable.bg_chip_difficulty_easy : R.drawable.bg_chip_difficulty_unselected);
+            chipEasy.setTextColor(d == Difficulty.EASY
+                    ? 0xFF065F46 : ContextCompat.getColor(this, R.color.ref_text_dark));
+
+            chipNormal.setBackgroundResource(d == Difficulty.NORMAL
+                    ? R.drawable.bg_chip_difficulty_normal : R.drawable.bg_chip_difficulty_unselected);
+            chipNormal.setTextColor(d == Difficulty.NORMAL
+                    ? 0xFF92400E : ContextCompat.getColor(this, R.color.ref_text_dark));
+
+            chipHard.setBackgroundResource(d == Difficulty.HARD
+                    ? R.drawable.bg_chip_difficulty_hard : R.drawable.bg_chip_difficulty_unselected);
+            chipHard.setTextColor(d == Difficulty.HARD
+                    ? 0xFF991B1B : ContextCompat.getColor(this, R.color.ref_text_dark));
+
+            if (tvSummary != null) {
+                int summaryRes = d == Difficulty.EASY ? R.string.difficulty_info_easy
+                        : (d == Difficulty.HARD ? R.string.difficulty_info_hard : R.string.difficulty_info_normal);
+                tvSummary.setText(getString(summaryRes));
+            }
+            if (onAfterSelect != null) {
+                onAfterSelect.run();
+            }
+        };
+        refresh.run();
+        chipEasy.setOnClickListener(v -> {
+            selectedHolder[0] = Difficulty.EASY;
+            refresh.run();
+        });
+        chipNormal.setOnClickListener(v -> {
+            selectedHolder[0] = Difficulty.NORMAL;
+            refresh.run();
+        });
+        chipHard.setOnClickListener(v -> {
+            selectedHolder[0] = Difficulty.HARD;
+            refresh.run();
+        });
+    }
+
+    private void launchGameForLevel(int levelId, Difficulty difficulty) {
         Intent intent = new Intent(this, GameActivity.class);
-<<<<<<< HEAD
-        intent.putExtra("extra_level_id", levelId);
-        intent.putExtra("extra_is_quick_play", false);
+        intent.putExtra(EXTRA_LEVEL_ID, levelId);
+        intent.putExtra(EXTRA_IS_QUICK_PLAY, false);
+        intent.putExtra(EXTRA_DIFFICULTY, difficulty.name());
         startActivity(intent);
+    }
+
+    private void launchSpecialChallenge(int hotspotId, String title, int minLevel, int maxLevel, int count, Difficulty difficulty) {
+        Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra(EXTRA_LEVEL_ID, -1);
+        intent.putExtra(EXTRA_IS_QUICK_PLAY, true);
+        intent.putExtra(EXTRA_DIFFICULTY, difficulty.name());
+        intent.putExtra(EXTRA_SPECIAL_TITLE, title);
+        intent.putExtra(EXTRA_SPECIAL_MIN_LEVEL, minLevel);
+        intent.putExtra(EXTRA_SPECIAL_MAX_LEVEL, maxLevel);
+        intent.putExtra(EXTRA_SPECIAL_COUNT, count);
+        intent.putExtra(EXTRA_SPECIAL_HOTSPOT_ID, hotspotId);
+        startActivity(intent);
+    }
+
+    private void handleHotspotClick(int hotspotId) {
+        if (hotspotId == RoadmapLayout.HOTSPOT_CAVE) {
+            showSpecialChallengeDialog(
+                    hotspotId,
+                    R.drawable.img_monster_violeta,
+                    getString(R.string.cave_title),
+                    getString(R.string.cave_desc, userName),
+                    1, 16, 10, false
+            );
+            return;
+        }
+        if (hotspotId == RoadmapLayout.HOTSPOT_MONSTER_START) {
+            showSpecialChallengeDialog(
+                    hotspotId,
+                    R.drawable.img_monster_rosa,
+                    getString(R.string.special_start_title),
+                    getString(R.string.special_start_desc, userName),
+                    1, 16, 8, true
+            );
+            return;
+        }
+        if (hotspotId == RoadmapLayout.HOTSPOT_MONSTER_RIVER) {
+            showSpecialChallengeDialog(
+                    hotspotId,
+                    R.drawable.img_monster_celeste,
+                    getString(R.string.special_river_title),
+                    getString(R.string.special_river_desc, userName),
+                    1, 4, 6, false
+            );
+            return;
+        }
+        if (hotspotId == RoadmapLayout.HOTSPOT_MONSTER_LAKE) {
+            showSpecialChallengeDialog(
+                    hotspotId,
+                    R.drawable.img_monster_rosa,
+                    getString(R.string.special_lake_title),
+                    getString(R.string.special_lake_desc, userName),
+                    5, 8, 6, false
+            );
+            return;
+        }
+        if (hotspotId == RoadmapLayout.HOTSPOT_MONSTER_WATERFALL) {
+            showSpecialChallengeDialog(
+                    hotspotId,
+                    R.drawable.img_monster_naranja,
+                    getString(R.string.special_waterfall_title),
+                    getString(R.string.special_waterfall_desc, userName),
+                    9, 12, 6, false
+            );
+            return;
+        }
+        if (hotspotId == RoadmapLayout.HOTSPOT_MONSTER_MOUNTAIN) {
+            showSpecialChallengeDialog(
+                    hotspotId,
+                    R.drawable.img_monster_celeste,
+                    getString(R.string.special_mountain_title),
+                    getString(R.string.special_mountain_desc, userName),
+                    13, 16, 6, false
+            );
+        }
+    }
+
+    private void showSpecialChallengeDialog(int hotspotId, int spriteRes, String title, String desc,
+                                            int minLevel, int maxLevel, int count, boolean showGuideAction) {
+        DialogCaveChallengeBinding dialogBinding = DialogCaveChallengeBinding.inflate(getLayoutInflater());
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogBinding.getRoot()).create();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        dialogBinding.ivCaveSprite.setImageResource(spriteRes);
+        dialogBinding.tvCaveTitle.setText(title);
+        dialogBinding.tvCaveDesc.setText(desc);
+
+        Difficulty initial = Difficulty.EASY;
+        if (prefsManager.isSpecialCompleted(hotspotId, Difficulty.EASY)) {
+            if (!prefsManager.isSpecialCompleted(hotspotId, Difficulty.NORMAL)) {
+                initial = Difficulty.NORMAL;
+            } else if (!prefsManager.isSpecialCompleted(hotspotId, Difficulty.HARD)) {
+                initial = Difficulty.HARD;
+            }
+        }
+        final Difficulty[] selectedDifficulty = {initial};
+
+        Runnable updateCompletionUi = () -> {
+            Difficulty d = selectedDifficulty[0];
+            boolean allDone = prefsManager.isAllSpecialCompleted(hotspotId);
+            boolean currentDone = prefsManager.isSpecialCompleted(hotspotId, d);
+            if (currentDone) {
+                dialogBinding.btnCavePlay.setEnabled(false);
+                dialogBinding.btnCavePlay.setAlpha(0.5f);
+                dialogBinding.btnCavePlay.setText(getString(R.string.special_already_completed_btn));
+                dialogBinding.tvCaveDiffSummary.setText(getString(
+                        allDone ? R.string.special_all_completed_info : R.string.special_already_completed_info,
+                        d.getDisplayName()));
+            } else {
+                dialogBinding.btnCavePlay.setEnabled(true);
+                dialogBinding.btnCavePlay.setAlpha(1.0f);
+                dialogBinding.btnCavePlay.setText(getString(R.string.special_btn_accept));
+            }
+        };
+
+        bindDifficultyChips(
+                dialogBinding.chipCaveDiffEasy,
+                dialogBinding.chipCaveDiffNormal,
+                dialogBinding.chipCaveDiffHard,
+                dialogBinding.tvCaveDiffSummary,
+                selectedDifficulty,
+                updateCompletionUi
+        );
+        updateCompletionUi.run();
+
+        dialogBinding.btnCavePlay.setOnClickListener(v -> {
+            if (prefsManager.isSpecialCompleted(hotspotId, selectedDifficulty[0])) {
+                return;
+            }
+            dialog.dismiss();
+            launchSpecialChallenge(hotspotId, title, minLevel, maxLevel, count, selectedDifficulty[0]);
+        });
+        if (showGuideAction) {
+            dialogBinding.btnCaveOpenGuide.setVisibility(View.VISIBLE);
+            dialogBinding.btnCaveOpenGuide.setOnClickListener(v -> {
+                dialog.dismiss();
+                showGameGuideDialog();
+            });
+        } else {
+            dialogBinding.btnCaveOpenGuide.setVisibility(View.GONE);
+        }
+        dialogBinding.btnCaveClose.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    private void showGameGuideDialog() {
+        DialogGameGuideBinding guideBinding = DialogGameGuideBinding.inflate(getLayoutInflater());
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(guideBinding.getRoot()).create();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        final int[] titles = {
+                R.string.guide_step1_title,
+                R.string.guide_step2_title,
+                R.string.guide_step3_title,
+                R.string.guide_step4_title
+        };
+        final int[] descs = {
+                R.string.guide_step1_desc,
+                R.string.guide_step2_desc,
+                R.string.guide_step3_desc,
+                R.string.guide_step4_desc
+        };
+        final int[] sprites = {
+                R.drawable.img_monster_rosa,
+                R.drawable.img_monster_celeste,
+                R.drawable.img_monster_violeta,
+                R.drawable.img_cofre
+        };
+        final View[] dots = {
+                guideBinding.dotGuide0,
+                guideBinding.dotGuide1,
+                guideBinding.dotGuide2,
+                guideBinding.dotGuide3
+        };
+        final int[] step = {0};
+
+        Runnable renderStep = () -> {
+            int idx = step[0];
+            guideBinding.tvGuideBadge.setText(getString(R.string.guide_badge_format, idx + 1));
+            guideBinding.tvGuideTitle.setText(getString(titles[idx]));
+            guideBinding.tvGuideDesc.setText(getString(descs[idx]));
+            guideBinding.ivGuideIllustration.setImageResource(sprites[idx]);
+            guideBinding.btnGuidePrev.setVisibility(idx == 0 ? View.INVISIBLE : View.VISIBLE);
+            guideBinding.btnGuideNext.setText(getString(
+                    idx == titles.length - 1 ? R.string.guide_btn_finish : R.string.guide_btn_next));
+            for (int i = 0; i < dots.length; i++) {
+                dots[i].setBackgroundResource(i == idx ? R.drawable.bg_pill_primary : R.drawable.bg_pill_badge);
+            }
+        };
+
+        renderStep.run();
+
+        guideBinding.btnGuidePrev.setOnClickListener(v -> {
+            if (step[0] > 0) {
+                step[0]--;
+                renderStep.run();
+            }
+        });
+
+        guideBinding.btnGuideNext.setOnClickListener(v -> {
+            if (step[0] < titles.length - 1) {
+                step[0]++;
+                renderStep.run();
+            } else {
+                prefsManager.setGameGuideSeen(prefsManager.getCurrentUserId());
+                dialog.dismiss();
+            }
+        });
+
+        guideBinding.btnGuideSkip.setOnClickListener(v -> {
+            prefsManager.setGameGuideSeen(prefsManager.getCurrentUserId());
+            dialog.dismiss();
+        });
+
+        dialog.setOnCancelListener(d -> prefsManager.setGameGuideSeen(prefsManager.getCurrentUserId()));
+        dialog.show();
     }
 
     private void setupBottomNav() {
         ImageView ivNavMap = findViewById(R.id.ivNavMap);
         ImageView ivNavLeaderboard = findViewById(R.id.ivNavLeaderboard);
+        ImageView ivNavQuestions = findViewById(R.id.ivNavQuestions);
         ImageView ivNavProfile = findViewById(R.id.ivNavProfile);
         View btnNavMap = findViewById(R.id.btnNavMap);
         View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
+        View btnNavQuestions = findViewById(R.id.btnNavQuestions);
         View btnNavProfile = findViewById(R.id.btnNavProfile);
 
-=======
-        intent.putExtra(EXTRA_LEVEL_ID, levelId);
-        intent.putExtra(EXTRA_IS_QUICK_PLAY, false);
-        startActivity(intent);
-    }
-    private void setupBottomNav() {
-        ImageView ivNavMap = (ImageView) findViewById(R.id.ivNavMap);
-        ImageView ivNavLeaderboard = (ImageView) findViewById(R.id.ivNavLeaderboard);
-        ImageView ivNavProfile = (ImageView) findViewById(R.id.ivNavProfile);
-        View btnNavMap = findViewById(R.id.btnNavMap);
-        View btnNavLeaderboard = findViewById(R.id.btnNavLeaderboard);
-        View btnNavProfile = findViewById(R.id.btnNavProfile);
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         int inactiveColor = ContextCompat.getColor(this, R.color.text_muted);
         if (ivNavMap != null) {
             ivNavMap.setColorFilter(ContextCompat.getColor(this, R.color.ref_btn_coral));
@@ -635,10 +701,12 @@ public class MapActivity extends AppCompatActivity {
         if (ivNavLeaderboard != null) {
             ivNavLeaderboard.setColorFilter(inactiveColor);
         }
+        if (ivNavQuestions != null) {
+            ivNavQuestions.setColorFilter(inactiveColor);
+        }
         if (ivNavProfile != null) {
             ivNavProfile.setColorFilter(inactiveColor);
         }
-<<<<<<< HEAD
 
         if (btnNavMap != null) {
             btnNavMap.setOnClickListener(v -> binding.scrollMap.smoothScrollTo(0, 0));
@@ -646,8 +714,19 @@ public class MapActivity extends AppCompatActivity {
         if (btnNavLeaderboard != null) {
             btnNavLeaderboard.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, RankingActivity.class)));
         }
+        if (btnNavQuestions != null) {
+            btnNavQuestions.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, QuestionManagerActivity.class)));
+        }
         if (btnNavProfile != null) {
             btnNavProfile.setOnClickListener(v -> startActivity(new Intent(MapActivity.this, ProfileActivity.class)));
+        }
+        updateAdminNavVisibility();
+    }
+
+    private void updateAdminNavVisibility() {
+        View btnNavQuestions = findViewById(R.id.btnNavQuestions);
+        if (btnNavQuestions != null) {
+            btnNavQuestions.setVisibility(prefsManager.isCurrentUserAdmin() ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -659,30 +738,6 @@ public class MapActivity extends AppCompatActivity {
         }
         if (giftPulseAnimY != null) {
             giftPulseAnimY.cancel();
-=======
-        if (btnNavMap != null) {
-            btnNavMap.setOnClickListener(view -> binding.scrollMap.smoothScrollTo(0, 0));
-        }
-        if (btnNavLeaderboard != null) {
-            btnNavLeaderboard.setOnClickListener(
-                    view -> startActivity(new Intent(this, RankingActivity.class)));
-        }
-        if (btnNavProfile != null) {
-            btnNavProfile.setOnClickListener(
-                    view -> startActivity(new Intent(this, ProfileActivity.class)));
-        }
-    }
-
-    protected void onDestroy() {
-        super.onDestroy();
-        ObjectAnimator objectAnimator = this.giftPulseAnimX;
-        if (objectAnimator != null) {
-            objectAnimator.cancel();
-        }
-        ObjectAnimator objectAnimator2 = this.giftPulseAnimY;
-        if (objectAnimator2 != null) {
-            objectAnimator2.cancel();
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         }
     }
 }

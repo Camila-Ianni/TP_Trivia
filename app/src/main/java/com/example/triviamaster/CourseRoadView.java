@@ -7,10 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.View;
-<<<<<<< HEAD
-=======
-import androidx.annotation.NonNull;
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
 
 public class CourseRoadView extends View {
     private final Path roadPath = new Path();
@@ -101,11 +97,7 @@ public class CourseRoadView extends View {
     }
 
     @Override
-<<<<<<< HEAD
     protected void onDraw(Canvas canvas) {
-=======
-    protected void onDraw(@NonNull Canvas canvas) {
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
         super.onDraw(canvas);
         canvas.drawPath(roadPath, roadBorderPaint);
         canvas.drawPath(roadPath, roadCorePaint);

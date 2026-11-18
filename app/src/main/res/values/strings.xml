@@ -2,11 +2,6 @@
     <string name="app_name">MindClash</string>
 
     <string name="welcome_title">Trivia Quiz</string>
-<<<<<<< HEAD
-=======
-    <string name="default_player_name">Jugador</string>
-    <string name="player_name_required">¡Por favor, ingresa tu nombre para comenzar!</string>
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
     <string name="welcome_badge">¡MODO AVENTURA!</string>
     <string name="welcome_banner_headline">¡Comienza tu Aventura!</string>
     <string name="welcome_banner_sub">Explora mundos mágicos, supera los niveles y desafía tu inteligencia.</string>
@@ -56,11 +51,6 @@
 
     <string name="ranking_title">Salón de la Fama</string>
     <string name="ranking_empty">Aún no hay récords registrados. ¡Sé el primero en jugar!</string>
-<<<<<<< HEAD
-=======
-    <string name="ranking_points_format">%1$s puntos</string>
-    <string name="ranking_details_format">Racha: %1$d • %2$s</string>
->>>>>>> a8a51715ed4a64226f920f547247ba6f61a4a5e1
     <string name="rules_title">Reglas del Juego</string>
     <string name="rules_content">• Comienzas con 3 vidas.\n• Cada respuesta correcta otorga 100 puntos base.\n• Responder rápido otorga bonus de tiempo (hasta +50 pts).\n• Acertar 2 o más consecutivas activa el multiplicador de racha.\n• En el Mapa de Niveles, acierta al menos el 60% de preguntas para ganar estrellas y desbloquear el siguiente mundo.\n• ¡Si pierdes todas tus vidas o fallas, reintenta el nivel para dominarlo!</string>
     <string name="btn_back">Volver</string>
@@ -106,4 +96,232 @@
     <string name="medal_3_desc">¡La gloria suprema! Otorgada por completar los 16 niveles y derrotar el Gran Castillo Final.</string>
     <string name="profile_name_required">¡Por favor, ingresa un nombre!</string>
     <string name="profile_updated_success">¡Perfil de %1$s actualizado con éxito!</string>
+
+    <string name="login_title">¡TriviaMaster!</string>
+    <string name="login_subtitle">Inicia sesión para guardar tus récords, explorar los 4 mundos y gestionar preguntas.</string>
+    <string name="hint_login_username">Usuario</string>
+    <string name="hint_login_password">Contraseña</string>
+    <string name="btn_login">INICIAR SESIÓN</string>
+    <string name="btn_go_register">Crear Cuenta Nueva</string>
+    <string name="btn_hall_of_fame">Salón de la Fama</string>
+    <string name="error_username_required">Ingresa tu nombre de usuario</string>
+    <string name="error_password_required">Ingresa tu contraseña</string>
+    <string name="error_invalid_credentials">Usuario o contraseña incorrectos</string>
+
+    <string name="register_title">Crear Cuenta</string>
+    <string name="register_subtitle">Regístrate para desbloquear niveles y competir en el ranking.</string>
+    <string name="hint_reg_username">Nombre de usuario único</string>
+    <string name="hint_reg_email">Correo electrónico</string>
+    <string name="hint_reg_password">Contraseña (mín. 4 caracteres)</string>
+    <string name="hint_reg_confirm_password">Confirmar contraseña</string>
+    <string name="label_pick_avatar">Elige tu compañero</string>
+    <string name="btn_register_submit">REGISTRARME</string>
+    <string name="btn_already_account">Ya tengo cuenta, volver al Login</string>
+    <string name="error_email_invalid">Ingresa un correo electrónico válido</string>
+    <string name="error_password_short">La contraseña debe tener al menos 4 caracteres</string>
+    <string name="error_password_mismatch">Las contraseñas no coinciden</string>
+    <string name="error_username_exists">Ese nombre de usuario ya está registrado</string>
+    <string name="msg_register_success">¡Cuenta creada! Bienvenido, %1$s</string>
+
+    <string name="nav_desc_map">Mapa</string>
+    <string name="nav_desc_ranking">Ranking</string>
+    <string name="nav_desc_questions">Preguntas</string>
+    <string name="nav_desc_profile">Perfil</string>
+
+    <string name="profile_header_title">Mi Perfil</string>
+    <string name="hint_profile_username">Nombre de usuario</string>
+    <string name="hint_profile_email">Correo electrónico</string>
+    <string name="hint_profile_password">Contraseña</string>
+    <string name="btn_save_profile">Guardar Cambios</string>
+    <string name="btn_manage_users">Administrar Usuarios</string>
+    <string name="btn_manage_questions">Gestionar Preguntas</string>
+    <string name="btn_logout">Cerrar Sesión</string>
+    <string name="btn_delete_account">Eliminar Mi Cuenta</string>
+    <string name="dialog_delete_account_title">Eliminar Cuenta</string>
+    <string name="dialog_delete_account_msg">¿Seguro que deseas eliminar la cuenta de %1$s? Se perderá todo tu progreso de SQLite.</string>
+    <string name="btn_confirm_delete">Eliminar</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="msg_account_deleted">Cuenta eliminada correctamente</string>
+
+    <string name="um_title">Gestión de Usuarios</string>
+    <string name="um_btn_new">+ Nuevo</string>
+    <string name="um_search_hint">Buscar usuario por nombre o correo</string>
+    <string name="um_empty">No hay usuarios registrados.</string>
+    <string name="um_dialog_create_title">Nuevo Usuario</string>
+    <string name="um_dialog_edit_title">Editar Usuario</string>
+    <string name="um_btn_save">Guardar Usuario</string>
+    <string name="um_btn_edit">Editar</string>
+    <string name="um_btn_delete">Eliminar</string>
+    <string name="um_stats_format">Récord: %1$d pts • Nivel %2$d</string>
+    <string name="um_created_success">Usuario creado correctamente</string>
+    <string name="um_updated_success">Usuario actualizado correctamente</string>
+    <string name="um_deleted_success">Usuario eliminado</string>
+    <string name="um_delete_confirm_title">Eliminar Usuario</string>
+    <string name="um_delete_confirm_msg">¿Deseas eliminar al usuario %1$s?</string>
+
+    <string name="qm_title">Gestor de Preguntas</string>
+    <string name="qm_btn_new">+ Nueva</string>
+    <string name="qm_search_hint">Buscar pregunta o categoría</string>
+    <string name="qm_filter_all_levels">Todos los niveles</string>
+    <string name="qm_level_item_format">Nivel %1$d</string>
+    <string name="qm_empty">No se encontraron preguntas con ese filtro.</string>
+    <string name="qm_custom_badge">Personalizada</string>
+    <string name="qm_default_badge">Base</string>
+    <string name="qm_word_badge">Palabra: %1$s</string>
+    <string name="qm_correct_preview">Correcta: %1$s</string>
+    <string name="qm_dialog_create_title">Nueva Pregunta</string>
+    <string name="qm_dialog_edit_title">Editar Pregunta</string>
+    <string name="qm_label_level">Nivel destino</string>
+    <string name="qm_hint_category">Categoría (ej. Ciencia, Historia)</string>
+    <string name="qm_hint_question">Enunciado de la pregunta</string>
+    <string name="qm_hint_option_a">Opción A</string>
+    <string name="qm_hint_option_b">Opción B</string>
+    <string name="qm_hint_option_c">Opción C</string>
+    <string name="qm_hint_option_d">Opción D</string>
+    <string name="qm_label_correct">Respuesta correcta:</string>
+    <string name="qm_radio_a">Opción A</string>
+    <string name="qm_radio_b">Opción B</string>
+    <string name="qm_radio_c">Opción C</string>
+    <string name="qm_radio_d">Opción D</string>
+    <string name="qm_hint_explanation">Explicación breve (opcional)</string>
+    <string name="qm_btn_save">Guardar Pregunta</string>
+    <string name="qm_btn_edit">Editar</string>
+    <string name="qm_btn_delete">Eliminar</string>
+    <string name="qm_error_fields_required">Completa la pregunta, categoría y las 4 opciones</string>
+    <string name="qm_error_question_exists">Ya existe esa pregunta en el nivel seleccionado</string>
+    <string name="qm_created_success">Pregunta agregada a SQLite</string>
+    <string name="qm_updated_success">Pregunta actualizada</string>
+    <string name="qm_deleted_success">Pregunta eliminada</string>
+    <string name="qm_delete_confirm_title">Eliminar Pregunta</string>
+    <string name="qm_delete_confirm_msg">¿Deseas eliminar esta pregunta del banco?</string>
+    <string name="qm_word_puzzle_edit_notice">Las preguntas de tipo puzzle de palabra se juegan directamente en el mapa.</string>
+    <string name="error_db_generic">Error al acceder a la base de datos</string>
+
+    <string name="map_guide_btn_desc">Guía de Juego</string>
+    <string name="guide_badge_format">GUÍA DEL JUEGO • %1$d / 4</string>
+    <string name="guide_step1_title">1. Recorre los 16 Niveles</string>
+    <string name="guide_step1_desc">Avanza por los mundos tocando los círculos numerados del camino. El círculo que pulsa marca tu nivel actual. Consigue al menos 1 estrella para desbloquear el siguiente nivel y llegar al Castillo Final.</string>
+    <string name="guide_step2_title">2. Trivia y Puzzles de Letras</string>
+    <string name="guide_step2_desc">Tienes 3 vidas y 15 segundos por pregunta. En preguntas múltiples elige una opción y toca Check. En puzzles de letras, toca las fichas desordenadas para formar la palabra secreta.</string>
+    <string name="guide_step3_title">3. Cueva y Monstruos Interactivos</string>
+    <string name="guide_step3_desc">El escenario está vivo. Toca la Cueva de Retos para jugar un Desafío Rápido de 10 preguntas aleatorias, y toca a los monstruos del mapa para descubrir pistas, secretos y tu avance por zona.</string>
+    <string name="guide_step4_title">4. Cofres, Medallas y Tu Banco</string>
+    <string name="guide_step4_desc">Al ganar estrellas recibes cofres sorpresa en el mapa. Además, puedes crear, editar y eliminar tus propias preguntas en la pestaña Preguntas de la barra inferior.</string>
+    <string name="guide_btn_prev">Anterior</string>
+    <string name="guide_btn_next">Siguiente</string>
+    <string name="guide_btn_finish">¡A Jugar!</string>
+    <string name="guide_btn_skip">Saltar</string>
+
+    <string name="cave_badge">DESAFÍO ESPECIAL</string>
+    <string name="cave_title">Cueva de Retos</string>
+    <string name="cave_desc">¡Bienvenido a la Cueva de Retos, %1$s! Aquí te esperan 10 preguntas aleatorias de todo tu banco SQLite para sumar puntos récord y probar tu racha sin esperar a desbloquear niveles.</string>
+    <string name="cave_btn_play">¡ENTRAR A LA CUEVA!</string>
+    <string name="cave_btn_close">Volver al Mapa</string>
+
+    <string name="monster_badge_format">GUARDIÁN • %1$s</string>
+    <string name="monster_btn_ok">¡Entendido!</string>
+    <string name="monster_btn_guide">Abrir Guía</string>
+
+    <string name="monster_start_name">Pinki, Guía del Inicio</string>
+    <string name="monster_start_zone">Inicio del Camino</string>
+    <string name="monster_start_msg">¡Hola, %1$s! Soy Pinki. Toca el círculo que pulsa para empezar tu primer desafío, o abre la Guía si quieres repasar todas las reglas del mapa.</string>
+
+    <string name="monster_river_name">Bloop del Río</string>
+    <string name="monster_river_zone">Bosque del Saber (Niveles 1-4)</string>
+    <string name="monster_river_msg">¡Hola, %1$s! Custodio los primeros 4 niveles: Naturaleza, Egipto, Química y Geografía. Llevas %2$d de 12 estrellas en esta zona. ¡No olvides visitar la Cueva de Retos!</string>
+
+    <string name="monster_lake_name">Rosita del Lago</string>
+    <string name="monster_lake_zone">Lago de Preguntas (Niveles 5-8)</string>
+    <string name="monster_lake_msg">¡Saludos, %1$s! En esta zona te esperan Tecnología, Cine, Deportes y Videojuegos. ¿Sabías que puedes agregar tus propias preguntas desde la pestaña Preguntas?</string>
+
+    <string name="monster_waterfall_name">Chomp de la Cascada</string>
+    <string name="monster_waterfall_zone">Cascada de Ideas (Niveles 9-12)</string>
+    <string name="monster_waterfall_msg">¡Buenas, %1$s! Me despertaste de mi siesta. Consejo pro: responder rápido y mantener racha de aciertos multiplica tus puntos para liderar el Salón de la Fama.</string>
+
+    <string name="monster_mountain_name">Zook de la Montaña</string>
+    <string name="monster_mountain_zone">Montaña Mental (Niveles 13-16)</string>
+    <string name="monster_mountain_msg">¡Impresionante llegada, %1$s! Aquí enfrentas Física, Tierras Heladas, Filosofía y Cosmos. Supera el Nivel 16 para conquistar el Castillo Final y ganar la Medalla Suprema.</string>
+
+    <string name="game_question_progress">Pregunta %1$d de %2$d</string>
+    <string name="game_level_topic_format">Nivel %1$d: %2$s</string>
+    <string name="game_btn_check">Comprobar</string>
+    <string name="game_btn_next">Siguiente</string>
+    <string name="game_feedback_correct">¡Correcto, %1$s! +%2$d pts</string>
+    <string name="game_feedback_correct_streak">¡Excelente, %1$s! +%2$d pts • Racha x%3$d</string>
+    <string name="game_feedback_word_perfect">¡Palabra Perfecta, %1$s! +%2$d pts • Racha x%3$d</string>
+    <string name="game_feedback_wrong">¡Incorrecto, %1$s! Pierdes 1 vida</string>
+    <string name="game_feedback_wrong_word">¡Incorrecto! Era \'%1$s\'</string>
+    <string name="game_feedback_timeout">¡Se acabó el tiempo! Pierdes 1 vida</string>
+    <string name="game_explanation_format">Dato curioso: %1$s</string>
+    <string name="game_powerup_5050">50/50 (-1)</string>
+    <string name="game_powerup_letter">Letra (-1)</string>
+    <string name="game_powerup_time">+5s (-1)</string>
+    <string name="game_powerup_no_energy">No tienes energía suficiente. ¡Abre cofres en el mapa!</string>
+    <string name="game_powerup_used">Ya usaste este comodín en esta pregunta</string>
+    <string name="game_powerup_time_added">+5 segundos extra</string>
+    <string name="ranking_score_format">%1$s pts</string>
+
+    <string name="profile_bestiary_title">Guardianes del Mapa</string>
+    <string name="profile_bestiary_hint">Toca para ver</string>
+    <string name="bestiary_status_unlocked">Aliado</string>
+    <string name="bestiary_status_locked">Nivel %1$d</string>
+    <string name="bestiary_pinki">Pinki</string>
+    <string name="bestiary_bloop">Bloop</string>
+    <string name="bestiary_chomp">Chomp</string>
+    <string name="bestiary_zook">Zook</string>
+    <string name="bestiary_locked_msg">Alcanza el Nivel %1$d en el mapa para desbloquear a este guardián en tu colección.</string>
+
+    <string name="difficulty_label">Dificultad</string>
+    <string name="difficulty_easy">Principiante</string>
+    <string name="difficulty_normal">Veterano</string>
+    <string name="difficulty_hard">Leyenda</string>
+    <string name="difficulty_info_easy">20s • 3 vidas • x1.0 | Premio: +1 Energía, +50 pts</string>
+    <string name="difficulty_info_normal">15s • 3 vidas • x1.5 | Premio: +2 Energía, +150 pts</string>
+    <string name="difficulty_info_hard">10s • 2 vidas • x2.0 | Premio: +3 Energía, +300 pts, +1 Cofre</string>
+
+    <string name="special_btn_accept">¡ACEPTAR RETO!</string>
+    <string name="special_start_title">Reto de Pinki</string>
+    <string name="special_start_desc">¡Hola, %1$s! Soy Pinki, guía del inicio. Acepta este desafío mixto de 8 preguntas para ganar energía y puntos extra según la dificultad.</string>
+    <string name="special_river_title">Reto del Bosque del Saber</string>
+    <string name="special_river_desc">¡Hola, %1$s! Bloop del Río te desafía con preguntas especiales de Naturaleza, Egipto, Ciencia y Geografía (Niveles 1-4).</string>
+    <string name="special_lake_title">Reto del Lago de Preguntas</string>
+    <string name="special_lake_desc">¡Saludos, %1$s! Rosita del Lago preparó un reto especial de Tecnología, Cine, Deportes y Videojuegos (Niveles 5-8).</string>
+    <string name="special_waterfall_title">Reto de la Cascada de Ideas</string>
+    <string name="special_waterfall_desc">¡Buenas, %1$s! Chomp te desafía con preguntas especiales de Arte, Historia, Mitología y Música (Niveles 9-12).</string>
+    <string name="special_mountain_title">Reto de la Montaña Mental</string>
+    <string name="special_mountain_desc">¡Prepárate, %1$s! Zook de la Montaña te pondrá a prueba con Física, Tierras Heladas, Filosofía y Cosmos (Niveles 13-16).</string>
+    <string name="special_reward_badge">PREMIO %1$s: +%2$d Energía • +%3$d pts</string>
+    <string name="special_reward_badge_chest">PREMIO %1$s: +%2$d Energía • +%3$d pts • +1 Cofre</string>
+
+    <string name="btn_match_history">Historial de Partidas</string>
+    <string name="history_title">Historial de Partidas</string>
+    <string name="history_clear_btn">Limpiar</string>
+    <string name="history_empty">Todavía no hay partidas registradas para este usuario.</string>
+    <string name="history_item_mode_level">Nivel %1$d</string>
+    <string name="history_item_mode_cave">Cueva de Retos</string>
+    <string name="history_item_stats">%1$d/%2$d aciertos • %3$d pts • %4$s</string>
+    <string name="history_clear_confirm_title">Limpiar Historial</string>
+    <string name="history_clear_confirm_msg">¿Deseas borrar todo tu historial de partidas?</string>
+    <string name="history_cleared_msg">Historial eliminado</string>
+    <string name="history_deleted_item">Partida eliminada del historial</string>
+
+    <string name="profile_preferences_title">Preferencias Arcade</string>
+    <string name="profile_sound_switch">Sonidos retro</string>
+    <string name="profile_vibration_switch">Vibración táctil</string>
+
+    <string name="placeholder_topic">Tema</string>
+    <string name="placeholder_progress">Pregunta 1 de 5</string>
+    <string name="placeholder_option_a">Opción A</string>
+    <string name="placeholder_option_b">Opción B</string>
+    <string name="placeholder_option_c">Opción C</string>
+    <string name="placeholder_option_d">Opción D</string>
+    <string name="placeholder_player_name">Jugador</string>
+    <string name="placeholder_ranking_details">Racha: 0 • Hoy</string>
+    <string name="placeholder_ranking_score">0 pts</string>
+    <string name="special_already_completed_btn">YA COMPLETADO</string>
+    <string name="special_already_completed_info">Ya ganaste esta dificultad (%1$s). Elige otra o sigue el camino.</string>
+    <string name="special_all_completed_info">¡Completaste los 3 retos de este guardián!</string>
+    <string name="profile_matches_label">Partidas</string>
+    <string name="profile_accuracy_label">Precisión</string>
+    <string name="profile_accuracy_format">%1$d%%</string>
 </resources>
