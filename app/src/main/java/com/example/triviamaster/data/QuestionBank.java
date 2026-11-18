@@ -171,7 +171,7 @@ public final class QuestionBank {
         List<Level> destination = new ArrayList<>();
         for (Level level : allLevels) {
             if (level.getWorldId() == worldId) {
-                destination.add(level);
+                destination.add(QuestionTranslator.localizeLevel(level));
             }
         }
         return destination;
@@ -180,7 +180,7 @@ public final class QuestionBank {
     public Level getLevelById(int id) {
         for (Level level : allLevels) {
             if (level.getId() == id) {
-                return level;
+                return QuestionTranslator.localizeLevel(level);
             }
         }
         return null;
@@ -189,7 +189,9 @@ public final class QuestionBank {
     public List<Question> getRandomQuiz(int count) {
         List<Question> pool = new ArrayList<>();
         for (Level level : allLevels) {
-            pool.addAll(level.getQuestions());
+            for (Question q : level.getQuestions()) {
+                pool.add(QuestionTranslator.localize(q));
+            }
         }
         Collections.shuffle(pool);
         return new ArrayList<>(pool.subList(0, Math.min(count, pool.size())));

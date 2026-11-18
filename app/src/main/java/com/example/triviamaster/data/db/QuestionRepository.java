@@ -203,7 +203,7 @@ public final class QuestionRepository {
                     c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_Q_OPTION_D))
             );
         }
-        return new Question(
+        return com.example.triviamaster.data.QuestionTranslator.localize(new Question(
                 c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_Q_ID)),
                 c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_Q_LEVEL_ID)),
                 c.getString(c.getColumnIndexOrThrow(TriviaDbHelper.COL_Q_TEXT)),
@@ -217,6 +217,6 @@ public final class QuestionRepository {
                 0,
                 c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_Q_CLUE_ICON_RES)),
                 c.getInt(c.getColumnIndexOrThrow(TriviaDbHelper.COL_Q_IS_CUSTOM)) == 1
-        );
+        ));
     }
 }
