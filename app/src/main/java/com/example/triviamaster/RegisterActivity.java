@@ -136,6 +136,7 @@ public final class RegisterActivity extends AppCompatActivity {
                 setLoading(false);
                 if (error instanceof DuplicateRecordException) {
                     binding.tilRegUsername.setError(getString(R.string.error_username_exists));
+                    binding.etRegUsername.requestFocus();
                 } else {
                     Toast.makeText(RegisterActivity.this, getString(R.string.error_db_generic), Toast.LENGTH_SHORT).show();
                 }

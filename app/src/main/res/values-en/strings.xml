@@ -120,7 +120,7 @@
     <string name="error_email_invalid">Enter a valid email address</string>
     <string name="error_password_short">Password must be at least 4 characters</string>
     <string name="error_password_mismatch">Passwords do not match</string>
-    <string name="error_username_exists">That username is already registered</string>
+    <string name="error_username_exists">Username not available. Choose another</string>
     <string name="msg_register_success">Account created! Welcome, %1$s</string>
 
     <string name="nav_desc_map">Map</string>

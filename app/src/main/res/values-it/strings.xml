@@ -120,7 +120,7 @@
     <string name="error_email_invalid">Inserisci un\'email valida</string>
     <string name="error_password_short">La password deve avere almeno 4 caratteri</string>
     <string name="error_password_mismatch">Le password non coincidono</string>
-    <string name="error_username_exists">Questo nome utente è già registrato</string>
+    <string name="error_username_exists">Nome utente non disponibile. Scegline un altro</string>
     <string name="msg_register_success">Account creato! Benvenuto, %1$s</string>
 
     <string name="nav_desc_map">Mappa</string>
