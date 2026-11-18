@@ -136,8 +136,9 @@ public class DuelActivity extends AppCompatActivity {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_duel_setup, (ViewGroup) null);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
-                .setCancelable(false)
+                .setCancelable(true)
                 .create();
+        dialog.setOnCancelListener(d -> finish());
         Window window = dialog.getWindow();
         if (window != null) {
             window.setBackgroundDrawableResource(android.R.color.transparent);
@@ -146,6 +147,7 @@ public class DuelActivity extends AppCompatActivity {
         TextInputEditText etP1 = dialogView.findViewById(R.id.etDuelP1Name);
         TextInputEditText etP2 = dialogView.findViewById(R.id.etDuelP2Name);
         Button btnStart = dialogView.findViewById(R.id.btnDuelStartMatch);
+        Button btnCancel = dialogView.findViewById(R.id.btnDuelSetupCancel);
 
         etP1.setText(player1Name);
         etP2.setText(player2Name);
@@ -158,6 +160,13 @@ public class DuelActivity extends AppCompatActivity {
             dialog.dismiss();
             startNewLocalDuel();
         });
+
+        if (btnCancel != null) {
+            btnCancel.setOnClickListener(v -> {
+                dialog.dismiss();
+                finish();
+            });
+        }
 
         dialog.show();
     }

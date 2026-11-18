@@ -56,4 +56,17 @@
         android:textSize="15sp"
         android:textStyle="bold" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnDuelSetupCancel"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_btn_pill_white"
+        android:stateListAnimator="@null"
+        android:text="@string/btn_back"
+        android:textAllCaps="false"
+        android:textColor="@color/ref_text_dark"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
 </LinearLayout>

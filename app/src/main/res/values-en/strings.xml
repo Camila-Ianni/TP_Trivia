@@ -97,7 +97,7 @@
     <string name="profile_name_required">Please enter a name!</string>
     <string name="profile_updated_success">%1$s\'s profile updated successfully!</string>
 
-    <string name="login_title">TriviaMaster!</string>
+    <string name="login_title">MindClash!</string>
     <string name="login_subtitle">Sign in to save your records, explore the 4 worlds, and manage questions.</string>
     <string name="hint_login_username">Username</string>
     <string name="hint_login_password">Password</string>
@@ -423,8 +423,8 @@
     <string name="duel_result_summary">%1$s (%2$d pts) vs %3$s (%4$d pts)</string>
     <string name="duel_btn_rematch">Rematch</string>
     <string name="duel_opponent_thinking">Waiting for %1$s\'s move...</string>
-    <string name="duel_searching_area_title">Searching real players...</string>
-    <string name="duel_searching_area_desc">Scanning your local area for another connected player.</string>
+    <string name="duel_searching_area_title">Searching players...</string>
+    <string name="duel_searching_area_desc">Scanning your area for another connected player.</string>
     <string name="duel_no_players_area_title">No players available</string>
     <string name="duel_no_players_area_desc">No one in your area is playing right now.</string>
     <string name="duel_opponent_disconnected">%1$s disconnected from the match.</string>
@@ -435,7 +435,7 @@
     <string name="social_random_title">Random 1 vs 1 Match</string>
     <string name="social_random_desc">Match instantly with an active player</string>
     <string name="social_btn_random">Find Random Rival</string>
-    <string name="social_btn_local_duel">Local Duel (2 Players)</string>
+    <string name="social_btn_local_duel">Play with Friends (2 Players)</string>
     <string name="social_search_hint">Search user by name...</string>
     <string name="social_btn_search">Search</string>
     <string name="social_requests_title">Friend Requests</string>
@@ -458,6 +458,6 @@
     <string name="ranking_btn_add_friend">Send friend request</string>
     <string name="btn_open_shop">Adventurer Shop</string>
     <string name="label_pick_country">Select your country (sets language &amp; duel region)</string>
-    <string name="duel_searching_country_desc">Searching for real players from %1$s in your area...</string>
+    <string name="duel_searching_country_desc">Searching for players from %1$s in your area...</string>
     <string name="duel_no_players_country_desc">No one from %1$s is playing in your area right now.</string>
 </resources>

@@ -97,7 +97,7 @@
     <string name="profile_name_required">¡Por favor, ingresa un nombre!</string>
     <string name="profile_updated_success">¡Perfil de %1$s actualizado con éxito!</string>
 
-    <string name="login_title">¡TriviaMaster!</string>
+    <string name="login_title">¡MindClash!</string>
     <string name="login_subtitle">Inicia sesión para guardar tus récords, explorar los 4 mundos y gestionar preguntas.</string>
     <string name="hint_login_username">Usuario</string>
     <string name="hint_login_password">Contraseña</string>
@@ -423,8 +423,8 @@
     <string name="duel_result_summary">%1$s (%2$d pts) vs %3$s (%4$d pts)</string>
     <string name="duel_btn_rematch">Revancha</string>
     <string name="duel_opponent_thinking">Esperando jugada de %1$s...</string>
-    <string name="duel_searching_area_title">Buscando jugadores reales...</string>
-    <string name="duel_searching_area_desc">Escaneando tu red local en busca de otro jugador conectado.</string>
+    <string name="duel_searching_area_title">Buscando jugadores...</string>
+    <string name="duel_searching_area_desc">Escaneando tu área en busca de otro jugador conectado.</string>
     <string name="duel_no_players_area_title">Sin jugadores disponibles</string>
     <string name="duel_no_players_area_desc">No hay nadie en tu área jugando en este momento.</string>
     <string name="duel_opponent_disconnected">%1$s se desconectó de la partida.</string>
@@ -435,7 +435,7 @@
     <string name="social_random_title">Partida Random 1 vs 1</string>
     <string name="social_random_desc">Empareja al instante con un jugador activo</string>
     <string name="social_btn_random">Buscar Rival Random</string>
-    <string name="social_btn_local_duel">Duelo Local (2 Jugadores)</string>
+    <string name="social_btn_local_duel">Partida con Amigos (2 Jugadores)</string>
     <string name="social_search_hint">Buscar usuario por nombre...</string>
     <string name="social_btn_search">Buscar</string>
     <string name="social_requests_title">Solicitudes de amistad</string>
@@ -458,6 +458,6 @@
     <string name="ranking_btn_add_friend">Enviar solicitud de amistad</string>
     <string name="btn_open_shop">Tienda de Aventurero</string>
     <string name="label_pick_country">Selecciona tu país (define el idioma y tu región de duelos)</string>
-    <string name="duel_searching_country_desc">Buscando jugadores reales de %1$s en tu área...</string>
+    <string name="duel_searching_country_desc">Buscando jugadores de %1$s en tu área...</string>
     <string name="duel_no_players_country_desc">No hay nadie de %1$s jugando en tu área en este momento.</string>
 </resources>

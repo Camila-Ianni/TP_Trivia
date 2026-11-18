@@ -55,20 +55,21 @@ public class LocalAreaMatchmaker {
         String nonce = String.valueOf(1000 + (int) (System.currentTimeMillis() % 9000));
         ownServiceName = countryPrefix + safeUser + "_" + nonce;
 
+        mainHandler.postDelayed(() -> {
+            if (finished.compareAndSet(false, true)) {
+                stop();
+                callback.onNoPlayersInArea();
+            }
+        }, SEARCH_TIMEOUT_MS);
+
         executor.execute(() -> {
             try {
                 serverSocket = new ServerSocket(0);
+                serverSocket.setSoTimeout((int) SEARCH_TIMEOUT_MS);
                 int localPort = serverSocket.getLocalPort();
                 registerService(localPort);
                 discoverPeers(localUsername, hostQuestionIds, callback);
                 acceptIncomingConnection(localUsername, hostQuestionIds, callback);
-
-                mainHandler.postDelayed(() -> {
-                    if (finished.compareAndSet(false, true)) {
-                        stop();
-                        callback.onNoPlayersInArea();
-                    }
-                }, SEARCH_TIMEOUT_MS);
             } catch (Exception e) {
                 if (finished.compareAndSet(false, true)) {
                     stop();
