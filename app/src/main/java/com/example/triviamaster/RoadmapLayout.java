@@ -65,13 +65,15 @@ public final class RoadmapLayout extends FrameLayout {
         final float yFrac;
         final float sizeFrac;
         final boolean showAlertBadge;
+        final int requiredLevel;
 
-        HotspotSpec(int id, float xFrac, float yFrac, float sizeFrac, boolean showAlertBadge) {
+        HotspotSpec(int id, float xFrac, float yFrac, float sizeFrac, boolean showAlertBadge, int requiredLevel) {
             this.id = id;
             this.xFrac = xFrac;
             this.yFrac = yFrac;
             this.sizeFrac = sizeFrac;
             this.showAlertBadge = showAlertBadge;
+            this.requiredLevel = requiredLevel;
         }
     }
 
@@ -96,13 +98,22 @@ public final class RoadmapLayout extends FrameLayout {
     );
 
     private static final List<HotspotSpec> HOTSPOTS = Arrays.asList(
-            new HotspotSpec(HOTSPOT_MONSTER_START, 0.42f, 0.025f, 0.15f, true),
-            new HotspotSpec(HOTSPOT_CAVE, 0.85f, 0.125f, 0.22f, true),
-            new HotspotSpec(HOTSPOT_MONSTER_RIVER, 0.19f, 0.245f, 0.18f, true),
-            new HotspotSpec(HOTSPOT_MONSTER_LAKE, 0.20f, 0.395f, 0.18f, true),
-            new HotspotSpec(HOTSPOT_MONSTER_WATERFALL, 0.87f, 0.395f, 0.18f, true),
-            new HotspotSpec(HOTSPOT_MONSTER_MOUNTAIN, 0.84f, 0.545f, 0.18f, true)
+            new HotspotSpec(HOTSPOT_MONSTER_START, 0.42f, 0.025f, 0.15f, true, 1),
+            new HotspotSpec(HOTSPOT_CAVE, 0.85f, 0.125f, 0.22f, true, 3),
+            new HotspotSpec(HOTSPOT_MONSTER_RIVER, 0.19f, 0.245f, 0.18f, true, 5),
+            new HotspotSpec(HOTSPOT_MONSTER_LAKE, 0.20f, 0.395f, 0.18f, true, 7),
+            new HotspotSpec(HOTSPOT_MONSTER_WATERFALL, 0.87f, 0.395f, 0.18f, true, 8),
+            new HotspotSpec(HOTSPOT_MONSTER_MOUNTAIN, 0.84f, 0.545f, 0.18f, true, 11)
     );
+
+    public static int getRequiredLevelForHotspot(int hotspotId) {
+        for (HotspotSpec spec : HOTSPOTS) {
+            if (spec.id == hotspotId) {
+                return spec.requiredLevel;
+            }
+        }
+        return 1;
+    }
 
     private static final int HOTSPOT_TAG_OFFSET = 100;
 
@@ -228,9 +239,10 @@ public final class RoadmapLayout extends FrameLayout {
             hotspotView.setClickable(true);
             hotspotView.setFocusable(true);
 
+            boolean isHotspotUnlocked = maxUnlocked >= spec.requiredLevel;
             boolean allSpecialDone = specialCompletedProvider != null
                     && specialCompletedProvider.isAllCompleted(spec.id);
-            if (spec.showAlertBadge && !allSpecialDone) {
+            if (spec.showAlertBadge && isHotspotUnlocked && !allSpecialDone) {
                 TextView badge = new TextView(getContext());
                 int badgeSize = (int) (22 * density);
                 FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(badgeSize, badgeSize);

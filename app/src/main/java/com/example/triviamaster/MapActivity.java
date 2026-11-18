@@ -559,6 +559,16 @@ public final class MapActivity extends AppCompatActivity {
     }
 
     private void handleHotspotClick(int hotspotId) {
+        int requiredLevel = RoadmapLayout.getRequiredLevelForHotspot(hotspotId);
+        int currentMaxLevel = prefsManager.getMaxUnlockedLevel();
+        if (currentMaxLevel < requiredLevel) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.dialog_level_locked_title)
+                    .setMessage(getString(R.string.bestiary_locked_msg, requiredLevel))
+                    .setPositiveButton(R.string.level_dialog_btn_locked, null)
+                    .show();
+            return;
+        }
         if (hotspotId == RoadmapLayout.HOTSPOT_CAVE) {
             showSpecialChallengeDialog(
                     hotspotId,
