@@ -106,9 +106,10 @@ public final class RegisterActivity extends AppCompatActivity {
         CountryHelper.CountryOption selectedCountry =
                 (CountryHelper.CountryOption) binding.spRegCountry.getSelectedItem();
         String countryCode = selectedCountry != null ? selectedCountry.getCode() : "AR";
+        String selectedRole = binding.rbRoleTeacher.isChecked() ? "TEACHER" : "USER";
 
         setLoading(true);
-        userRepository.registerUser(username, password, email, selected.getId(), countryCode, new DbCallback<User>() {
+        userRepository.registerUser(username, password, email, selected.getId(), countryCode, selectedRole, new DbCallback<User>() {
             @Override
             public void onSuccess(User user) {
                 if (isFinishing()) {

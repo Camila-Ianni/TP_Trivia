@@ -26,7 +26,8 @@ public final class QuestionRepository {
             List<Question> list = new ArrayList<>();
             String cleanSearch = searchQuery != null ? searchQuery.trim() : "";
 
-            StringBuilder sql = new StringBuilder("SELECT * FROM " + TriviaDbHelper.TABLE_QUESTIONS + " WHERE 1=1");
+            StringBuilder sql = new StringBuilder("SELECT * FROM " + TriviaDbHelper.TABLE_QUESTIONS
+                    + " WHERE " + TriviaDbHelper.COL_Q_CLASSROOM_ID + " = -1");
             List<String> args = new ArrayList<>();
 
             if (levelFilter > 0) {
@@ -59,7 +60,8 @@ public final class QuestionRepository {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             List<Question> list = new ArrayList<>();
             String sql = "SELECT * FROM " + TriviaDbHelper.TABLE_QUESTIONS
-                    + " WHERE " + TriviaDbHelper.COL_Q_LEVEL_ID + " = ?"
+                    + " WHERE " + TriviaDbHelper.COL_Q_LEVEL_ID + " = ? AND "
+                    + TriviaDbHelper.COL_Q_CLASSROOM_ID + " = -1"
                     + " ORDER BY " + TriviaDbHelper.COL_Q_IS_CUSTOM + " DESC, " + TriviaDbHelper.COL_Q_ID + " ASC";
             try (Cursor cursor = db.rawQuery(sql, new String[]{String.valueOf(levelId)})) {
                 while (cursor.moveToNext()) {
@@ -79,7 +81,8 @@ public final class QuestionRepository {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             List<Question> list = new ArrayList<>();
             String sql = "SELECT * FROM " + TriviaDbHelper.TABLE_QUESTIONS
-                    + " WHERE " + TriviaDbHelper.COL_Q_LEVEL_ID + " BETWEEN ? AND ?"
+                    + " WHERE " + TriviaDbHelper.COL_Q_LEVEL_ID + " BETWEEN ? AND ? AND "
+                    + TriviaDbHelper.COL_Q_CLASSROOM_ID + " = -1"
                     + " ORDER BY RANDOM() LIMIT ?";
             try (Cursor cursor = db.rawQuery(sql,
                     new String[]{String.valueOf(minLevel), String.valueOf(maxLevel), String.valueOf(count)})) {
@@ -116,6 +119,39 @@ public final class QuestionRepository {
                 }
             }
             return list;
+        }, callback);
+    }
+
+    public void getQuestionsByClassroom(long classroomId, DbCallback<List<Question>> callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            List<Question> list = new ArrayList<>();
+            String sql = "SELECT * FROM " + TriviaDbHelper.TABLE_QUESTIONS
+                    + " WHERE " + TriviaDbHelper.COL_Q_CLASSROOM_ID + " = ?"
+                    + " ORDER BY " + TriviaDbHelper.COL_Q_ID + " DESC";
+            try (Cursor cursor = db.rawQuery(sql, new String[]{String.valueOf(classroomId)})) {
+                while (cursor.moveToNext()) {
+                    list.add(mapCursorToQuestion(cursor));
+                }
+            }
+            return list;
+        }, callback);
+    }
+
+    public void insertClassroomQuestions(long classroomId, List<Question> questions, DbCallback<Integer> callback) {
+        executor.execute(() -> {
+            if (questions == null || questions.isEmpty()) {
+                return 0;
+            }
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            int inserted = 0;
+            for (Question q : questions) {
+                ContentValues values = toContentValues(q, true);
+                values.put(TriviaDbHelper.COL_Q_CLASSROOM_ID, classroomId);
+                db.insert(TriviaDbHelper.TABLE_QUESTIONS, null, values);
+                inserted++;
+            }
+            return inserted;
         }, callback);
     }
 

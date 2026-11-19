@@ -854,6 +854,19 @@
                 android:textAllCaps="false"
                 android:stateListAnimator="@null" />
 
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnOpenClassrooms"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_btn_pill_coral"
+                android:text="@string/btn_open_classrooms"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:stateListAnimator="@null" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -587,4 +587,8 @@ public class User implements Serializable {
     public void setCountry(String country) {
         this.country = country != null && !country.trim().isEmpty() ? country.trim() : "AR";
     }
+
+    public boolean isTeacher() {
+        return "TEACHER".equalsIgnoreCase(role) || isAdmin();
+    }
 }

@@ -86,6 +86,7 @@ public final class ProfileActivity extends AppCompatActivity {
     private Button btnOpenQuests;
     private Button btnReviewMistakes;
     private Button btnOpenShop;
+    private Button btnOpenClassrooms;
     private Button btnLogout;
     private Button btnDeleteAccount;
     private SwitchCompat switchSound;
@@ -164,6 +165,7 @@ public final class ProfileActivity extends AppCompatActivity {
         btnOpenQuests = findViewById(R.id.btnOpenQuests);
         btnReviewMistakes = findViewById(R.id.btnReviewMistakes);
         btnOpenShop = findViewById(R.id.btnOpenShop);
+        btnOpenClassrooms = findViewById(R.id.btnOpenClassrooms);
         btnLogout = findViewById(R.id.btnLogout);
         btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
         switchSound = findViewById(R.id.switchSound);
@@ -497,6 +499,9 @@ public final class ProfileActivity extends AppCompatActivity {
 
         btnOpenShop.setOnClickListener(v ->
                 startActivity(new Intent(ProfileActivity.this, ShopActivity.class)));
+
+        btnOpenClassrooms.setOnClickListener(v ->
+                startActivity(new Intent(ProfileActivity.this, ClassroomActivity.class)));
 
         switchSound.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefsManager.setSoundEnabled(isChecked);

@@ -40,6 +40,8 @@ import java.util.Locale;
 public final class GameActivity extends AppCompatActivity {
 
     public static final String EXTRA_IS_REVIEW_MISTAKES = "extra_is_review_mistakes";
+    public static final String EXTRA_CLASSROOM_ID = "extra_classroom_id";
+    public static final String EXTRA_CLASSROOM_NAME = "extra_classroom_name";
 
     private ActivityGameBinding binding;
     private PreferencesManager prefsManager;
@@ -52,6 +54,8 @@ public final class GameActivity extends AppCompatActivity {
     private boolean isQuickPlay;
     private boolean isTimeAttack;
     private boolean isReviewMistakes;
+    private long classroomId = -1L;
+    private String classroomName;
     private int answeredCount;
     private boolean globalTimerStarted;
     private String specialTitle;
@@ -143,6 +147,8 @@ public final class GameActivity extends AppCompatActivity {
         isQuickPlay = getIntent().getBooleanExtra("extra_is_quick_play", false);
         isTimeAttack = getIntent().getBooleanExtra(MapActivity.EXTRA_IS_TIME_ATTACK, false);
         isReviewMistakes = getIntent().getBooleanExtra(EXTRA_IS_REVIEW_MISTAKES, false);
+        classroomId = getIntent().getLongExtra(EXTRA_CLASSROOM_ID, -1L);
+        classroomName = getIntent().getStringExtra(EXTRA_CLASSROOM_NAME);
         specialTitle = getIntent().getStringExtra(MapActivity.EXTRA_SPECIAL_TITLE);
         specialMinLevel = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_MIN_LEVEL, 1);
         specialMaxLevel = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_MAX_LEVEL, 16);
@@ -218,6 +224,33 @@ public final class GameActivity extends AppCompatActivity {
         currentStreak = 0;
         maxStreak = 0;
         correctAnswers = 0;
+
+        if (classroomId > 0) {
+            String title = (classroomName != null && !classroomName.trim().isEmpty())
+                    ? classroomName.trim()
+                    : getString(R.string.classroom_title);
+            binding.tvGameTopic.setText(title);
+            questionRepository.getQuestionsByClassroom(classroomId, new DbCallback<List<Question>>() {
+                @Override
+                public void onSuccess(List<Question> dbQuestions) {
+                    if (isFinishing()) return;
+                    if (dbQuestions != null && !dbQuestions.isEmpty()) {
+                        questions = new ArrayList<>(dbQuestions);
+                    } else {
+                        questions = QuestionBank.INSTANCE.getRandomQuiz(5);
+                    }
+                    displayQuestion(currentQuestionIndex);
+                }
+
+                @Override
+                public void onError(Exception error) {
+                    if (isFinishing()) return;
+                    questions = QuestionBank.INSTANCE.getRandomQuiz(5);
+                    displayQuestion(currentQuestionIndex);
+                }
+            });
+            return;
+        }
 
         if (isReviewMistakes) {
             binding.tvGameTopic.setText(getString(R.string.review_mistakes_title));

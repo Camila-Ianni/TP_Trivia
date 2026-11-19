@@ -38,10 +38,14 @@ public final class UserRepository {
     }
 
     public void registerUser(String username, String password, String email, int avatarId, DbCallback<User> callback) {
-        registerUser(username, password, email, avatarId, "AR", callback);
+        registerUser(username, password, email, avatarId, "AR", "USER", callback);
     }
 
     public void registerUser(String username, String password, String email, int avatarId, String country, DbCallback<User> callback) {
+        registerUser(username, password, email, avatarId, country, "USER", callback);
+    }
+
+    public void registerUser(String username, String password, String email, int avatarId, String country, String requestedRole, DbCallback<User> callback) {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             String cleanUsername = username.trim();
@@ -53,7 +57,14 @@ public final class UserRepository {
             }
 
             String createdAt = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date());
-            String role = "mimi".equalsIgnoreCase(cleanUsername) ? "ADMIN" : "USER";
+            String role;
+            if ("mimi".equalsIgnoreCase(cleanUsername)) {
+                role = "ADMIN";
+            } else if ("TEACHER".equalsIgnoreCase(requestedRole)) {
+                role = "TEACHER";
+            } else {
+                role = "USER";
+            }
             ContentValues values = new ContentValues();
             values.put(TriviaDbHelper.COL_USER_USERNAME, cleanUsername);
             values.put(TriviaDbHelper.COL_USER_PASSWORD, password);

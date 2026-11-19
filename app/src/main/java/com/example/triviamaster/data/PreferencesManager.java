@@ -46,6 +46,7 @@ public class PreferencesManager {
     private static final String KEY_DAILY_STREAK = "daily_streak";
     private static final String KEY_WRONG_QUESTION_IDS = "wrong_question_ids";
     private static final String KEY_USER_COUNTRY = "user_country";
+    private static final String KEY_GEMINI_API_KEY = "gemini_api_key";
 
     private static final List<Avatar> AVAILABLE_AVATARS = Arrays.asList(
             new Avatar(1, "Wincky", R.drawable.img_avatar_perfil1, "#E0F7FA"),
@@ -180,6 +181,23 @@ public class PreferencesManager {
 
     public void setUserCountry(String country) {
         prefs.edit().putString(KEY_USER_COUNTRY, country != null && !country.trim().isEmpty() ? country.trim() : "AR").apply();
+    }
+
+    public String getGeminiApiKey() {
+        String stored = prefs.getString(KEY_GEMINI_API_KEY, "");
+        if (stored != null && !stored.trim().isEmpty()) {
+            return stored.trim();
+        }
+        return com.example.triviamaster.BuildConfig.GEMINI_API_KEY;
+    }
+
+    public void setGeminiApiKey(String apiKey) {
+        prefs.edit().putString(KEY_GEMINI_API_KEY, apiKey != null ? apiKey.trim() : "").apply();
+    }
+
+    public boolean isCurrentUserTeacher() {
+        String r = prefs.getString(KEY_USER_ROLE, "USER");
+        return "TEACHER".equalsIgnoreCase(r) || "ADMIN".equalsIgnoreCase(r);
     }
 
     public void syncFromUser(User user) {

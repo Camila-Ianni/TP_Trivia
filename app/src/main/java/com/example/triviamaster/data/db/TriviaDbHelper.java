@@ -12,7 +12,7 @@ import java.util.List;
 public class TriviaDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "triviamaster.db";
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 13;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_USER_ID = "id";
@@ -65,6 +65,21 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
     public static final String COL_Q_TARGET_WORD = "target_word";
     public static final String COL_Q_CLUE_ICON_RES = "clue_icon_res";
     public static final String COL_Q_IS_CUSTOM = "is_custom";
+    public static final String COL_Q_CLASSROOM_ID = "classroom_id";
+
+    public static final String TABLE_CLASSROOMS = "classrooms";
+    public static final String COL_C_ID = "id";
+    public static final String COL_C_NAME = "name";
+    public static final String COL_C_CODE = "code";
+    public static final String COL_C_TEACHER_ID = "teacher_id";
+    public static final String COL_C_CREATED_AT = "created_at";
+
+    public static final String TABLE_CLASSROOM_MEMBERS = "classroom_members";
+    public static final String COL_CM_ID = "id";
+    public static final String COL_CM_CLASSROOM_ID = "classroom_id";
+    public static final String COL_CM_STUDENT_ID = "student_id";
+    public static final String COL_CM_STATUS = "status";
+    public static final String COL_CM_CREATED_AT = "created_at";
 
     public static final String TABLE_MATCH_HISTORY = "match_history";
     public static final String COL_H_ID = "id";
@@ -138,14 +153,36 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
                 + COL_Q_IS_WORD_PUZZLE + " INTEGER NOT NULL DEFAULT 0, "
                 + COL_Q_TARGET_WORD + " TEXT NOT NULL DEFAULT '', "
                 + COL_Q_CLUE_ICON_RES + " INTEGER NOT NULL DEFAULT 0, "
-                + COL_Q_IS_CUSTOM + " INTEGER NOT NULL DEFAULT 0"
+                + COL_Q_IS_CUSTOM + " INTEGER NOT NULL DEFAULT 0, "
+                + COL_Q_CLASSROOM_ID + " INTEGER NOT NULL DEFAULT -1"
                 + ")";
         db.execSQL(createQuestionsSql);
         createMatchHistoryTable(db);
         createFriendshipsTable(db);
+        createClassroomTables(db);
 
         seedInitialQuestions(db);
         seedDefaultAdmin(db);
+    }
+
+    private void createClassroomTables(SQLiteDatabase db) {
+        String createClassroomsSql = "CREATE TABLE IF NOT EXISTS " + TABLE_CLASSROOMS + " ("
+                + COL_C_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_C_NAME + " TEXT NOT NULL, "
+                + COL_C_CODE + " TEXT NOT NULL UNIQUE COLLATE NOCASE, "
+                + COL_C_TEACHER_ID + " INTEGER NOT NULL, "
+                + COL_C_CREATED_AT + " TEXT NOT NULL"
+                + ")";
+        db.execSQL(createClassroomsSql);
+
+        String createMembersSql = "CREATE TABLE IF NOT EXISTS " + TABLE_CLASSROOM_MEMBERS + " ("
+                + COL_CM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_CM_CLASSROOM_ID + " INTEGER NOT NULL, "
+                + COL_CM_STUDENT_ID + " INTEGER NOT NULL, "
+                + COL_CM_STATUS + " TEXT NOT NULL DEFAULT 'PENDING', "
+                + COL_CM_CREATED_AT + " TEXT NOT NULL"
+                + ")";
+        db.execSQL(createMembersSql);
     }
 
     private void createFriendshipsTable(SQLiteDatabase db) {
@@ -216,6 +253,10 @@ public class TriviaDbHelper extends SQLiteOpenHelper {
         }
         if (oldVersion < 12) {
             seedDefaultAdmin(db);
+        }
+        if (oldVersion < 13) {
+            db.execSQL("ALTER TABLE " + TABLE_QUESTIONS + " ADD COLUMN " + COL_Q_CLASSROOM_ID + " INTEGER NOT NULL DEFAULT -1");
+            createClassroomTables(db);
         }
     }
 
