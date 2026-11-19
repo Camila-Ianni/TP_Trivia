@@ -510,4 +510,5 @@
     <string name="classroom_students_empty">Nessuno studente approvato in questo gruppo.</string>
     <string name="classroom_questions_title">Domande del Gruppo (%1$d)</string>
     <string name="btn_teacher_groups">I Miei Gruppi</string>
+    <string name="student_my_classes_title">I Miei Gruppi di Classe</string>
 </resources>

@@ -87,6 +87,14 @@ public final class ProfileActivity extends AppCompatActivity {
     private Button btnReviewMistakes;
     private Button btnOpenShop;
     private Button btnOpenClassrooms;
+    private View layoutStudentClassrooms;
+    private android.widget.EditText etProfileJoinCode;
+    private Button btnProfileJoinClass;
+    private androidx.recyclerview.widget.RecyclerView rvProfileClassrooms;
+    private TextView tvProfileEmptyClassrooms;
+    private Button btnProfileGlobalMode;
+    private com.example.triviamaster.data.db.ClassroomRepository classroomRepository;
+    private com.example.triviamaster.adapters.ClassroomAdapter profileClassroomAdapter;
     private Button btnLogout;
     private Button btnDeleteAccount;
     private SwitchCompat switchSound;
@@ -100,6 +108,7 @@ public final class ProfileActivity extends AppCompatActivity {
         prefsManager = new PreferencesManager(this);
         userRepository = new UserRepository(this);
         historyRepository = new MatchHistoryRepository(this);
+        classroomRepository = new com.example.triviamaster.data.db.ClassroomRepository(this);
         feedbackManager = new com.example.triviamaster.utils.RetroFeedbackManager(this);
         initViews();
         setupStats();
@@ -166,6 +175,12 @@ public final class ProfileActivity extends AppCompatActivity {
         btnReviewMistakes = findViewById(R.id.btnReviewMistakes);
         btnOpenShop = findViewById(R.id.btnOpenShop);
         btnOpenClassrooms = findViewById(R.id.btnOpenClassrooms);
+        layoutStudentClassrooms = findViewById(R.id.layoutStudentClassrooms);
+        etProfileJoinCode = findViewById(R.id.etProfileJoinCode);
+        btnProfileJoinClass = findViewById(R.id.btnProfileJoinClass);
+        rvProfileClassrooms = findViewById(R.id.rvProfileClassrooms);
+        tvProfileEmptyClassrooms = findViewById(R.id.tvProfileEmptyClassrooms);
+        btnProfileGlobalMode = findViewById(R.id.btnProfileGlobalMode);
         btnLogout = findViewById(R.id.btnLogout);
         btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
         switchSound = findViewById(R.id.switchSound);
@@ -503,6 +518,64 @@ public final class ProfileActivity extends AppCompatActivity {
         btnOpenClassrooms.setOnClickListener(v ->
                 startActivity(new Intent(ProfileActivity.this, ClassroomActivity.class)));
 
+        profileClassroomAdapter = new com.example.triviamaster.adapters.ClassroomAdapter(false,
+                new com.example.triviamaster.adapters.ClassroomAdapter.OnClassroomActionListener() {
+                    @Override
+                    public void onPlayClassroom(com.example.triviamaster.models.Classroom classroom) {
+                        if (classroom.getQuestionCount() <= 0) {
+                            Toast.makeText(ProfileActivity.this, R.string.classroom_no_questions, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        prefsManager.setActiveClassroomId(classroom.getId());
+                        prefsManager.setActiveClassroomName(classroom.getName());
+                        Intent intent = new Intent(ProfileActivity.this, MapActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onOpenAiPdf(com.example.triviamaster.models.Classroom classroom) {
+                    }
+                });
+        rvProfileClassrooms.setLayoutManager(new LinearLayoutManager(this));
+        rvProfileClassrooms.setAdapter(profileClassroomAdapter);
+
+        btnProfileJoinClass.setOnClickListener(v -> {
+            String code = etProfileJoinCode.getText() != null ? etProfileJoinCode.getText().toString().trim() : "";
+            if (code.isEmpty()) return;
+            classroomRepository.requestJoinByCode(prefsManager.getCurrentUserId(), code, new DbCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    if (isFinishing()) return;
+                    if (com.example.triviamaster.data.db.ClassroomRepository.JOIN_SENT.equals(result)) {
+                        etProfileJoinCode.setText("");
+                        Toast.makeText(ProfileActivity.this, R.string.classroom_join_sent, Toast.LENGTH_SHORT).show();
+                        loadStudentClassrooms();
+                    } else if (com.example.triviamaster.data.db.ClassroomRepository.JOIN_ALREADY_MEMBER.equals(result)) {
+                        Toast.makeText(ProfileActivity.this, R.string.classroom_join_already_member, Toast.LENGTH_SHORT).show();
+                    } else if (com.example.triviamaster.data.db.ClassroomRepository.JOIN_ALREADY_PENDING.equals(result)) {
+                        Toast.makeText(ProfileActivity.this, R.string.classroom_join_already_pending, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(ProfileActivity.this, R.string.classroom_join_not_found, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onError(Exception error) {
+                }
+            });
+        });
+
+        btnProfileGlobalMode.setOnClickListener(v -> {
+            prefsManager.setActiveClassroomId(-1L);
+            prefsManager.setActiveClassroomName("");
+            Intent intent = new Intent(ProfileActivity.this, MapActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
+
         switchSound.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefsManager.setSoundEnabled(isChecked);
             if (isChecked && feedbackManager != null) {
@@ -712,6 +785,8 @@ public final class ProfileActivity extends AppCompatActivity {
             btnOpenQuests.setVisibility(View.GONE);
             btnReviewMistakes.setVisibility(View.GONE);
             btnMatchHistory.setVisibility(View.GONE);
+            layoutStudentClassrooms.setVisibility(View.GONE);
+            btnOpenClassrooms.setVisibility(View.VISIBLE);
             btnOpenClassrooms.setText(R.string.btn_teacher_groups);
             View bottomNav = findViewById(R.id.bottomNav);
             if (bottomNav != null) {
@@ -722,14 +797,27 @@ public final class ProfileActivity extends AppCompatActivity {
             btnOpenQuests.setVisibility(View.VISIBLE);
             btnReviewMistakes.setVisibility(View.VISIBLE);
             btnMatchHistory.setVisibility(View.VISIBLE);
-            long activeClassId = prefsManager.getActiveClassroomId();
-            String activeClassName = prefsManager.getActiveClassroomName();
-            if (activeClassId > 0 && activeClassName != null && !activeClassName.isEmpty()) {
-                btnOpenClassrooms.setText(getString(R.string.classroom_active_badge, activeClassName));
-            } else {
-                btnOpenClassrooms.setText(R.string.classroom_global_badge);
-            }
+            layoutStudentClassrooms.setVisibility(View.VISIBLE);
+            btnOpenClassrooms.setVisibility(View.GONE);
+            loadStudentClassrooms();
         }
+    }
+
+    private void loadStudentClassrooms() {
+        long myId = prefsManager.getCurrentUserId();
+        if (myId <= 0 || classroomRepository == null) return;
+        classroomRepository.getClassroomsForStudent(myId, new DbCallback<List<com.example.triviamaster.models.Classroom>>() {
+            @Override
+            public void onSuccess(List<com.example.triviamaster.models.Classroom> list) {
+                if (isFinishing()) return;
+                profileClassroomAdapter.setItems(list);
+                tvProfileEmptyClassrooms.setVisibility(list == null || list.isEmpty() ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onError(Exception error) {
+            }
+        });
     }
 
     @Override
