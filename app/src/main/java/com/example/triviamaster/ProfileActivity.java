@@ -689,7 +689,25 @@ public final class ProfileActivity extends AppCompatActivity {
         btnManageUsers.setVisibility(adminVisibility);
         btnManageQuestions.setVisibility(adminVisibility);
 
+        int playerOnlyVis = isTeacherOnly ? View.GONE : View.VISIBLE;
+        int[] playerViewIds = {
+                R.id.layoutProfileXp,
+                R.id.layoutProfileStatsRow1,
+                R.id.layoutProfileStatsRow2,
+                R.id.layoutMedalsHeader,
+                R.id.layoutMedalsRow,
+                R.id.layoutBestiaryHeader,
+                R.id.layoutBestiaryRow
+        };
+        for (int vid : playerViewIds) {
+            View v = findViewById(vid);
+            if (v != null) {
+                v.setVisibility(playerOnlyVis);
+            }
+        }
+
         if (isTeacherOnly) {
+            tvPlayerTitleBadge.setText(R.string.role_teacher);
             btnOpenShop.setVisibility(View.GONE);
             btnOpenQuests.setVisibility(View.GONE);
             btnReviewMistakes.setVisibility(View.GONE);

@@ -103,6 +103,7 @@ public final class ClassroomActivity extends AppCompatActivity {
             binding.btnCreateClassroom.setVisibility(View.VISIBLE);
             binding.layoutJoinByCode.setVisibility(View.GONE);
             binding.btnCreateClassroom.setOnClickListener(v -> showCreateClassroomDialog());
+            binding.ivClassroomBackIcon.setImageResource(R.drawable.ic_nav_profile);
             binding.btnClassroomBack.setOnClickListener(v ->
                     startActivity(new Intent(ClassroomActivity.this, ProfileActivity.class)));
         } else {

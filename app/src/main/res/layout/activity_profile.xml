@@ -184,6 +184,7 @@
                         android:paddingBottom="5dp" />
 
                     <LinearLayout
+                        android:id="@+id/layoutProfileXp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -226,6 +227,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layoutProfileStatsRow1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
@@ -289,6 +291,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layoutProfileStatsRow2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -366,6 +369,7 @@
                         android:layout_marginTop="8dp" />
 
                     <LinearLayout
+                        android:id="@+id/layoutMedalsHeader"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
@@ -390,6 +394,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layoutMedalsRow"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -523,6 +528,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layoutBestiaryHeader"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
@@ -547,6 +553,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layoutBestiaryRow"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
