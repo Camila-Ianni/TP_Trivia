@@ -54,7 +54,7 @@ public class ClassroomAdapter extends RecyclerView.Adapter<ClassroomAdapter.View
             holder.binding.btnClassroomAiPdf.setOnClickListener(v -> listener.onOpenAiPdf(c));
             holder.binding.btnClassroomPlay.setEnabled(true);
             holder.binding.btnClassroomPlay.setAlpha(1f);
-            holder.binding.btnClassroomPlay.setText(R.string.classroom_btn_play);
+            holder.binding.btnClassroomPlay.setText(R.string.classroom_btn_manage);
             holder.binding.btnClassroomPlay.setOnClickListener(v -> listener.onPlayClassroom(c));
         } else {
             holder.binding.btnClassroomAiPdf.setVisibility(View.GONE);
@@ -63,7 +63,7 @@ public class ClassroomAdapter extends RecyclerView.Adapter<ClassroomAdapter.View
             if (c.isApproved()) {
                 holder.binding.btnClassroomPlay.setEnabled(true);
                 holder.binding.btnClassroomPlay.setAlpha(1f);
-                holder.binding.btnClassroomPlay.setText(R.string.classroom_btn_play);
+                holder.binding.btnClassroomPlay.setText(R.string.classroom_btn_select_map);
                 holder.binding.btnClassroomPlay.setOnClickListener(v -> listener.onPlayClassroom(c));
             } else {
                 holder.binding.btnClassroomPlay.setEnabled(false);

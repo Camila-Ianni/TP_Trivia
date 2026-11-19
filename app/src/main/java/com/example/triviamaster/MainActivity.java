@@ -136,11 +136,18 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToMap(User user) {
+        if ("TEACHER".equalsIgnoreCase(user.getRole())) {
+            Intent intent = new Intent(this, ClassroomActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
         Avatar avatar = prefsManager.getAvatarById(user.getAvatarId());
         Intent intent = new Intent(this, MapActivity.class);
         intent.putExtra(EXTRA_USER_NAME, user.getUsername());
         intent.putExtra(EXTRA_AVATAR_ID, avatar.getId());
         intent.putExtra(EXTRA_AVATAR_RES_ID, avatar.getIconResId());
         startActivity(intent);
+        finish();
     }
 }

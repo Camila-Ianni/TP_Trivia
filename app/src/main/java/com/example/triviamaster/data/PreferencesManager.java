@@ -47,6 +47,8 @@ public class PreferencesManager {
     private static final String KEY_WRONG_QUESTION_IDS = "wrong_question_ids";
     private static final String KEY_USER_COUNTRY = "user_country";
     private static final String KEY_GEMINI_API_KEY = "gemini_api_key";
+    private static final String KEY_ACTIVE_CLASSROOM_ID = "active_classroom_id";
+    private static final String KEY_ACTIVE_CLASSROOM_NAME = "active_classroom_name";
 
     private static final List<Avatar> AVAILABLE_AVATARS = Arrays.asList(
             new Avatar(1, "Wincky", R.drawable.img_avatar_perfil1, "#E0F7FA"),
@@ -200,6 +202,26 @@ public class PreferencesManager {
         return "TEACHER".equalsIgnoreCase(r) || "ADMIN".equalsIgnoreCase(r);
     }
 
+    public boolean isCurrentUserOnlyTeacher() {
+        return "TEACHER".equalsIgnoreCase(prefs.getString(KEY_USER_ROLE, "USER"));
+    }
+
+    public long getActiveClassroomId() {
+        return prefs.getLong(KEY_ACTIVE_CLASSROOM_ID, -1L);
+    }
+
+    public void setActiveClassroomId(long classroomId) {
+        prefs.edit().putLong(KEY_ACTIVE_CLASSROOM_ID, classroomId).apply();
+    }
+
+    public String getActiveClassroomName() {
+        return prefs.getString(KEY_ACTIVE_CLASSROOM_NAME, "");
+    }
+
+    public void setActiveClassroomName(String name) {
+        prefs.edit().putString(KEY_ACTIVE_CLASSROOM_NAME, name != null ? name : "").apply();
+    }
+
     public void syncFromUser(User user) {
         if (user == null) {
             return;
@@ -248,6 +270,8 @@ public class PreferencesManager {
         editor.putInt(KEY_DAILY_STREAK, 0);
         editor.putString(KEY_WRONG_QUESTION_IDS, "");
         editor.putString(KEY_USER_COUNTRY, "AR");
+        editor.putLong(KEY_ACTIVE_CLASSROOM_ID, -1L);
+        editor.putString(KEY_ACTIVE_CLASSROOM_NAME, "");
         editor.putBoolean(KEY_MEDAL_1, false);
         editor.putBoolean(KEY_MEDAL_2, false);
         editor.putBoolean(KEY_MEDAL_3, false);

@@ -103,6 +103,11 @@
             android:exported="false"
             android:parentActivityName=".ProfileActivity" />
 
+        <activity
+            android:name=".ClassroomDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ClassroomActivity" />
+
     </application>
 
 </manifest>

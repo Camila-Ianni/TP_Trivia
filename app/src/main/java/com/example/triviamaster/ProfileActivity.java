@@ -682,9 +682,36 @@ public final class ProfileActivity extends AppCompatActivity {
 
     private void applyRolePermissions() {
         boolean isAdmin = currentUser != null ? currentUser.isAdmin() : prefsManager.isCurrentUserAdmin();
-        int visibility = isAdmin ? View.VISIBLE : View.GONE;
-        btnManageUsers.setVisibility(visibility);
-        btnManageQuestions.setVisibility(visibility);
+        boolean isTeacherOnly = currentUser != null
+                ? ("TEACHER".equalsIgnoreCase(currentUser.getRole()))
+                : prefsManager.isCurrentUserOnlyTeacher();
+        int adminVisibility = isAdmin ? View.VISIBLE : View.GONE;
+        btnManageUsers.setVisibility(adminVisibility);
+        btnManageQuestions.setVisibility(adminVisibility);
+
+        if (isTeacherOnly) {
+            btnOpenShop.setVisibility(View.GONE);
+            btnOpenQuests.setVisibility(View.GONE);
+            btnReviewMistakes.setVisibility(View.GONE);
+            btnMatchHistory.setVisibility(View.GONE);
+            btnOpenClassrooms.setText(R.string.btn_teacher_groups);
+            View bottomNav = findViewById(R.id.bottomNav);
+            if (bottomNav != null) {
+                bottomNav.setVisibility(View.GONE);
+            }
+        } else {
+            btnOpenShop.setVisibility(View.VISIBLE);
+            btnOpenQuests.setVisibility(View.VISIBLE);
+            btnReviewMistakes.setVisibility(View.VISIBLE);
+            btnMatchHistory.setVisibility(View.VISIBLE);
+            long activeClassId = prefsManager.getActiveClassroomId();
+            String activeClassName = prefsManager.getActiveClassroomName();
+            if (activeClassId > 0 && activeClassName != null && !activeClassName.isEmpty()) {
+                btnOpenClassrooms.setText(getString(R.string.classroom_active_badge, activeClassName));
+            } else {
+                btnOpenClassrooms.setText(R.string.classroom_global_badge);
+            }
+        }
     }
 
     @Override

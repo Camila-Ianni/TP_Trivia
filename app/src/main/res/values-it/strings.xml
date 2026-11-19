@@ -501,4 +501,13 @@
     <string name="ai_error_missing_key">Inserisci prima la tua Gemini API Key</string>
     <string name="ai_error_missing_pdf">Seleziona un file PDF e scrivi l\'argomento</string>
     <string name="ai_error_failed">Errore Gemini: %1$s</string>
+    <string name="classroom_btn_select_map">Usa nella Mappa</string>
+    <string name="classroom_btn_global_mode">Gioca Avventura Globale</string>
+    <string name="classroom_active_badge">Gruppo attivo: %1$s</string>
+    <string name="classroom_global_badge">Modalità attiva: Avventura Globale</string>
+    <string name="classroom_btn_manage">Gestisci Gruppo</string>
+    <string name="classroom_students_title">Studenti del Gruppo</string>
+    <string name="classroom_students_empty">Nessuno studente approvato in questo gruppo.</string>
+    <string name="classroom_questions_title">Domande del Gruppo (%1$d)</string>
+    <string name="btn_teacher_groups">I Miei Gruppi</string>
 </resources>

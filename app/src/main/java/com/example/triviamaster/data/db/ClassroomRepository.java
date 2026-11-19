@@ -163,6 +163,44 @@ public final class ClassroomRepository {
         }, callback);
     }
 
+    public void getApprovedStudentsForClassroom(long classroomId, DbCallback<List<ClassroomMember>> callback) {
+        executor.execute(() -> {
+            List<ClassroomMember> list = new ArrayList<>();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String sql = "SELECT m." + TriviaDbHelper.COL_CM_ID
+                    + ", c." + TriviaDbHelper.COL_C_ID
+                    + ", c." + TriviaDbHelper.COL_C_NAME
+                    + ", c." + TriviaDbHelper.COL_C_CODE
+                    + ", u." + TriviaDbHelper.COL_USER_ID
+                    + ", u." + TriviaDbHelper.COL_USER_USERNAME
+                    + ", u." + TriviaDbHelper.COL_USER_AVATAR_ID
+                    + ", m." + TriviaDbHelper.COL_CM_STATUS
+                    + " FROM " + TriviaDbHelper.TABLE_CLASSROOM_MEMBERS + " m"
+                    + " INNER JOIN " + TriviaDbHelper.TABLE_CLASSROOMS + " c"
+                    + " ON c." + TriviaDbHelper.COL_C_ID + " = m." + TriviaDbHelper.COL_CM_CLASSROOM_ID
+                    + " INNER JOIN " + TriviaDbHelper.TABLE_USERS + " u"
+                    + " ON u." + TriviaDbHelper.COL_USER_ID + " = m." + TriviaDbHelper.COL_CM_STUDENT_ID
+                    + " WHERE m." + TriviaDbHelper.COL_CM_CLASSROOM_ID + " = ?"
+                    + " AND m." + TriviaDbHelper.COL_CM_STATUS + " = 'APPROVED'"
+                    + " ORDER BY u." + TriviaDbHelper.COL_USER_USERNAME + " COLLATE NOCASE ASC";
+            try (Cursor c = db.rawQuery(sql, new String[]{String.valueOf(classroomId)})) {
+                while (c.moveToNext()) {
+                    list.add(new ClassroomMember(
+                            c.getLong(0),
+                            c.getLong(1),
+                            c.getString(2),
+                            c.getString(3),
+                            c.getLong(4),
+                            c.getString(5),
+                            c.getInt(6),
+                            c.getString(7)
+                    ));
+                }
+            }
+            return list;
+        }, callback);
+    }
+
     public void getPendingRequestsForTeacher(long teacherId, DbCallback<List<ClassroomMember>> callback) {
         executor.execute(() -> {
             List<ClassroomMember> list = new ArrayList<>();

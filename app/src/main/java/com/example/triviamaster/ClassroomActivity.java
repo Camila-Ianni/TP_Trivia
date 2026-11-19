@@ -87,6 +87,12 @@ public final class ClassroomActivity extends AppCompatActivity {
         loadData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
+    }
+
     private void setupUI() {
         binding.btnClassroomBack.setOnClickListener(v -> finish());
         binding.tvClassroomSubtitle.setText(isTeacherMode
@@ -97,24 +103,44 @@ public final class ClassroomActivity extends AppCompatActivity {
             binding.btnCreateClassroom.setVisibility(View.VISIBLE);
             binding.layoutJoinByCode.setVisibility(View.GONE);
             binding.btnCreateClassroom.setOnClickListener(v -> showCreateClassroomDialog());
+            binding.btnClassroomBack.setOnClickListener(v ->
+                    startActivity(new Intent(ClassroomActivity.this, ProfileActivity.class)));
         } else {
             binding.btnCreateClassroom.setVisibility(View.GONE);
             binding.layoutJoinByCode.setVisibility(View.VISIBLE);
+            binding.btnGlobalMode.setVisibility(View.VISIBLE);
             binding.btnJoinClassroom.setOnClickListener(v -> requestJoinClassroom());
+            binding.btnGlobalMode.setOnClickListener(v -> {
+                prefsManager.setActiveClassroomId(-1L);
+                prefsManager.setActiveClassroomName("");
+                Intent intent = new Intent(ClassroomActivity.this, MapActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
         }
 
         classroomAdapter = new ClassroomAdapter(isTeacherMode, new ClassroomAdapter.OnClassroomActionListener() {
             @Override
             public void onPlayClassroom(Classroom classroom) {
+                if (isTeacherMode) {
+                    Intent intent = new Intent(ClassroomActivity.this, ClassroomDetailActivity.class);
+                    intent.putExtra(ClassroomDetailActivity.EXTRA_CLASSROOM_ID, classroom.getId());
+                    intent.putExtra(ClassroomDetailActivity.EXTRA_CLASSROOM_NAME, classroom.getName());
+                    intent.putExtra(ClassroomDetailActivity.EXTRA_CLASSROOM_CODE, classroom.getCode());
+                    startActivity(intent);
+                    return;
+                }
                 if (classroom.getQuestionCount() <= 0) {
                     Toast.makeText(ClassroomActivity.this, R.string.classroom_no_questions, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Intent intent = new Intent(ClassroomActivity.this, GameActivity.class);
-                intent.putExtra("extra_is_quick_play", true);
-                intent.putExtra(GameActivity.EXTRA_CLASSROOM_ID, classroom.getId());
-                intent.putExtra(GameActivity.EXTRA_CLASSROOM_NAME, classroom.getName());
+                prefsManager.setActiveClassroomId(classroom.getId());
+                prefsManager.setActiveClassroomName(classroom.getName());
+                Intent intent = new Intent(ClassroomActivity.this, MapActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
+                finish();
             }
 
             @Override

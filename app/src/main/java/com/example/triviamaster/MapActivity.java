@@ -257,7 +257,13 @@ public final class MapActivity extends AppCompatActivity {
         binding.tvHeaderStars.setText(getString(R.string.header_stars_format, totalStars));
         binding.tvHeaderLives.setText(prefsManager.getPlayerEnergy() + "/12");
         updateGiftBadge();
-        binding.tvHeaderGreeting.setText(getString(R.string.map_greeting_format, userName));
+        long activeClassId = prefsManager.getActiveClassroomId();
+        String activeClassName = prefsManager.getActiveClassroomName();
+        String greeting = getString(R.string.map_greeting_format, userName);
+        if (activeClassId > 0 && activeClassName != null && !activeClassName.trim().isEmpty()) {
+            greeting = greeting + " • " + activeClassName.trim();
+        }
+        binding.tvHeaderGreeting.setText(greeting);
         binding.ivHeaderAvatar.setImageResource(avatarResId);
         AvatarFrameHelper.applyFrame(binding.btnHeaderAvatarContainer, prefsManager.getEquippedFrame());
     }

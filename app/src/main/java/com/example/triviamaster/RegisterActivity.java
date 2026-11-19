@@ -121,10 +121,15 @@ public final class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(RegisterActivity.this,
                         getString(R.string.msg_register_success, user.getUsername()),
                         Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(RegisterActivity.this, MapActivity.class);
-                intent.putExtra(MainActivity.EXTRA_USER_NAME, user.getUsername());
-                intent.putExtra(MainActivity.EXTRA_AVATAR_ID, selected.getId());
-                intent.putExtra(MainActivity.EXTRA_AVATAR_RES_ID, selected.getIconResId());
+                Intent intent;
+                if ("TEACHER".equalsIgnoreCase(user.getRole())) {
+                    intent = new Intent(RegisterActivity.this, ClassroomActivity.class);
+                } else {
+                    intent = new Intent(RegisterActivity.this, MapActivity.class);
+                    intent.putExtra(MainActivity.EXTRA_USER_NAME, user.getUsername());
+                    intent.putExtra(MainActivity.EXTRA_AVATAR_ID, selected.getId());
+                    intent.putExtra(MainActivity.EXTRA_AVATAR_RES_ID, selected.getIconResId());
+                }
                 startActivity(intent);
                 finish();
             }

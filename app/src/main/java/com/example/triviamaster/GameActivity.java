@@ -149,6 +149,13 @@ public final class GameActivity extends AppCompatActivity {
         isReviewMistakes = getIntent().getBooleanExtra(EXTRA_IS_REVIEW_MISTAKES, false);
         classroomId = getIntent().getLongExtra(EXTRA_CLASSROOM_ID, -1L);
         classroomName = getIntent().getStringExtra(EXTRA_CLASSROOM_NAME);
+        if (classroomId <= 0 && !isReviewMistakes) {
+            long activeClassroomId = prefsManager.getActiveClassroomId();
+            if (activeClassroomId > 0) {
+                classroomId = activeClassroomId;
+                classroomName = prefsManager.getActiveClassroomName();
+            }
+        }
         specialTitle = getIntent().getStringExtra(MapActivity.EXTRA_SPECIAL_TITLE);
         specialMinLevel = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_MIN_LEVEL, 1);
         specialMaxLevel = getIntent().getIntExtra(MapActivity.EXTRA_SPECIAL_MAX_LEVEL, 16);
